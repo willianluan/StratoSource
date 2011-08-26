@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Create a dynamic public group, a rules based approach to manage Salesforce public groups</description>
+    <enableActivities>true</enableActivities>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <fields>
+        <fullName>APPR_DGRP__Active__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>Flags if this group has been activated for use.</description>
+        <label>Active</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>APPR_DGRP__Apply_To_Portal__c</fullName>
+        <inlineHelpText>Select the type of users to include in this dynamic group</inlineHelpText>
+        <label>Apply To Portal</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Partner Portal</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Customer Portal</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>MultiselectPicklist</type>
+        <visibleLines>4</visibleLines>
+    </fields>
+    <fields>
+        <fullName>APPR_DGRP__Description__c</fullName>
+        <description>Optional group description</description>
+        <label>Description</label>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>APPR_DGRP__Group_Id__c</fullName>
+        <description>Stores the group id assigned to this dynamic group definition</description>
+        <label>Group Id</label>
+        <length>18</length>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <fields>
+        <fullName>APPR_DGRP__Group_Name__c</fullName>
+        <description>Automatically populated with the referenced public group name once the dynamic group is activated</description>
+        <label>Group Name</label>
+        <length>80</length>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <fields>
+        <fullName>APPR_DGRP__Group__c</fullName>
+        <description>Uses the group name and the group id fields (which are populated automatically) to create a link to the public group definition</description>
+        <formula>HYPERLINK(&apos;/setup/own/groupdetail.jsp?id=&apos; &amp;  APPR_DGRP__Group_Id__c  &amp; &apos;&amp;setupid=PublicGroups&apos;, APPR_DGRP__Group_Name__c, &apos;_self&apos;)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Public Group</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>APPR_DGRP__ObjectName__c</fullName>
+        <description>List of objects that the application currently supports</description>
+        <label>Object Name</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Account</fullName>
+                <default>true</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>APPR_DGRP__Role_Level__c</fullName>
+        <inlineHelpText>The level(s) of the hierarchy to add to this dynamic group</inlineHelpText>
+        <label>Role Level</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Executive</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Manager</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>User</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>MultiselectPicklist</type>
+        <visibleLines>5</visibleLines>
+    </fields>
+    <fields>
+        <fullName>APPR_DGRP__Role_Type__c</fullName>
+        <inlineHelpText>The sharing type to create for the selected role level</inlineHelpText>
+        <label>Role Type</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Portal Role And Subordinates</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Portal Role</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>APPR_DGRP__group_members__c</fullName>
+        <defaultValue>0</defaultValue>
+        <description>Captures how many members were added to the group when the group was last updated.</description>
+        <label># Group Members</label>
+        <precision>6</precision>
+        <scale>0</scale>
+        <type>Number</type>
+    </fields>
+    <label>Dynamic Group</label>
+    <listViews>
+        <fullName>APPR_DGRP__Active_Groups</fullName>
+        <columns>NAME</columns>
+        <columns>APPR_DGRP__Description__c</columns>
+        <columns>APPR_DGRP__Group_Name__c</columns>
+        <columns>APPR_DGRP__group_members__c</columns>
+        <columns>RECORDTYPE</columns>
+        <columns>APPR_DGRP__Active__c</columns>
+        <columns>UPDATEDBY_USER</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>APPR_DGRP__Active__c</field>
+            <operation>equals</operation>
+            <value>1</value>
+        </filters>
+        <label>Active Groups</label>
+    </listViews>
+    <listViews>
+        <fullName>APPR_DGRP__All</fullName>
+        <columns>NAME</columns>
+        <columns>APPR_DGRP__Description__c</columns>
+        <columns>APPR_DGRP__Group_Name__c</columns>
+        <columns>APPR_DGRP__Active__c</columns>
+        <columns>UPDATEDBY_USER</columns>
+        <filterScope>Everything</filterScope>
+        <label>All</label>
+    </listViews>
+    <listViews>
+        <fullName>APPR_DGRP__Inactive_Groups</fullName>
+        <columns>NAME</columns>
+        <columns>APPR_DGRP__Description__c</columns>
+        <columns>APPR_DGRP__Group_Name__c</columns>
+        <columns>RECORDTYPE</columns>
+        <columns>APPR_DGRP__Active__c</columns>
+        <columns>UPDATEDBY_USER</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>APPR_DGRP__Active__c</field>
+            <operation>equals</operation>
+            <value>0</value>
+        </filters>
+        <label>Inactive Groups</label>
+    </listViews>
+    <listViews>
+        <fullName>APPR_DGRP__My_Groups</fullName>
+        <columns>NAME</columns>
+        <columns>APPR_DGRP__Description__c</columns>
+        <columns>APPR_DGRP__Group_Name__c</columns>
+        <columns>RECORDTYPE</columns>
+        <columns>APPR_DGRP__Active__c</columns>
+        <columns>UPDATEDBY_USER</columns>
+        <filterScope>Mine</filterScope>
+        <label>My Groups</label>
+    </listViews>
+    <nameField>
+        <label>Dynamic Group Name</label>
+        <type>Text</type>
+    </nameField>
+    <pluralLabel>Dynamic Groups</pluralLabel>
+    <recordTypes>
+        <fullName>APPR_DGRP__Active</fullName>
+        <active>true</active>
+        <description>Used to create active dynamic groups. This record type should only be activated by code.</description>
+        <label>Active</label>
+        <picklistValues>
+            <picklist>APPR_DGRP__Apply_To_Portal__c</picklist>
+            <values>
+                <fullName>Customer Portal</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Partner Portal</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>APPR_DGRP__ObjectName__c</picklist>
+            <values>
+                <fullName>Account</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>APPR_DGRP__Role_Level__c</picklist>
+            <values>
+                <fullName>Executive</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>User</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>APPR_DGRP__Role_Type__c</picklist>
+            <values>
+                <fullName>Portal Role</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Portal Role And Subordinates</fullName>
+                <default>true</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>APPR_DGRP__Inactive</fullName>
+        <active>true</active>
+        <description>Default record type to create new groups</description>
+        <label>Inactive</label>
+        <picklistValues>
+            <picklist>APPR_DGRP__Apply_To_Portal__c</picklist>
+            <values>
+                <fullName>Customer Portal</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Partner Portal</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>APPR_DGRP__ObjectName__c</picklist>
+            <values>
+                <fullName>Account</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>APPR_DGRP__Role_Level__c</picklist>
+            <values>
+                <fullName>Executive</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>User</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>APPR_DGRP__Role_Type__c</picklist>
+            <values>
+                <fullName>Portal Role</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Portal Role And Subordinates</fullName>
+                <default>true</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <searchLayouts>
+        <customTabListAdditionalFields>APPR_DGRP__Group_Name__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>APPR_DGRP__Active__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>UPDATEDBY_USER</customTabListAdditionalFields>
+        <lookupDialogsAdditionalFields>APPR_DGRP__Group_Name__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>APPR_DGRP__Active__c</lookupDialogsAdditionalFields>
+        <lookupPhoneDialogsAdditionalFields>APPR_DGRP__Group_Name__c</lookupPhoneDialogsAdditionalFields>
+        <lookupPhoneDialogsAdditionalFields>APPR_DGRP__Active__c</lookupPhoneDialogsAdditionalFields>
+        <searchFilterFields>APPR_DGRP__Group_Name__c</searchFilterFields>
+        <searchFilterFields>APPR_DGRP__Active__c</searchFilterFields>
+        <searchResultsAdditionalFields>APPR_DGRP__Group__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>APPR_DGRP__Active__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>UPDATEDBY_USER</searchResultsAdditionalFields>
+    </searchLayouts>
+    <sharingModel>ReadWrite</sharingModel>
+    <validationRules>
+        <fullName>APPR_DGRP__ObjectName_Required</fullName>
+        <active>true</active>
+        <errorConditionFormula>ISBLANK( TEXT(APPR_DGRP__ObjectName__c ))</errorConditionFormula>
+        <errorMessage>Object Name is required. Should be equal to &quot;Account&quot;.</errorMessage>
+    </validationRules>
+    <webLinks>
+        <fullName>APPR_DGRP__Activate</fullName>
+        <availability>online</availability>
+        <description>Activate the current dynamic group by linking it to the specified public group definition. This will add roles and subordinates to the specified public group.</description>
+        <displayType>button</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Activate</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <url>{!REQUIRESCRIPT(&quot;/soap/ajax/17.0/connection.js&quot;)}
+{!REQUIRESCRIPT(&quot;/soap/ajax/17.0/apex.js&quot;)}
+
+var result= &apos;&apos;;
+
+// Now make a synchronous call to the Apex Web service method
+ var result = sforce.apex.execute(&quot;APPR_DGRP.ActivateDeactivateDynamicGroup&quot;, &quot;activateDynamicGroup&quot;, {dynamicGroupId: &apos;{!APPR_DGRP__Dynamic_Group__c.Id}&apos; });
+
+if (result == &apos;&apos;) {
+parent.location.href = &apos;/{!APPR_DGRP__Dynamic_Group__c.Id}&apos;;
+} else {
+alert(result );
+}</url>
+    </webLinks>
+    <webLinks>
+        <fullName>APPR_DGRP__Assign_Group</fullName>
+        <availability>online</availability>
+        <description>Show a list of public groups to assign to the current dynamic public group definition</description>
+        <displayType>button</displayType>
+        <linkType>page</linkType>
+        <masterLabel>Assign Group</masterLabel>
+        <openType>replace</openType>
+        <page>APPR_DGRP__selectPublicGroup</page>
+        <protected>false</protected>
+    </webLinks>
+    <webLinks>
+        <fullName>APPR_DGRP__Deactivate</fullName>
+        <availability>online</availability>
+        <description>Deactivate the group which will remove all roles assigned to the specified public group.</description>
+        <displayType>button</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Deactivate</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <url>{!REQUIRESCRIPT(&quot;/soap/ajax/17.0/connection.js&quot;)}
+{!REQUIRESCRIPT(&quot;/soap/ajax/17.0/apex.js&quot;)}
+
+if (confirm(&apos;This will delete all assigned roles from the group. Are you sure you want to deactivate?&apos;)) {
+
+var result= &apos;&apos;;
+
+// Now make a synchronous call to the Apex Web service method
+ var result = sforce.apex.execute(&quot;APPR_DGRP.ActivateDeactivateDynamicGroup&quot;, &quot;deactivateDynamicGroup&quot;, {dynamicGroupId: &apos;{!APPR_DGRP__Dynamic_Group__c.Id}&apos; });
+
+parent.location.href = &apos;/{!APPR_DGRP__Dynamic_Group__c.Id}&apos;;
+}</url>
+    </webLinks>
+</CustomObject>

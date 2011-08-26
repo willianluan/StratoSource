@@ -1,0 +1,33 @@
+                    {% for release in releases %}
+                        <tr id="{{ branch }}releasesList{{forloop.counter}}">
+                            <td scope="row">
+                                <a href="/release/{{release.id}}">
+                                  {{ release.name }}
+                                </a>
+                            </td>
+                            <td> {{ release.released }} </td>
+                            <td> 
+                                {% if not release.released %}
+                                <input name="estRelDate{{ release.id }}" type="text" id="estRelDate{{ release.id }}" value="{{ release.est_release_date }}" onchange="updateReleaseDate('{{ release.id }}', this.value, '{{ branch|addslashes }}');" readonly>
+                                {% else %}
+                                    {{ release.est_release_date }}
+                                {% endif %}
+                            </td>
+                            <td> {{ release.release_date }}  </td>
+                            <td align="center"> 
+                                    <input type="submit" value="Delete" onclick="deleteRelease('{{ release.id }}', '{{ release.name|addslashes }}', '{{ branch|addslashes }}')">
+                                {% if not release.released %}
+                                    <input type="submit" value="Release" onclick="markReleased('{{ release.id }}', '{{ release.name|addslashes }}', '{{ branch|addslashes }}')">
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <script type="text/javascript">
+                            $(function() {
+                                    $( "#estRelDate{{ release.id }}" ).datepicker({ dateFormat: 'yy-mm-dd' });
+                            });
+                        </script>
+                    {% empty %}
+                        <tr id="{{ branch }}releasesListE">
+                            <td scope="row" colspan="5" align="center"><strong>No Released Defined</strong></td>
+                        </tr>
+                    {% endfor %}

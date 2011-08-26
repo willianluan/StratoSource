@@ -1,0 +1,31 @@
+<apex:page standardController="Agreement__c" extensions="AgreementControllerExt" tabStyle="Agreement__c" >
+<apex:SectionHeader title="New Agreement" />    
+	<apex:form >
+		<apex:pageMessages />
+		<apex:pageBlock >
+			<apex:pageBlockButtons >
+				<apex:commandButton action="{!saveAgreement}" value="Save"/>
+				<apex:commandButton action="{!cancelAgreement}" value="Cancel" immediate="true"/>
+			</apex:pageBlockButtons>
+			<apex:pageBlockSection columns="2" >
+			     <apex:inputField value="{!agreementInfo.Name}"  required="true" />
+			     <apex:inputField value="{!agreementInfo.Type__c}" />
+			     <apex:inputField value="{!agreementInfo.Language__c}" />
+			     <apex:inputField value="{!agreementInfo.Version__c}" required="true" />
+			     <apex:inputField value="{!agreementInfo.ActivationDate__c}"  required="true"/>
+			     <apex:inputField value="{!agreementInfo.PartnerType__c}" required="true" />
+			     <apex:inputField value="{!agreementInfo.ExpirationDate__c}" /> 
+			     <apex:inputField value="{!agreementInfo.IsSignatureRequired__c}" />
+			     <apex:inputField value="{!agreementInfo.ApprovalStatus__c}" required="true" />
+                 <apex:pageBlockSectionItem >
+					<apex:outputLabel value="Countries" />
+					<apex:selectList value="{!agreementCountries}" 
+						size="5" multiselect="true" >
+						<apex:selectOptions value="{!countries}"/>
+					</apex:selectList>
+				</apex:pageBlockSectionItem>
+							     
+			</apex:pageBlockSection>
+	    </apex:pageBlock>		
+	</apex:form>
+</apex:page>

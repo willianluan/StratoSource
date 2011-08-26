@@ -1,0 +1,68 @@
+
+{% extends 'layout.html' %}
+
+{% block breadcrumbs %}
+<a href="/">Home</a> -> Settings
+{% endblock %}
+
+{% block content %}
+
+    <script type="text/javascript">
+        function submitForm(){
+            document.getElementById('formSettings').submit();
+            return false;
+        }
+    </script>
+
+    <div id="content" class="colMS">
+
+        <div id="content-main">
+            <div class="module ObjectsList">
+                <form id="formSettings" name="formSettings" method="POST">{% csrf_token %}
+                    <table>
+                        <caption>
+                            <span><a href="" class="section">Settings</a></span>
+                        </caption>
+                        <tr>
+                            <th scope="row">Config Key</th>
+                            <th>Value</th>
+                        </tr>
+                        {% for setting in settings %}
+                        <tr>
+                            <td scope="row">{{ setting.key }}</td>
+                            <td>
+                                {% if setting.type == 'check' %}
+                                <input name="key_{{ setting.key }}" id="{{ setting.key }}" type="checkbox" name="newFieledName" value="1" {% if setting.value == '1' %}checked{% endif %}/>
+                                {% else %}
+                                    {% if setting.masked %}
+                                    <input name="key_{{ setting.key }}" id="{{ setting.key }}" type="password" name="newFieledName" value="{{ setting.value }}"/>
+                                    {% else %}
+                                    <input name="key_{{ setting.key }}" id="{{ setting.key }}" type="text" name="newFieledName" value="{{ setting.value }}"/>
+                                    {% endif %}
+                                {% endif %}
+                            </td>                            
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                            <td scope="row">Configuration Wizzards</td>
+                            <td>
+                                <ul>
+                                    {% if rally_enabled %}
+                                    <li><a href="/rally_projects/">Select Rally Projects</a></li>
+                                    {% endif %}
+                                </ul>
+                            </td>
+                        </tr>
+                    </table>
+                    <div style="padding:5px;">
+                        <input name="saveConfig" onclick="return submitForm();" type="button" value="Save"/>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <br class="clear" />
+    </div>
+
+
+
+{% endblock %}

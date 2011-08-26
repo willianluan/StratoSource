@@ -1,0 +1,418 @@
+<apex:page controller="CreateSSOUser_Controller">
+	<header>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+		<script type="text/javascript">
+			$.noConflict(); 
+			var responded = {'createUser' : false, 'checkAvailable' : false};
+			var loginAvail = false;
+			var requiredFields = ['greeting',
+									'firstName',
+									'lastName',
+									'address1',
+									'city',
+									'countryCode',
+									'state',
+									'postalCode',
+									'email',
+									'phone',
+									'federationId'];
+			var errors = {
+				'API-CreateUser':'{!$Label.ManagerUsers_Error_Failed_To_Create_Contact}',
+				'API-UpdateUser':'{!$Label.ManagerUsers_Error_Something_Went_Wrong}',
+				'NewUserEmail':'{!$Label.ManagerUsers_Error_New_User_email_failed}',
+				'catchall':'{!$Label.ManagerUsers_Error_Something_Went_Wrong}',
+				'API-RetrievePrincipalUser':'{!$Label.ManagerUsers_Error_Could_Not_FInd_User}',
+				'NotAdmin':'{!$Label.ManagerUsers_Error_Not_An_Admin}',
+				'NotAuthenticated':'{!$Label.ManagerUsers_Error_Not_Authenticated}',
+				'API-AccountDetails':'{!$Label.ManagerUsers_Error_Could_Not_Find_Account}'
+			};
+			
+			function checkRequiredFields(){
+				var form = getElementByPartialId('form','.*userCreateForm');
+				var pass = true;
+				for(i=0; i < form.elements.length; i++)
+				{
+					if (jQuery.inArray(form.elements[i].name, requiredFields) >= 0){
+						if(form.elements[i].value.trim().length == 0){
+							if (form.elements[i].name == 'state'){
+								if (getElementByPartialId('select','.*stateCombo').options.length <= 1){
+									toggleStyle(form.elements[i].name,'none');
+									continue;
+								}
+							}
+							toggleStyle(form.elements[i].name,'');
+							if (pass){
+								form.elements[i].focus();
+							}
+							pass = false;
+						} else {
+							toggleStyle(form.elements[i].name,'none');
+						}
+					}
+					if (form.elements[i].name == 'email' && form.elements[i].value.trim().length > 0){
+						var epass = echeck(form.elements[i].value);
+						pass = epass && pass;
+					}
+					pass = loginAvail && pass;
+				}
+				return pass;
+			}
+			
+			function echeck(str) {
+				var reg = /^([A-Za-z0-9_\-\.\+])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+   			    if(!reg.test(str)) {
+   			    	document.getElementById('badEmail').style.display = '';
+   			    	return false;
+				}
+   			    document.getElementById('badEmail').style.display = 'none';
+   			    return true;
+			}
+		
+			function toggleStyle(name, style){
+				if (document.getElementById(name + 'Required') != null){
+					document.getElementById(name + 'Required').style.display = style;
+				}
+			}
+			
+			function translateError(errorCode){
+				if (errors[errorCode] != null){
+					return errors[errorCode];
+				}
+				for (var i = 0; i < errors.length; i++){
+					if (errors[i][0].startswith(errorCode)){
+						return errors[i][1];
+					}
+				}
+				return errorCode;
+			}
+
+			function createUser()
+			{
+				if (!checkRequiredFields())
+					return;
+			
+				var form = getElementByPartialId('form','.*userCreateForm');
+				var values = '';
+				var fields = 0;
+				for(i=0; i < form.elements.length; i++) 
+				{
+					if (!(form.elements[i].name.match('.*ViewState') || form.elements[i].name.match('cbo.*'))){
+						if (fields > 0){
+							values += '&';
+						}
+						fields++;
+						if (form.elements[i].type == 'checkbox')
+						{
+							values += form.elements[i].name + '=' + form.elements[i].checked;
+						} else {
+							values += form.elements[i].name + '=' + encodeURIComponent(form.elements[i].value);
+						}
+					}
+				}
+				responded.createUser = false;
+				window.setTimeout('checkForResponse(\'createUser\');', 30000);
+				document.getElementById('createButtonTopThrobber').style.display = '';
+				jQuery('#createButtonTop').attr('class','btnDisabled');				
+				document.getElementById('createButtonTop').disabled = true;
+				document.getElementById('createButtonBottomThrobber').style.display = '';
+				jQuery('#createButtonBottom').attr('class','btnDisabled');		
+				document.getElementById('createButtonBottom').disabled = true;
+				jQuery.ajax(
+				{
+					  url: '{!$Label.Red_Hat_Domain_Name}/wapps/sfconnector/protected/ajax/createUser', 
+					  dataType: 'jsonp',  
+					  data: values,
+					  success: function(jsonResult){
+					  	responded.createUser = true;
+					  	if (!eval(jsonResult.complete)){
+				       		alert(translateError(jsonResult.error));
+							document.getElementById('createButtonTopThrobber').style.display = 'none';
+							jQuery('#createButtonTop').attr('class','btn');		
+							document.getElementById('createButtonTop').disabled = false;
+							document.getElementById('createButtonBottomThrobber').style.display = 'none';
+							jQuery('#createButtonBottom').attr('class','btn');		
+							document.getElementById('createButtonBottom').disabled = false;
+				       	} else {
+				       		navigateToUrl('/apex/ManageSSOUsers?message=createComplete',null,'new');
+				       	}
+				      }	   
+				});
+			}
+			
+			function checkForResponse(caller){
+				if (!responded[caller]){
+					alert('{!$Label.ManagerUsers_No_Response_From_RH_com}');
+				}
+			}
+			
+			function checkAvailable(){
+				loginAvail = false;
+				if (document.getElementById('federationId').value.trim().length == 0)
+					return false;
+					
+				responded.checkAvailable = false;
+				window.setTimeout('checkForResponse(\'checkAvailable\');', 10000);
+				document.getElementById('checkingLoginThrobber').style.display = '';
+				jQuery.ajax(
+				{
+					  url: '{!$Label.Red_Hat_Domain_Name}/wapps/sfconnector/protected/ajax/checkAvailability', 
+					  dataType: 'jsonp',  
+					  data: 'login=' + encodeURIComponent(document.getElementById('federationId').value),
+					  success: function(jsonResult){
+					  	responded.checkAvailable = true;
+					  	if (eval(jsonResult.complete)){
+							document.getElementById('checkingLoginThrobber').style.display = 'none';
+				       		if (eval(jsonResult.payload.available)){
+				       			document.getElementById('loginNotAvailable').style.display = 'none';
+				       			loginAvail = true;
+				       		} else {
+				       			document.getElementById('loginNotAvailable').style.display = '';
+				       		}
+				       	}
+				      }		      
+				});
+			}
+			
+			function populateFedIdWithEmail(){
+				if(document.getElementById('federationId').value.trim().length == 0 && document.getElementById('email').value.trim().length > 0){
+					document.getElementById('federationId').value = document.getElementById('email').value;
+					checkAvailable();
+					echeck(document.getElementById('email').value);
+				}
+			}
+			
+			function setStateAndCountry(){
+				document.getElementById('state').value = getElementByPartialId('select','.*stateCombo').value;
+				document.getElementById('countryCode').value = getElementByPartialId('select','.*countryCombo').value;
+			}
+			
+			function getElementByPartialId(tag, partialid){
+				var re= new RegExp(partialid,'g')
+				var el = document.getElementsByTagName(tag);
+				for(var i=0;i<el.length;i++){
+					if(el[i].id.match(re)){
+						return el[i];
+					}
+				}
+			}
+		</script>
+	</header>
+	<div class="editPage sfdcBody">
+		<div class="bPageTitle">
+			<div class="ptBody secondaryPalette">
+				<div class="content">
+					<h2 style="display:inline;" class="pageDescription">Create User</h2>
+				</div>
+			</div>
+		</div>
+		<div>&nbsp;</div>
+		<apex:pageBlock >
+			<div class="pbHeader">
+				<table border="0" cellspacing="0" cellpadding="0"><tbody>
+				<tr>
+				<td class="pbTitle"><img width="1" height="1" title="" class="minWidth" alt="" src="/s.gif"><h2 class="mainTitle">SSO User Create</h2></td>
+				<td id="topButtonRow" class="pbButton">
+					<input id="createButtonTop" type="button" title="{!$Label.ManagerUsers_Label_Create}" onclick="createUser(); return false;" name="create" class="btn" value="Create">
+					<span id="createButtonTopThrobber" style="display:none;"><img src="https://www.redhat.com/g/chrome/throbber_dickie.gif"/></span>&nbsp;
+					<input type="button" title="{!$Label.ManagerUsers_Label_Cancel}" onclick="navigateToUrl('/apex/ManageSSOUsers',null,'new');" name="cancel" class="btn" value="Cancel">
+				</td></tr>
+				</tbody></table>
+			</div>
+			<div class="pbBody">
+				<apex:form id="userCreateForm"> 
+					<table align="center" width="20%" border="0" cellspacing="0" cellpadding="0" class="detailList"><tbody>
+				  		<tr>
+				    		<td class="labelCol">{!$Label.ManagerUsers_Label_Greeting}:</td>
+				    		<td class="dataCol col02"><div class="requiredInput"><div class="requiredBlock"></div>
+				    		<select class="selectsize1" name="greeting" id="greeting">
+            					<option selected="selected" value="Mr.">Mr.</option>
+            					<option value="Mrs.">{!$Label.ManagerUsers_Greeting_Option_Mrs}/option>
+            					<option value="Ms.">{!$Label.ManagerUsers_Greeting_Option_Ms}</option>
+            					<option value="Miss">{!$Label.ManagerUsers_Greeting_Option_Miss}</option>
+            					<option value="Dr.">{!$Label.ManagerUsers_Greeting_Option_Dr}</option>
+            					<option value="Hr.">{!$Label.ManagerUsers_Greeting_Option_Hr}</option>
+            					<option value="Sr.">{!$Label.ManagerUsers_Greeting_Option_Sr}</option>
+        					</select>
+				    		<div class="errorMsg" id="greetingRequired" style="display:none;"><strong>{!$Label.ManagerUsers_Error_Label}</strong> {!$Label.ManagerUsers_Label_Greeting} {!$Label.ManageUsers_Is_Required}</div>
+				    		</div></td>
+				  		</tr>
+				  		<tr>
+				    		<td class="labelCol">{!$Label.ManagerUsers_Label_FirstName}:</td>
+				    		<td class="dataCol col02"><div class="requiredInput"><div class="requiredBlock"></div><input type="textbox" name="firstName"/>
+				    		<div class="errorMsg" id="firstNameRequired" style="display:none;"><strong>{!$Label.ManagerUsers_Error_Label}</strong> {!$Label.ManagerUsers_Label_FirstName} {!$Label.ManageUsers_Is_Required}</div>
+				    		</div></td>
+				  		</tr>
+				  		<tr>
+				    		<td class="labelCol">{!$Label.ManagerUsers_Label_LastName}:</td>
+				    		<td class="dataCol col02"><div class="requiredInput"><div class="requiredBlock"></div><input type="textbox" name="lastName"/>
+				    		<div class="errorMsg" id="lastNameRequired" style="display:none;"><strong>{!$Label.ManagerUsers_Error_Label}</strong> {!$Label.ManagerUsers_Label_LastName} {!$Label.ManageUsers_Is_Required}</div>
+				    		</div></td>
+				  		</tr>
+				  		<tr>
+				    		<td class="labelCol">{!$Label.ManagerUsers_Label_Address1}:</td>
+				    		<td class="dataCol col02"><div class="requiredInput"><div class="requiredBlock"></div><input type="textbox" name="address1"/>
+				    		<div class="errorMsg" id="address1Required" style="display:none;"><strong>{!$Label.ManagerUsers_Error_Label}</strong> {!$Label.ManagerUsers_Label_Address1} {!$Label.ManageUsers_Is_Required}</div>
+				    		</div></td>
+				  		</tr>
+				  		<tr>
+				    		<td class="labelCol">{!$Label.ManagerUsers_Label_Address2}:</td>
+				    		<td class="dataCol col02"><input type="textbox" name="address2"/></td>
+				  		</tr>
+				  		<tr>
+				    		<td class="labelCol">{!$Label.ManagerUsers_Label_Address3}:</td>
+				    		<td class="dataCol col02"><input type="textbox" name="address3"/></td>
+				  		</tr>
+				  		<tr>
+				    		<td class="labelCol">{!$Label.ManagerUsers_Label_City}:</td>
+				    		<td class="dataCol col02"><div class="requiredInput"><div class="requiredBlock"></div><input type="textbox" name="city"/>
+					    		<div class="errorMsg" id="cityRequired" style="display:none;"><strong>{!$Label.ManagerUsers_Error_Label}</strong> {!$Label.ManagerUsers_Label_City} {!$Label.ManageUsers_Is_Required}</div>
+				    		</td>
+				  		</tr>
+				  		<tr>
+				    		<td class="labelCol">{!$Label.ManagerUsers_Label_Country}:</td>
+				    		<td class="dataCol col02">
+				    			<div class="requiredInput"><div class="requiredBlock"></div>
+					            <input type="hidden" id="countryCode" name="countryCode"/>
+					            <apex:selectList value="{!CurrentCountry}" onblur="setStateAndCountry();" id="countryCombo" size="1">
+					                <apex:selectOption itemLabel="{!$Label.Onboarding_Register_Partner_PicklistOption_Select_Country}" itemValue="" />
+					                <apex:selectOption itemLabel="{!$Label.Onboarding_Register_Partner_PicklistOption_US}" itemValue="US" /> 
+					                <apex:selectOption itemLabel="-" itemValue="" />
+					                <apex:selectOptions value="{!SelectableCountryOptions}"/>
+	                                <apex:actionSupport event="onchange" rerender="state"/> 
+	                            </apex:selectList>
+					    		<div class="errorMsg" id="countryCodeRequired" style="display:none;"><strong>{!$Label.ManagerUsers_Error_Label}</strong> {!$Label.ManagerUsers_Label_Country} {!$Label.ManageUsers_Is_Required}</div>
+	                            </div>
+					        </td>
+				  		</tr>
+				  		<tr>
+				    		<td class="labelCol">{!$Label.ManagerUsers_Label_State}:</td>
+				    		<td class="dataCol col02" id="stateComboArea">
+					            <apex:outputPanel id="state"> 
+							  		<apex:outputPanel rendered="{!SelectableStateOptions.size > 0}"> 
+							    			<div class="requiredInput"><div class="requiredBlock"></div>
+								            <input type="hidden" id="state" name="state"/>
+			        							<apex:selectList size="1" onchange="setStateAndCountry();" id="stateCombo" disabled="{!SelectableStateOptionsSize == 0}"> 
+									                <apex:selectOption itemLabel="- Select State/Province -" itemValue="" />
+									                <apex:selectOptions value="{!SelectableStateOptions}" />
+												</apex:selectList>            
+								    		<div class="errorMsg" id="stateRequired" style="display:none;"><strong>{!$Label.ManagerUsers_Error_Label}</strong> {!$Label.ManagerUsers_Label_State} {!$Label.ManageUsers_Is_Required}</div>
+			    							</div>
+							  		</apex:outputPanel>
+							  		<apex:outputPanel rendered="{!SelectableStateOptions.size == 0}">
+							  				<input type="hidden" id="state" name="state"/>
+								            <select id="stateCombo" name="stateCombo" size="1" disabled></select>
+							  		</apex:outputPanel>
+								</apex:outputPanel> 
+					        </td>
+						</tr>
+				  		<tr>
+				    		<td class="labelCol">{!$Label.ManagerUsers_Label_PostalCode}:</td>
+				    		<td class="dataCol col02"><div class="requiredInput"><div class="requiredBlock"></div><input type="textbox" name="postalCode"/>
+				    		<div class="errorMsg" id="postalCodeRequired" style="display:none;"><strong>{!$Label.ManagerUsers_Error_Label}</strong> {!$Label.ManagerUsers_Label_PostalCode} {!$Label.ManageUsers_Is_Required}</div>
+				    		</div></td>
+				  		</tr>
+				  		<tr>
+				    		<td class="labelCol">{!$Label.ManagerUsers_Label_Email}:</td>
+				    		<td class="dataCol col02"><div class="requiredInput"><div class="requiredBlock"></div><input type="textbox" onblur="populateFedIdWithEmail();" id="email" name="email"/>
+				    		<div class="errorMsg" id="emailRequired" style="display:none;"><strong>{!$Label.ManagerUsers_Error_Label}</strong> {!$Label.ManagerUsers_Label_Email} {!$Label.ManageUsers_Is_Required}</div>
+				    		<div class="errorMsg" id="badEmail" style="display:none;"><strong>{!$Label.ManagerUsers_Error_Label}</strong> {!$Label.ManagerUsers_Label_Email} {!$Label.ManageUsers_Is_Not_A_Valid_Format}</div>
+				    		</div></td>
+				  		</tr>
+				  		<tr>
+				    		<td class="labelCol">{!$Label.ManagerUsers_Label_Phone}:</td>
+				    		<td class="dataCol col02"><div class="requiredInput"><div class="requiredBlock"></div><input type="textbox" name="phone"/>
+				    		<div class="errorMsg" id="phoneRequired" style="display:none;"><strong>{!$Label.ManagerUsers_Error_Label}</strong> {!$Label.ManagerUsers_Label_Phone} {!$Label.ManageUsers_Is_Required}</div>
+				    		</div></td>
+				  		</tr>
+				  		<tr>
+				    		<td class="labelCol">{!$Label.ManagerUsers_Label_Redhat_com_Login}:</td>
+				    		<td class="dataCol col02"><div class="requiredInput"><div class="requiredBlock"></div><input onblur="checkAvailable();" type="textbox" id="federationId" name="federationId"/><span id="checkingLoginThrobber" style="display:none;"><img src="https://www.redhat.com/g/chrome/throbber_dickie.gif"/></span>
+				    		<div class="errorMsg" id="federationIdRequired" style="display:none;"><strong>{!$Label.ManagerUsers_Error_Label}</strong> {!$Label.ManagerUsers_Label_Redhat_com_Login} {!$Label.ManageUsers_Is_Required}</div>
+				    		<div class="errorMsg" id="loginNotAvailable" style="display:none;"><strong>{!$Label.ManagerUsers_Error_Label}</strong> {!$Label.ManagerUsers_Error_Already_In_Use}</div>
+				    		</div></td>
+				  		</tr>
+				  		<tr>
+				    		<td class="labelCol">{!$Label.ManagerUsers_Label_Language_Preference}</td>
+				    		<td class="dataCol col02">
+					    		<div class="requiredInput"><div class="requiredBlock"></div>	  
+					    		<select name="languageLocale" size="1">
+					    			<apex:dataList value="{!LanguageOptions}" var="option">
+					    				<apex:outputText rendered="{!option.value == me.LanguageLocaleKey}">
+					    					<option value="{!option.value}" selected>{!option.label}</option>
+					    				</apex:outputText>
+					    				<apex:outputText rendered="{!option.value != me.LanguageLocaleKey}">
+					    					<option value="{!option.value}">{!option.label}</option>
+					    				</apex:outputText>
+					    			</apex:dataList>
+					    		</select>
+				    		</div></td>
+				  		</tr>
+				  		<tr>
+				    		<td class="labelCol">{!$Label.ManagerUsers_Label_Timezone}:</td>
+				    		<td class="dataCol col02">
+					    		<div class="requiredInput"><div class="requiredBlock"></div>	  
+					    		<select name="timeZone" size="1">
+					    			<apex:dataList value="{!TimezoneOptions}" var="option">
+					    				<apex:outputText rendered="{!option.value == me.TimeZoneSidKey}">
+					    					<option value="{!option.value}" selected>{!option.label}</option>
+					    				</apex:outputText>
+					    				<apex:outputText rendered="{!option.value != me.TimeZoneSidKey}">
+					    					<option value="{!option.value}">{!option.label}</option>
+					    				</apex:outputText>
+					    			</apex:dataList>
+					    		</select>
+				    		</div></td>
+				  		</tr>
+				  		<tr>
+				    		<td class="labelCol">{!$Label.ManagerUsers_Label_Locale}:</td>
+				    		<td class="dataCol col02">
+					    		<div class="requiredInput"><div class="requiredBlock"></div>	  
+					    		<select name="locale" size="1">
+					    			<apex:dataList value="{!LocaleOptions}" var="option">
+					    				<apex:outputText rendered="{!option.value == me.LocaleSidKey}">
+					    					<option value="{!option.value}" selected>{!option.label}</option>
+					    				</apex:outputText>
+					    				<apex:outputText rendered="{!option.value != me.LocaleSidKey}">
+					    					<option value="{!option.value}">{!option.label}</option>
+					    				</apex:outputText>
+					    			</apex:dataList>
+					    		</select>
+				    		</div></td>
+				  		</tr>
+				  		<tr>
+				    		<td class="labelCol">{!$Label.ManagerUsers_Label_Email_Encoding}:</td>
+				    		<td class="dataCol col02">
+					    		<div class="requiredInput"><div class="requiredBlock"></div>	  
+					    		<select name="emailEncoding" size="1">
+					    			<apex:dataList value="{!EmailEncodingOptions}" var="option">
+					    				<apex:outputText rendered="{!option.value == me.EmailEncodingKey}">
+					    					<option value="{!option.value}" selected>{!option.label}</option>
+					    				</apex:outputText>
+					    				<apex:outputText rendered="{!option.value != me.EmailEncodingKey}">
+					    					<option value="{!option.value}">{!option.label}</option>
+					    				</apex:outputText>
+					    			</apex:dataList>
+					    		</select>
+				    		</div></td>
+				  		</tr>
+				  		<tr>
+				    		<td class="labelCol">{!$Label.ManagerUsers_Label_Is_User_Admin}:</td>
+				    		<td class="dataCol col02"><input type="checkbox" value="true" name="isadmin" checked/></td>
+				  		</tr>
+					</tbody></table>
+				</apex:form>
+			</div>
+			<div class="pbBottomButtons">
+				<table border="0" cellspacing="0" cellpadding="0"><tbody>
+				<tr>
+				<td class="pbTitle"></td>
+				<td id="bottomButtonRow" class="pbButton">
+					<input id="createButtonBottom" type="button" title="{!$Label.ManagerUsers_Label_Create}" onclick="createUser(); return false;" name="create" class="btn" value="Create">
+					<span id="createButtonBottomThrobber" style="display:none;"><img src="https://www.redhat.com/g/chrome/throbber_dickie.gif"/></span>&nbsp;
+					<input type="button" title="{!$Label.ManagerUsers_Label_Cancel}" onclick="navigateToUrl('/apex/ManageSSOUsers',null,'new');" name="cancel" class="btn" value="Cancel">
+				</td></tr>
+				</tbody></table>
+			</div>
+		</apex:pageBlock>
+	</div>
+</apex:page>

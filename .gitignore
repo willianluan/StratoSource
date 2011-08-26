@@ -1,0 +1,5 @@
+*.pyc
+*.pyo
+*.sq3
+build
+nbproject

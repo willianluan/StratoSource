@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>It stores the records added to CMS</description>
+    <fields>
+        <fullName>Arxxus__Page_Name__c</fullName>
+        <description>Page Name is used to link the record with Visualforce Page</description>
+        <inlineHelpText>Name should be same as Visualforce page to be link</inlineHelpText>
+        <label>Page Name</label>
+        <length>80</length>
+        <required>true</required>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <fields>
+        <fullName>Arxxus__html_code__c</fullName>
+        <description>This field stores the contents of page.</description>
+        <inlineHelpText>Add the page contents here.</inlineHelpText>
+        <label>HTML Code</label>
+        <length>32000</length>
+        <type>LongTextArea</type>
+        <visibleLines>5</visibleLines>
+    </fields>
+    <label>Add Page to CMS</label>
+    <listViews>
+        <fullName>Arxxus__All</fullName>
+        <filterScope>Everything</filterScope>
+        <label>All</label>
+    </listViews>
+    <nameField>
+        <label>Page Label</label>
+        <type>Text</type>
+    </nameField>
+    <pluralLabel>Add Pages to CMS</pluralLabel>
+    <searchLayouts/>
+    <sharingModel>ReadWrite</sharingModel>
+    <validationRules>
+        <fullName>Arxxus__Validation_for_blank_space_in_page_name</fullName>
+        <active>true</active>
+        <description>Checks for blank space in page name.</description>
+        <errorConditionFormula>CONTAINS(Arxxus__Page_Name__c, &apos; &apos; )</errorConditionFormula>
+        <errorDisplayField>Arxxus__Page_Name__c</errorDisplayField>
+        <errorMessage>The page name can only contain alphanumeric characters, must begin with a letter, and must be unique.</errorMessage>
+    </validationRules>
+</CustomObject>

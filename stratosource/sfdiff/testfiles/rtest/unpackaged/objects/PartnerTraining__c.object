@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <content>partnerCertification</content>
+        <type>Visualforce</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Red Hat Partner Management</description>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <fields>
+        <fullName>CertificateNumber__c</fullName>
+        <inlineHelpText>If there is no certification number, enter &quot;None&quot;.</inlineHelpText>
+        <label>Certificate Number</label>
+        <length>255</length>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Certificate_Owner__c</fullName>
+        <inlineHelpText>This is the name of the person who has received the certificate.</inlineHelpText>
+        <label>Certificate Holder</label>
+        <length>100</length>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>CertificationTest__c</fullName>
+        <formula>Certification__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>CertificationTest</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Certification_Key__c</fullName>
+        <description>This Field is used behind the scenes to summarized the certifications in the Partner Account</description>
+        <label>Certification Key</label>
+        <length>100</length>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Certification__c</fullName>
+        <label>Certification</label>
+        <referenceTo>Classification__c</referenceTo>
+        <relationshipLabel>Partner Certifications (Certification)</relationshipLabel>
+        <relationshipName>Partner_Certifications</relationshipName>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Certifying_Entity__c</fullName>
+        <label>Certifying Entity</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Redhat</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Alfresco</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Cisco</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Enterprise DB</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Ingres</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Jaspersoft</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Likewise</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Microsoft</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Novell</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Open Source</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Oracle</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Oracle/BEA Middleware</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Pentaho</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>VMWare</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Zenoss</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Zimbra</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Zmanda</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Contact__c</fullName>
+        <label>Certificate Holder</label>
+        <referenceTo>Contact</referenceTo>
+        <relationshipLabel>Partner Certifications</relationshipLabel>
+        <relationshipName>Partner_Certifications</relationshipName>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Date_Achieved__c</fullName>
+        <label>Date Achieved</label>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Fu__c</fullName>
+        <defaultValue>false</defaultValue>
+        <label>Fu</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>IsActive__c</fullName>
+        <defaultValue>true</defaultValue>
+        <label>Is Active?</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>IsCertificateNumberRequired__c</fullName>
+        <defaultValue>false</defaultValue>
+        <label>Is Certificate Number Required?</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>IsValid__c</fullName>
+        <defaultValue>true</defaultValue>
+        <label>Is Valid?</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Partner__c</fullName>
+        <label>Partner</label>
+        <referenceTo>Account</referenceTo>
+        <relationshipLabel>Partner Certifications</relationshipLabel>
+        <relationshipName>PartnerTraining</relationshipName>
+        <relationshipOrder>0</relationshipOrder>
+        <type>MasterDetail</type>
+        <writeRequiresMasterRead>true</writeRequiresMasterRead>
+    </fields>
+    <fields>
+        <fullName>TrainingType__c</fullName>
+        <label>Certifying Organization</label>
+        <referenceTo>Classification__c</referenceTo>
+        <relationshipLabel>Partner Certifications (Training Type)</relationshipLabel>
+        <relationshipName>PartnerTraining</relationshipName>
+        <relationshipOrder>1</relationshipOrder>
+        <type>MasterDetail</type>
+    </fields>
+    <label>Partner Certification</label>
+    <listViews>
+        <fullName>All1</fullName>
+        <columns>NAME</columns>
+        <columns>CertificateNumber__c</columns>
+        <columns>Certification__c</columns>
+        <columns>Certifying_Entity__c</columns>
+        <columns>TrainingType__c</columns>
+        <columns>Date_Achieved__c</columns>
+        <columns>Partner__c</columns>
+        <columns>Certificate_Owner__c</columns>
+        <filterScope>Everything</filterScope>
+        <label>All</label>
+        <language>en_US</language>
+    </listViews>
+    <nameField>
+        <displayFormat>{00000000}</displayFormat>
+        <label>Auto-Increment ID</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Partner Certifications</pluralLabel>
+    <searchLayouts>
+        <customTabListAdditionalFields>CertificateNumber__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Certificate_Owner__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Date_Achieved__c</customTabListAdditionalFields>
+    </searchLayouts>
+    <sharingModel>ControlledByParent</sharingModel>
+    <validationRules>
+        <fullName>CertificateNumberIsRequired</fullName>
+        <active>false</active>
+        <errorConditionFormula>AND(ISBLANK(CertificateNumber__c), IsCertificateNumberRequired__c)</errorConditionFormula>
+        <errorDisplayField>CertificateNumber__c</errorDisplayField>
+        <errorMessage>Certificate Number is a required field for this Partner Training Type.</errorMessage>
+    </validationRules>
+</CustomObject>

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Stores a rule or condition associated with a given dynamic group</description>
+    <enableActivities>true</enableActivities>
+    <enableReports>true</enableReports>
+    <fields>
+        <fullName>APPR_DGRP__Dynamic_Group__c</fullName>
+        <description>The referenced parent dynamic group</description>
+        <label>Dynamic Group</label>
+        <referenceTo>APPR_DGRP__Dynamic_Group__c</referenceTo>
+        <relationshipLabel>Group Rules</relationshipLabel>
+        <relationshipName>Group_Rules</relationshipName>
+        <relationshipOrder>0</relationshipOrder>
+        <type>MasterDetail</type>
+    </fields>
+    <fields>
+        <fullName>APPR_DGRP__Operator__c</fullName>
+        <description>The operator used to construct the rule/ condition</description>
+        <label>Operator</label>
+        <picklist>
+            <picklistValues>
+                <fullName>equals</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>not equals</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>greater than</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>greater or equals</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>less than</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>less or equals</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>contains</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>APPR_DGRP__Record_Field__c</fullName>
+        <description>The field name being used by the rule/ condition</description>
+        <label>Record Field</label>
+        <length>80</length>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>APPR_DGRP__Value__c</fullName>
+        <description>The value used to constrain the rule/ condition.</description>
+        <label>Value</label>
+        <length>100</length>
+        <type>Text</type>
+    </fields>
+    <label>Group Rule</label>
+    <nameField>
+        <displayFormat>GR-{0000}</displayFormat>
+        <label>Rule</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Group Rules</pluralLabel>
+    <searchLayouts>
+        <lookupDialogsAdditionalFields>APPR_DGRP__Dynamic_Group__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>APPR_DGRP__Record_Field__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>APPR_DGRP__Operator__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>APPR_DGRP__Value__c</lookupDialogsAdditionalFields>
+        <lookupPhoneDialogsAdditionalFields>APPR_DGRP__Dynamic_Group__c</lookupPhoneDialogsAdditionalFields>
+        <lookupPhoneDialogsAdditionalFields>APPR_DGRP__Record_Field__c</lookupPhoneDialogsAdditionalFields>
+        <lookupPhoneDialogsAdditionalFields>APPR_DGRP__Operator__c</lookupPhoneDialogsAdditionalFields>
+        <lookupPhoneDialogsAdditionalFields>APPR_DGRP__Value__c</lookupPhoneDialogsAdditionalFields>
+        <searchFilterFields>APPR_DGRP__Dynamic_Group__c</searchFilterFields>
+        <searchFilterFields>APPR_DGRP__Record_Field__c</searchFilterFields>
+        <searchFilterFields>APPR_DGRP__Operator__c</searchFilterFields>
+        <searchFilterFields>APPR_DGRP__Value__c</searchFilterFields>
+    </searchLayouts>
+    <sharingModel>ControlledByParent</sharingModel>
+    <webLinks>
+        <fullName>APPR_DGRP__Manage_Rules</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>url</linkType>
+        <masterLabel>Manage Rules</masterLabel>
+        <openType>replace</openType>
+        <protected>false</protected>
+        <url>/apex/APPR_DGRP__editConditions?dynamicGroupId={!APPR_DGRP__Dynamic_Group__c.Id}</url>
+    </webLinks>
+</CustomObject>

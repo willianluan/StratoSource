@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <content>OpportunityPartner_RedirectToManage</content>
+        <type>Visualforce</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <content>OpportunityPartner_RedirectToManage</content>
+        <type>Visualforce</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <content>OpportunityPartner_RedirectToManage</content>
+        <type>Visualforce</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <content>OpportunityPartner_RedirectToManage</content>
+        <type>Visualforce</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <content>OpportunityPartner_RedirectToManage</content>
+        <type>Visualforce</type>
+    </actionOverrides>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>This is an extension of the Partner relationship on the Opportunity, in order to support custom fields on the many-to-many object.</description>
+    <enableReports>true</enableReports>
+    <fields>
+        <fullName>Opportunity__c</fullName>
+        <label>Opportunity</label>
+        <referenceTo>Opportunity</referenceTo>
+        <relationshipLabel>Opportunity Partners</relationshipLabel>
+        <relationshipName>OpportunityPartners</relationshipName>
+        <relationshipOrder>0</relationshipOrder>
+        <type>MasterDetail</type>
+    </fields>
+    <fields>
+        <fullName>PartnerName__c</fullName>
+        <formula>Partner__r.Name</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Partner Name</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>PartnerTier__c</fullName>
+        <label>Partner Tier</label>
+        <referenceTo>Classification__c</referenceTo>
+        <relationshipLabel>Opportunity Partners (By Tier)</relationshipLabel>
+        <relationshipName>OpportunityPartnersByTier</relationshipName>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>PartnerTypeHierarchy__c</fullName>
+        <formula>PartnerType__r.Hierarchy__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Partner Type Hierarchy</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>PartnerType__c</fullName>
+        <label>Partner Type</label>
+        <referenceTo>Classification__c</referenceTo>
+        <relationshipLabel>Opportunity Partners (By Type)</relationshipLabel>
+        <relationshipName>OpportunityPartnersByType</relationshipName>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Partner__c</fullName>
+        <label>Partner</label>
+        <referenceTo>Account</referenceTo>
+        <relationshipLabel>Opportunity Partners</relationshipLabel>
+        <relationshipName>OpportunityPartners</relationshipName>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>RelationshipType__c</fullName>
+        <label>Transaction Role</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Financial</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Influencing</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Reseller 2</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Reseller 3</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Reseller 4</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Reseller 5</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Reseller 6</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Reseller 7</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Reseller 8</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Reseller 9</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Reseller 10</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <label>Opportunity Partner</label>
+    <nameField>
+        <displayFormat>{00000000}</displayFormat>
+        <label>Auto-Increment ID</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Opportunity Partners</pluralLabel>
+    <searchLayouts/>
+    <sharingModel>ControlledByParent</sharingModel>
+    <validationRules>
+        <fullName>Partner_Required</fullName>
+        <active>true</active>
+        <description>A partner must be selected.</description>
+        <errorConditionFormula>ISNULL(Partner__c)</errorConditionFormula>
+        <errorMessage>A partner must be selected.</errorMessage>
+    </validationRules>
+    <webLinks>
+        <fullName>OpportunityPartner_Manage</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>url</linkType>
+        <masterLabel>Manage</masterLabel>
+        <openType>replace</openType>
+        <protected>false</protected>
+        <url>/apex/opportunity_managepartners?scontrolCaching=1&amp;id={!Opportunity.Id}</url>
+    </webLinks>
+</CustomObject>

@@ -1,0 +1,1852 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <content>FundRequest_Edit</content>
+        <type>Visualforce</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Captures a partner&apos;s request for funds defined in the budget for marketing development.</description>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <fields>
+        <fullName>Account_master__c</fullName>
+        <label>Account Name</label>
+        <referenceTo>Account</referenceTo>
+        <relationshipLabel>Fund Requests (Account Name)</relationshipLabel>
+        <relationshipName>R00NR0000000QJRiMAO</relationshipName>
+        <relationshipOrder>0</relationshipOrder>
+        <trackHistory>true</trackHistory>
+        <type>MasterDetail</type>
+    </fields>
+    <fields>
+        <fullName>Accounting_Type__c</fullName>
+        <formula>CASE(Activity_Type__c,
+&quot;Achieving Revenue or Invoicing Targets&quot;, $Label.FundClaim_RevenueReversal, 
+&quot;Customized Program&quot;, $Label.FundClaim_RevenueReversal, 
+&quot;Dedicated Red Hat Product Specialist&quot;,$Label.FundClaim_RevenueReversal, $Label.FundClaim_Expense)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Accounting Type</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Achieving_Revenue_Targets__c</fullName>
+        <formula>&quot;Description:&quot;&amp; BR()&amp;&quot;The partner will be given a target, or series of targets, of Red Hat invoiced dollars from the purchase and sale of Red Hat products. The target will have a defined time frame (typically the quarter). Upon achievement of the target amount achieved at the end of the quarter, to be validated by Red Hat using reports provided to Red Hat through our Red Hat Distributors, Red Hat will pay a reward or rebate.&quot;&amp; BR()&amp;&quot;ABP &amp; DMR Proof of Performance Types&quot;&amp; BR() &amp;&quot;- Invoice&quot;&amp; BR()</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Achieving Revenue Targets</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Achieving_Training_Skills__c</fullName>
+        <formula>&quot;Description:&quot;&amp; BR()&amp;&quot;The partner will be given a target, or series of targets, of Red Hat invoiced dollars from the purchase and sale of Red Hat products. The target will have a defined time frame (typically the quarter). Upon achievement of the target amount achieved at the end of the quarter, to be validated by Red Hat using reports provided to Red Hat through our Red Hat Distributors, Red Hat will pay a reward or rebate.&quot;&amp; BR()&amp;&quot;ABP &amp; DMR Proof of Performance Types&quot;&amp; BR() &amp;&quot;- Invoice&quot;&amp; BR()&amp;&quot;RH Proof of Performance Types&quot;&amp; BR()&amp;&quot;-RH Documented Revenue Report (Summary of Pashby Report)&quot;</formula>
+        <label>Achieving Training Skills</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Active_Budget__c</fullName>
+        <formula>IF(Budget__r.Active__c=TRUE,&quot;Active&quot;,&quot;Inactive&quot;)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Active Budget</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Activity_Date__c</fullName>
+        <label>Activity Date</label>
+        <trackHistory>true</trackHistory>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Activity_Description__c</fullName>
+        <label>Activity Description</label>
+        <length>32000</length>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Activity_End_Date__c</fullName>
+        <label>Activity End Date</label>
+        <trackHistory>true</trackHistory>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Activity_Result_Rating__c</fullName>
+        <label>Activity Result Rating</label>
+        <picklist>
+            <picklistValues>
+                <fullName>1 - Best Practice</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>2 - Very Good</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>3 - Met Expectations</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>4 - Did Not Meet Expectations</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Activity_Start_Date__c</fullName>
+        <label>Activity Start Date</label>
+        <trackHistory>true</trackHistory>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Activity_Status__c</fullName>
+        <label>Activity Status</label>
+        <picklist>
+            <picklistValues>
+                <fullName>On Schedule</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Rescheduled</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Completed</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Canceled</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Activity_Subtype__c</fullName>
+        <label>Activity Subtype</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Advertising</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Email</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Event/Seminar</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Fair</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Letter/Mail</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Partner Training</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Telemarketing</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Webinar</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Website</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Workshop</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>true</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Activity_Text__c</fullName>
+        <formula>CASE (Activity_Type__c,
+&apos;Achieving Revenue or Invoicing Targets&apos;, $Label.FundRequest_Activity1Text,
+&apos;Achieving Training Skills&apos;, $Label.FundRequest_Activity2Text,
+&apos;Building a Lab/Demo Center with Red Hat Solution Demonstration Capabilities&apos;, $Label.FundRequest_Activity3Text,
+&apos;Conducting Joint Customer Visits with Red Hat on New Customers and Registering a Deal/Opportunity&apos;, $Label.FundRequest_Activity4Text,
+&apos;Conducting Webinars&apos;, $Label.FundRequest_Activity5Text,
+&apos;Customized Program&apos;, $Label.FundRequest_Activity6Text,
+&apos;Dedicated Red Hat Product Specialist&apos;, $Label.FundRequest_Activity7Text,
+/* &apos;Developing and Presenting a Red Hat Proof of Concept&apos;, $Label.FundRequest_Activity8Text, */
+/* &apos;Executing Demand Generation Activities&apos;, $Label.FundRequest_Activity9Text, */
+/* &apos;Hosting Customer Events/Seminars&apos;, $Label.FundRequest_Activity10Text, */
+&apos;Unknown activity type&apos;)</formula>
+        <label>Activity Text</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Activity_Type__c</fullName>
+        <label>Activity Type</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Achieving Revenue or Invoicing Targets</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Achieving Training Skills</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Building a Lab/Demo Center with Red Hat Solution Demonstration Capabilities</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Conducting Joint Customer Visits with Red Hat on New Customers and Registering a Deal/Opportunity</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Conducting Webinars</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Customized Program</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Dedicated Red Hat Product Specialist</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Developing and Presenting a Red Hat Proof of Concept</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Executing Demand Generation Activities</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Hosting Customer Events/Seminars</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>true</sorted>
+        </picklist>
+        <trackHistory>true</trackHistory>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Additional_Feedback__c</fullName>
+        <label>Additional Feedback</label>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>Age_Days__c</fullName>
+        <formula>NOW() - CreatedDate</formula>
+        <label>Age (Days)</label>
+        <precision>18</precision>
+        <scale>0</scale>
+        <type>Number</type>
+    </fields>
+    <fields>
+        <fullName>Amount__c</fullName>
+        <label>Amount</label>
+        <precision>12</precision>
+        <scale>2</scale>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Approval_Status_Partner__c</fullName>
+        <label>Approval Status: Partner</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Approved</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Canceled</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Draft</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Expired</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>In Progress</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Pending</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Pending Cancellation</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Rejected</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>true</sorted>
+        </picklist>
+        <trackHistory>true</trackHistory>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Approval_Status__c</fullName>
+        <label>Approval Status</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Approved</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Canceled</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Draft</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Expired</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Pending Cancellation</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Pending Final Approval</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Pending First Approval</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Rejected</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Second Stage Approval</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Second Stage Rejected</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>true</sorted>
+        </picklist>
+        <trackHistory>true</trackHistory>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Approved_Amount__c</fullName>
+        <label>Approved Amount</label>
+        <precision>18</precision>
+        <scale>2</scale>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Approved_Date__c</fullName>
+        <label>Approved Date</label>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Approved__c</fullName>
+        <defaultValue>false</defaultValue>
+        <label>Approved</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Budget__c</fullName>
+        <label>Channel Budget</label>
+        <referenceTo>SFDC_Budget__c</referenceTo>
+        <relationshipName>R00NR0000000QJRyMAO</relationshipName>
+        <trackHistory>true</trackHistory>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Building_a_Lab_Demo__c</fullName>
+        <formula>&quot;- List of attendance to lab demonstration AND solution overview document&quot;</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Building a Lab/Demo</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Channel_Account_Manager__c</fullName>
+        <label>Channel Account Manager</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>Fund_Requests1</relationshipName>
+        <trackHistory>true</trackHistory>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Channel_Marketing_Manager_Country__c</fullName>
+        <label>Channel Marketing Manager - Country</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>Fund_Requests3</relationshipName>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Claim_Deadline_Date__c</fullName>
+        <label>Claim Deadline Date</label>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Collateral_Required__c</fullName>
+        <defaultValue>false</defaultValue>
+        <label>Collateral Required?</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Conducting_Webinars__c</fullName>
+        <formula>&quot;Description:&quot;&amp;&quot;The partner will conduct a webinar (typically and online event) for an identified number of customers/prospects.The webinar will take place/be completed during a specified period of time(typically within the quarter).The webinar will require a specified minimum number of individuals to attend.The webinar will require Red Hat content to be included.&quot;&amp;&quot;Distributor Proof of Performance Types:&quot;&amp;&quot;- List of attendees&quot;&amp;&quot;-Webinar presentation&quot;&amp;&quot;ABP &amp; DMR Proof of Performance Types&quot;&amp;&quot;-Invoice&quot;&amp;&quot;-List of attendees&quot;&amp;&quot;Webinar&quot;</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Conducting Webinars</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Date_Approved__c</fullName>
+        <label>Date Approved</label>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Date_of_Request__c</fullName>
+        <label>Date of Request</label>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Dedicated_Red_Hat_Product_Specialist__c</fullName>
+        <formula>&quot;Description:&quot;&amp; BR()&amp;&quot;A Partner employee focused on sales and marketing of Red Hat products.&quot;&amp; BR()&amp;&quot;Distributor Proof of Performance Types&quot;&amp; BR()&amp;&quot;- Invoice (name of individual should be included)&quot;&amp; BR()&amp;&quot;ABP &amp; DMR Proof of Performance Types&quot;&amp; BR()&amp;&quot;-Invoice (name of individual should be included)&quot;</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Dedicated Red Hat Product Specialist</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Desired_Outcome__c</fullName>
+        <label>Desired Outcome</label>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>Developing_and_Presenting_Red_Hat_Proof__c</fullName>
+        <formula>&quot;Description:&quot;&amp;&quot;The partner will define a scope of work for a customer service engagement to implement a Red Hat solution. A Red Hat solution will be defined as a Red Hat product/solution offering. The scope of work will include a specified period of time, a specified Red Hat element/product offering, and an objective of the outcome.&quot;&amp;&quot;Distributor Proof of Performance Types&quot;&amp;&quot;-A scope of work document OR demonstration of the solution&quot;&amp;&quot;-An accounting/description of resources applied to the proof of concept project&quot;</formula>
+        <label>Developing and Presenting Red Hat Proof</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Email_Address__c</fullName>
+        <formula>Requester_Name__r.Email</formula>
+        <label>Email Address</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Email_Address_new__c</fullName>
+        <label>Email Address</label>
+        <length>100</length>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Enter_Rejection_Reason__c</fullName>
+        <formula>HYPERLINK(&quot;/apex/FundRequest_EnterRejectionReason?Id=&quot;&amp; Id, $Label.FundRequest_RejectionReason,&quot;_Self&quot;)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Enter Rejection Reason</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Estimated_Red_Hat_Funding_Requested__c</fullName>
+        <defaultValue>0</defaultValue>
+        <label>Estimated Red Hat Funding Requested</label>
+        <precision>18</precision>
+        <scale>2</scale>
+        <trackHistory>true</trackHistory>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Executing_Demand_Generation_Activities__c</fullName>
+        <formula>&quot;Description:&quot;&amp;&quot;The partner will execute a demand generation initiative/activity to customers/prospects.&quot;&amp;&quot;The demand generation initiative/activity will be considered common within the software &amp; IT industry and can include but not be limited to – advertising, direct mail, electonic mail, etc. The demand generation initiative/activity will take place during a specified period of time(typically within the quarter). It will be initiated to a specified minimum number of customers/prospects. The demand generation initiative/activity will include Red Hat content.&quot;&amp;&quot;Distributor Proof of Performance Types&quot;&amp;&quot;Demand generation sample document with activity date OR other promotion documentation for demand generation with activity date&quot;&amp;&quot;ABP &amp; DMR Proof of Performance Types&quot;&amp;&quot;-Invoice&quot;</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Executing Demand Generation Activities</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Executing_Partner__c</fullName>
+        <label>Executing Partner</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Distributor</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>ISV</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>OEM</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Solution Provider</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>true</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Hosting_Customer_Events_Seminars__c</fullName>
+        <formula>&quot;Description:&quot;&amp;&quot;The partner will host/conduct a live event with customers/prospects attending in person.&quot;&amp;&quot;The event will take place on a specified date or within a specified timeframe(typically within the quarter)&quot;&amp;&quot;The event will require a specified minimum number of individuals to attend. The event will require an element of Red Hat content.&quot;&amp;&quot;Distributor Proof of Performance Types&quot;&amp;&quot;- Event invitation with RH reference&quot;&amp;&quot;-List of actual attendees&quot;&amp;&quot;-Agenda with RH content included&quot;&amp;&quot;ABP &amp; DMR Proof of Performance Types&quot;&amp;&quot;-Invoice&quot;</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Hosting Customer Events/Seminars</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>I_Agree_to_the_Terms_and_Conditions__c</fullName>
+        <defaultValue>false</defaultValue>
+        <label>I Agree to the Terms and Conditions</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Inside_Channel_Account_Manager__c</fullName>
+        <label>Inside Channel Account Manager</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>Fund_Requests</relationshipName>
+        <trackHistory>true</trackHistory>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Joint_Calls_New_Customers__c</fullName>
+        <formula>&quot;Description:&quot;&amp;&quot;The partner will engage with RedHat personnel on interactions with &apos;New Red Hat&apos; customers.&apos;New Red Hat&apos; customers are defined as those who have not made a significant RedHat purchase in recent months.The customer interaction will include RedHat content.&quot;&amp;&quot;Distributor Proof of Performance Types&quot;&amp;&quot;- List of attendees to lab demonstration&quot;&amp;&quot;-Solution overview document&quot;&amp;&quot;ABP &amp; DMR Proof of Performance Types&quot;&amp;&quot;-Invoice&quot;</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Joint Calls/New Customers</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Key_Initiative__c</fullName>
+        <label>Key Initiative</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Cloud/Virtualization</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Free to Fee</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Jboss</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Mainstream Adoption</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>true</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Legal_T_s_and_C_s__c</fullName>
+        <defaultValue>&quot;This section will contain Red Hat legal T&apos;s and C&apos;s for participation of MDF activities.&quot;</defaultValue>
+        <label>Legal T&apos;s and C&apos;s</label>
+        <length>32000</length>
+        <trackHistory>true</trackHistory>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Marketing_Program_Manager__c</fullName>
+        <label>Marketing Program Manager</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>Fund_Requests2</relationshipName>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Oracle_Project_Code__c</fullName>
+        <label>Oracle Project Code</label>
+        <picklist>
+            <picklistValues>
+                <fullName>4608 - Trade Show / Event across Initiatives</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>4609 - Non-Initiative Program</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>4617 - FreeToFee</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>4618 - UnixToLinux</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>4621 - Best Stack</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>4622 - RHEL In The Cloud</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>4623 - RHEL Runs Best On RHEV</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>4624 - CloudLead</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>4625 - JBoss Influence</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>4626 - JBoss Lead Gen</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>4627 - JBoss Developer</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>4629 - GLS Partner Training and Enablement</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>4630 - Field Partner Training and Enablement</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Other_Activity_Type__c</fullName>
+        <label>Other Activity Type</label>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>Other_Proof_of_Performance__c</fullName>
+        <formula>&quot;Please collaborate with your CAM on Proof of Performance requirements for your requested activity&quot;</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Other Proof of Performance</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Participating_Partners__c</fullName>
+        <label>Participating Partners</label>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>Partner_Comments__c</fullName>
+        <label>Partner Comments</label>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>Partner_Manager__c</fullName>
+        <label>Partner Manager</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>Fund_Requests4</relationshipName>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Partner_Owner__c</fullName>
+        <label>Partner Owner</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>R00NR0000000QJSMMA4</relationshipName>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Partner_Tier__c</fullName>
+        <formula>CASE(Account_master__r.AccountClassification__c ,
+&quot;Partner - Advanced Partner&quot;, $Label.Account_PartnerAdvancedPartner ,
+&quot;Partner - Premier&quot;, $Label.Account_PartnerPremier ,
+&quot;Partner - Ready Partner&quot;, $Label.Account_PartnerReadyPartner ,
+$Label.Account_PartnerOther )</formula>
+        <label>Partner Tier</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Partner_Type__c</fullName>
+        <formula>CASE( Account_master__r.Partner_Type__c,
+&quot;VAR&quot;, $Label.Account_PartnerVAR ,
+&quot;Reseller&quot;, $Label.Account_PartnerReseller ,
+&quot;Systems Integrator&quot;, $Label.Account_PartnerSystemsIntegrator ,
+&quot;ISV&quot;, $Label.Account_PartnerISV ,
+&quot;OEM&quot;, $Label.Account_PartnerOEM ,
+&quot;Distributor&quot;, $Label.Account_PartnerDistributor ,
+&quot;DMR&quot;, $Label.Account_PartnerDMR ,
+$Label.Account_PartnerOther )</formula>
+        <label>Partner Type</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Percentage_Approved__c</fullName>
+        <formula>IF(ISNULL(Estimated_Red_Hat_Funding_Requested__c),0,(Approved_Amount__c/ Estimated_Red_Hat_Funding_Requested__c))</formula>
+        <label>% Approved</label>
+        <precision>18</precision>
+        <scale>2</scale>
+        <type>Percent</type>
+    </fields>
+    <fields>
+        <fullName>Planned_Attendees__c</fullName>
+        <label>Planned Attendees (#)</label>
+        <precision>18</precision>
+        <scale>0</scale>
+        <type>Number</type>
+    </fields>
+    <fields>
+        <fullName>Planned_Leads__c</fullName>
+        <label>Planned Leads (#)</label>
+        <precision>18</precision>
+        <scale>0</scale>
+        <type>Number</type>
+    </fields>
+    <fields>
+        <fullName>Planned_Responses__c</fullName>
+        <label>Planned Responses (#)</label>
+        <precision>18</precision>
+        <scale>0</scale>
+        <type>Number</type>
+    </fields>
+    <fields>
+        <fullName>Reasons_for_Rejection__c</fullName>
+        <inlineHelpText>If an approver rejects the deal after it is submitted, the reason for rejection will be present here.</inlineHelpText>
+        <label>Reasons for Rejection</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Funding Amount</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>No Red Hat Content</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>No Red Hat Revenue Objective</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Not a New Customer Acquisition Activity</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Activity does not meet Business Requirements</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Red_Hat_Solution__c</fullName>
+        <label>Red Hat Solution</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Platform RHEL</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>JBoss</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Platform Virtualization</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Systems Management</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>All - Generic</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>true</trackHistory>
+        <type>MultiselectPicklist</type>
+        <visibleLines>5</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Red_Hat_Sponsored_Activity__c</fullName>
+        <defaultValue>false</defaultValue>
+        <label>Red Hat Sponsored Activity?</label>
+        <trackHistory>true</trackHistory>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Request_Details__c</fullName>
+        <label>Request Details</label>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>Request_ID__c</fullName>
+        <label>Request ID</label>
+        <length>30</length>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Request_Number_new__c</fullName>
+        <displayFormat>FR-{000000}</displayFormat>
+        <label>Request Number</label>
+        <type>AutoNumber</type>
+    </fields>
+    <fields>
+        <fullName>Request_Objectives__c</fullName>
+        <label>Request Objectives</label>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>Requester_Email__c</fullName>
+        <label>Requester Email</label>
+        <type>Email</type>
+    </fields>
+    <fields>
+        <fullName>Requester_Name__c</fullName>
+        <label>Requester Name Lookup</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>R00NR0000000QJSVMA4</relationshipName>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Requester_Name_new__c</fullName>
+        <label>Requester Name</label>
+        <length>100</length>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Script_Last_Run_Date__c</fullName>
+        <label>Script Last Run Date</label>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Script_Run_Check__c</fullName>
+        <defaultValue>false</defaultValue>
+        <label>Script Run Check</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Select_Budget_Warning__c</fullName>
+        <formula>if( Budget__c = &quot;&quot;,  HYPERLINK(&quot;/&quot; &amp; Id,  IMAGE(&quot;/servlet/servlet.ImageServer?id=01530000000PaZS&quot;, &quot;IF APPROVING, PLEASE EDIT THE FUND REQUEST AND SELECT A BUDGET&quot;) , &quot;_parent&quot;), &quot;&quot;)</formula>
+        <label>Select Budget Warning</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Should_We_Repeat__c</fullName>
+        <defaultValue>false</defaultValue>
+        <label>Should We Repeat?</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Status__c</fullName>
+        <label>Status</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Draft</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Submitted</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>In Process</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Approved</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Rejected</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Target_Audience__c</fullName>
+        <label>Target Audience</label>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>Target_Groups__c</fullName>
+        <label>Target Groups</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Red Hat Partners</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>New Partners</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>ISVs</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>End Customers</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>MultiselectPicklist</type>
+        <visibleLines>4</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Telephone__c</fullName>
+        <formula>Requester_Name__r.Phone</formula>
+        <label>Telephone</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Telephone_new__c</fullName>
+        <label>Telephone</label>
+        <length>100</length>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Total_Expenditure_of_Activity__c</fullName>
+        <defaultValue>0</defaultValue>
+        <label>Total Expenditure of Activity</label>
+        <precision>18</precision>
+        <scale>2</scale>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>of_Activity_Requiring_Red_Hat_Funding_n__c</fullName>
+        <formula>IF(ISNULL(Total_Expenditure_of_Activity__c ), 0,(Estimated_Red_Hat_Funding_Requested__c / Total_Expenditure_of_Activity__c))</formula>
+        <label>% of Activity Requiring Red Hat Funding</label>
+        <precision>18</precision>
+        <scale>2</scale>
+        <type>Percent</type>
+    </fields>
+    <label>Fund Request</label>
+    <listViews>
+        <fullName>All</fullName>
+        <filterScope>Everything</filterScope>
+        <label>All</label>
+    </listViews>
+    <nameField>
+        <label>Request Name</label>
+        <type>Text</type>
+    </nameField>
+    <pluralLabel>Fund Requests</pluralLabel>
+    <recordTypes>
+        <fullName>Fed_Sled_Fund_Request</fullName>
+        <active>true</active>
+        <label>Fed Sled Fund Request</label>
+        <picklistValues>
+            <picklist>Activity_Result_Rating__c</picklist>
+            <values>
+                <fullName>1 - Best Practice</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>2 - Very Good</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>3 - Met Expectations</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>4 - Did Not Meet Expectations</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Activity_Status__c</picklist>
+            <values>
+                <fullName>Canceled</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Completed</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>On Schedule</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Rescheduled</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Activity_Subtype__c</picklist>
+            <values>
+                <fullName>Advertising</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Email</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Fair</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Letter%2FMail</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Partner Training</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Telemarketing</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Webinar</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Website</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Workshop</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Activity_Type__c</picklist>
+            <values>
+                <fullName>Achieving Revenue or Invoicing Targets</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Achieving Training Skills</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Building a Lab%2FDemo Center with Red Hat Solution Demonstration Capabilities</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Conducting Joint Customer Visits with Red Hat on New Customers and Registering a Deal%2FOpportunity</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Conducting Webinars</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Customized Program</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dedicated Red Hat Product Specialist</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Developing and Presenting a Red Hat Proof of Concept</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Executing Demand Generation Activities</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Hosting Customer Events%2FSeminars</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Approval_Status_Partner__c</picklist>
+            <values>
+                <fullName>Approved</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Draft</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Expired</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>In Progress</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Pending</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Pending Cancellation</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Rejected</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Approval_Status__c</picklist>
+            <values>
+                <fullName>Approved</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Draft</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Expired</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Pending Cancellation</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Pending Final Approval</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Pending First Approval</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Rejected</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Second Stage Approval</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Second Stage Rejected</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Executing_Partner__c</picklist>
+            <values>
+                <fullName>Distributor</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>ISV</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>OEM</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Solution Provider</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Key_Initiative__c</picklist>
+            <values>
+                <fullName>Cloud%2FVirtualization</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Free to Fee</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Jboss</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Mainstream Adoption</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Oracle_Project_Code__c</picklist>
+            <values>
+                <fullName>4608 - Trade Show %2F Event across Initiatives</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>4609 - Non-Initiative Program</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>4617 - FreeToFee</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>4618 - UnixToLinux</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>4621 - Best Stack</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>4622 - RHEL In The Cloud</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>4623 - RHEL Runs Best On RHEV</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>4624 - CloudLead</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>4625 - JBoss Influence</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>4626 - JBoss Lead Gen</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>4627 - JBoss Developer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>4629 - GLS Partner Training and Enablement</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>4630 - Field Partner Training and Enablement</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Reasons_for_Rejection__c</picklist>
+            <values>
+                <fullName>Activity does not meet Business Requirements</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Funding Amount</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>No Red Hat Content</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>No Red Hat Revenue Objective</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Not a New Customer Acquisition Activity</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Red_Hat_Solution__c</picklist>
+            <values>
+                <fullName>All - Generic</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>JBoss</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Platform RHEL</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Platform Virtualization</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Systems Management</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Status__c</picklist>
+            <values>
+                <fullName>Approved</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Draft</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>In Process</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Rejected</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Submitted</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Target_Groups__c</picklist>
+            <values>
+                <fullName>End Customers</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>ISVs</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>New Partners</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Red Hat Partners</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>Main_Fund_Request</fullName>
+        <active>true</active>
+        <label>Main Fund Request</label>
+        <picklistValues>
+            <picklist>Activity_Result_Rating__c</picklist>
+            <values>
+                <fullName>1 - Best Practice</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>2 - Very Good</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>3 - Met Expectations</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>4 - Did Not Meet Expectations</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Activity_Status__c</picklist>
+            <values>
+                <fullName>Canceled</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Completed</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>On Schedule</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Rescheduled</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Activity_Subtype__c</picklist>
+            <values>
+                <fullName>Advertising</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Email</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Event%2FSeminar</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Fair</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Letter%2FMail</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Partner Training</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Telemarketing</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Webinar</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Website</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Workshop</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Activity_Type__c</picklist>
+            <values>
+                <fullName>Achieving Revenue or Invoicing Targets</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Achieving Training Skills</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Building a Lab%2FDemo Center with Red Hat Solution Demonstration Capabilities</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Conducting Joint Customer Visits with Red Hat on New Customers and Registering a Deal%2FOpportunity</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Conducting Webinars</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Customized Program</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dedicated Red Hat Product Specialist</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Developing and Presenting a Red Hat Proof of Concept</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Executing Demand Generation Activities</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Hosting Customer Events%2FSeminars</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Approval_Status_Partner__c</picklist>
+            <values>
+                <fullName>Approved</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Canceled</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Draft</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Expired</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>In Progress</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Pending</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Pending Cancellation</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Rejected</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Approval_Status__c</picklist>
+            <values>
+                <fullName>Approved</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Canceled</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Draft</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Expired</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Pending Cancellation</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Pending Final Approval</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Pending First Approval</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Rejected</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Second Stage Approval</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Second Stage Rejected</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Executing_Partner__c</picklist>
+            <values>
+                <fullName>Distributor</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>ISV</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>OEM</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Solution Provider</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Key_Initiative__c</picklist>
+            <values>
+                <fullName>Cloud%2FVirtualization</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Free to Fee</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Jboss</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Mainstream Adoption</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Oracle_Project_Code__c</picklist>
+            <values>
+                <fullName>4608 - Trade Show %2F Event across Initiatives</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>4609 - Non-Initiative Program</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>4617 - FreeToFee</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>4618 - UnixToLinux</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>4621 - Best Stack</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>4622 - RHEL In The Cloud</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>4623 - RHEL Runs Best On RHEV</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>4624 - CloudLead</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>4625 - JBoss Influence</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>4626 - JBoss Lead Gen</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>4627 - JBoss Developer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>4629 - GLS Partner Training and Enablement</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>4630 - Field Partner Training and Enablement</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Reasons_for_Rejection__c</picklist>
+            <values>
+                <fullName>Activity does not meet Business Requirements</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Funding Amount</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>No Red Hat Content</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>No Red Hat Revenue Objective</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Not a New Customer Acquisition Activity</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Red_Hat_Solution__c</picklist>
+            <values>
+                <fullName>All - Generic</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>JBoss</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Platform RHEL</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Platform Virtualization</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Systems Management</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Status__c</picklist>
+            <values>
+                <fullName>Approved</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Draft</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>In Process</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Rejected</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Submitted</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Target_Groups__c</picklist>
+            <values>
+                <fullName>End Customers</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>ISVs</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>New Partners</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Red Hat Partners</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <searchLayouts/>
+    <sharingModel>ControlledByParent</sharingModel>
+    <validationRules>
+        <fullName>FundRequest_AccountNameIsNotChanged</fullName>
+        <active>true</active>
+        <errorConditionFormula>ISCHANGED( Account_master__c )</errorConditionFormula>
+        <errorMessage>Account Name should not be changed.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>FundRequest_AmountIsPositive</fullName>
+        <active>true</active>
+        <errorConditionFormula>OR(ISBLANK(Estimated_Red_Hat_Funding_Requested__c), Estimated_Red_Hat_Funding_Requested__c &lt; 0)</errorConditionFormula>
+        <errorDisplayField>Estimated_Red_Hat_Funding_Requested__c</errorDisplayField>
+        <errorMessage>Please enter a positive number for Estimated Red Hat Funding Requested</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>FundRequest_AmountIsWithinBudget</fullName>
+        <active>false</active>
+        <errorConditionFormula>AND( ISPICKVAL( Approval_Status__c , &apos;Draft&apos;), Estimated_Red_Hat_Funding_Requested__c &gt; Budget__r.Available_Budget__c )</errorConditionFormula>
+        <errorMessage>Please ensure the Estimated Red Hat Funding Requested is less than the Available Budget for the Account.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>FundRequest_AmountIsWithinExpenditure</fullName>
+        <active>true</active>
+        <errorConditionFormula>Estimated_Red_Hat_Funding_Requested__c &gt; Total_Expenditure_of_Activity__c</errorConditionFormula>
+        <errorDisplayField>Estimated_Red_Hat_Funding_Requested__c</errorDisplayField>
+        <errorMessage>Please ensure the Estimated Red Hat Funding Requested is less than the Total Expenditure of the Activity</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>FundRequest_BudgetIsNotChanged</fullName>
+        <active>true</active>
+        <errorConditionFormula>ISCHANGED( Budget__c )</errorConditionFormula>
+        <errorMessage>Channel Budget name should not be changed.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>FundRequest_IsActivityDateWithinFQ</fullName>
+        <active>true</active>
+        <description>Ensures the Activity dates are withing the FQ of the associated Budget</description>
+        <errorConditionFormula>OR
+(
+ Activity_Start_Date__c &lt; Budget__r.Start_Date__c ,
+ Activity_Start_Date__c &gt; Budget__r.End_Date__c,
+ Activity_End_Date__c &gt;  Budget__r.End_Date__c,
+ Activity_End_Date__c &lt; Budget__r.Start_Date__c
+)</errorConditionFormula>
+        <errorMessage>The Activity Start and End dates cannot be outside of the Fiscal Quarter defined on the associated MDF Budget.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>FundRequest_IsExpired</fullName>
+        <active>true</active>
+        <description>Prevents editing on an expired Fund Request</description>
+        <errorConditionFormula>AND(NOT(ISCHANGED(Approval_Status__c)),ISPICKVAL( Approval_Status__c, &quot;Expired&quot;))</errorConditionFormula>
+        <errorMessage>This Fund Request is expired and no longer available for editing.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>FundRequest_IsLocked</fullName>
+        <active>true</active>
+        <errorConditionFormula>AND(ISPICKVAL($User.UserType, &apos;PowerPartner&apos;),  NOT(ISPICKVAL(Approval_Status__c,&apos;Draft&apos;)), NOT(ISPICKVAL(Approval_Status__c,&apos;Rejected&apos;)))</errorConditionFormula>
+        <errorMessage>This fund request has entered the approval process and can no longer be edited.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>FundRequest_TotalExpenditureIsPositive</fullName>
+        <active>true</active>
+        <errorConditionFormula>OR(ISBLANK(Total_Expenditure_of_Activity__c), Total_Expenditure_of_Activity__c &lt; 0)</errorConditionFormula>
+        <errorDisplayField>Total_Expenditure_of_Activity__c</errorDisplayField>
+        <errorMessage>Please enter a positive number for Total Expenditure of Activity</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>FundRequest_ValidateDates</fullName>
+        <active>true</active>
+        <description>Ensures the Activity start date is before or equal to the end date</description>
+        <errorConditionFormula>Activity_End_Date__c &lt;  Activity_Start_Date__c</errorConditionFormula>
+        <errorMessage>Please ensure the End Date occurs after the Start Date.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>FundRequest_ValidateTCs</fullName>
+        <active>false</active>
+        <errorConditionFormula>I_Agree_to_the_Terms_and_Conditions__c ==false</errorConditionFormula>
+        <errorDisplayField>I_Agree_to_the_Terms_and_Conditions__c</errorDisplayField>
+        <errorMessage>Please check &quot;I Agree to the Terms and Conditions to continue&quot;.</errorMessage>
+    </validationRules>
+    <webLinks>
+        <fullName>FundRequest_Cancel</fullName>
+        <availability>online</availability>
+        <displayType>button</displayType>
+        <height>600</height>
+        <linkType>page</linkType>
+        <masterLabel>Cancel Fund Request</masterLabel>
+        <openType>sidebar</openType>
+        <page>FundRequest_Cancel</page>
+        <protected>false</protected>
+    </webLinks>
+    <webLinks>
+        <fullName>FundRequest_NewFundClaim</fullName>
+        <availability>online</availability>
+        <displayType>button</displayType>
+        <height>600</height>
+        <linkType>page</linkType>
+        <masterLabel>New Fund Claim</masterLabel>
+        <openType>sidebar</openType>
+        <page>FundRequest_CreateFundClaim</page>
+        <protected>false</protected>
+    </webLinks>
+</CustomObject>

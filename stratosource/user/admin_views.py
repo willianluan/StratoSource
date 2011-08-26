@@ -1,0 +1,297 @@
+from datetime import date
+from datetime import datetime
+from django import forms
+from django.template import RequestContext
+from django.shortcuts import render_to_response, redirect
+from stratosource.admin.models import Branch, Repo
+from django.core.exceptions import ObjectDoesNotExist
+from crontab import CronTab, CronItem
+import os
+import re
+import popen2
+
+
+class RepoForm(forms.ModelForm):
+    class Meta:
+        model = Repo
+
+    def clean(self):
+        
+        cleaned_data = self.cleaned_data
+        path = cleaned_data.get("location")
+        
+        if not os.path.isdir(path):
+           self._errors["location"] = self.error_class(['Path does not exist or is inaccessible']);
+        else:
+            curdir = os.getcwd()
+            os.chdir(path)
+            r,w = popen2.popen2("git status")
+            for line in r:
+                line = line.rstrip()
+                if line.startswith("fatal"):
+                    self._errors["location"] = self.error_class(['Appears to be an invalid git repository']);
+                    break
+            os.chdir(curdir)
+            r.close()
+            w.close()
+        return cleaned_data
+
+class BranchForm(forms.ModelForm):
+    SFENVCHOICES = (
+        ('test', 'Test/Sandbox'),
+        ('login', 'Production'),
+    )
+    SFAPIASSETS = (
+        ('CustomPageWebLink', 'Custom page web links'),
+        ('CustomLabels', 'Custom labels'),
+        ('CustomApplication', 'Custom applications'),
+        ('CustomObject', 'Custom objects and fields'),
+        ('CustomObjectTranslation', 'Custom object translations'),
+        ('Translations', 'Translations'),
+        ('CustomSite', 'Sites'),
+        ('CustomTab', 'Tabs'),
+        ('DataCategoryGroup', 'Category groups'),
+        ('HomePageLayout', 'Home page layout'),
+        ('Layout', 'Layouts'),
+        ('Portal', 'Portal'),
+        ('Profile', 'Profiles'),
+        ('RecordType', 'Record types'),
+        ('RemoteSiteSetting', 'Remote site settings'),
+        ('HomePageComponent', 'Home page components'),
+        ('ArticleType', 'Article types'),
+        ('ApexPage', 'Pages'),
+        ('ApexClass', 'Classes'),
+        ('ApexTrigger', 'Triggers'),
+        ('ApexComponent', 'Apex Components'),
+        ('ReportType', 'Report types'),
+        ('Scontrol', 'S-Controls'),
+        ('StaticResource', 'Static resources'),
+        ('Workflow', 'Workflows'),
+        ('EntitlementTemplate', 'Entitlement templates'),
+    )
+
+    api_env = forms.ChoiceField(choices=SFENVCHOICES)
+    api_assets = forms.MultipleChoiceField(choices=SFAPIASSETS)
+#    api_pass = forms.CharField(max_length=100, widget=forms.PasswordInput)
+    api_pass2 = forms.CharField(max_length=100, widget=forms.PasswordInput, required=False)
+
+
+    class Meta:
+        model = Branch
+        widgets = {
+            'api_pass': forms.widgets.PasswordInput(),
+        }
+
+    def clean(self):
+        
+        cleaned_data = self.cleaned_data
+        api_ver = cleaned_data.get("api_ver")
+        if api_ver and not re.match('^\d\d\.\d', api_ver):
+           self._errors["api_ver"] = self.error_class(['Invalid API Version - use xx.x format']);
+    
+        name = cleaned_data.get("name")
+        if name and not re.match('^\w+$', name):
+           self._errors["name"] = self.error_class(['Invalid branch name - use only alphanumeric']);
+
+        repo = cleaned_data.get("repo")
+        if not repo:
+           self._errors["repo"] = self.error_class(['Choose a repository']);
+
+        pass1 = cleaned_data.get("api_pass")
+        pass2 = cleaned_data.get("api_pass2")
+
+        if pass1 and pass2 and pass1 != pass2:
+            self._errors["api_pass"] = self.error_class(['Passwords do not match']);
+            self._errors["api_pass2"] = self.error_class(['Passwords do not match']);
+
+        cron_type = cleaned_data.get('cron_type')
+        cron_interval = int(cleaned_data.get('cron_interval'))
+        cron_start = cleaned_data.get('cron_start')
+        if cron_type == 'h':
+            if cron_interval < 1 or cron_interval > 23:
+               self._errors["cron_interval"] = self.error_class(['Interval must be between 1 and 23'])
+            offset = int(cron_start)
+            if offset < 0 or offset > 59:
+                self._errors["cron_start"] = self.error_class(['Start must be between 0 and 59'])
+
+        return cleaned_data
+
+
+def newbranch(request):
+    if request.method == 'POST':
+        form = BranchForm(request.POST)
+        if form.is_valid():
+            # Process the data in form.cleaned_data
+            row = Branch()
+            cleaned_data = form.cleaned_data
+            row.repo = cleaned_data.get('repo')
+            row.name = cleaned_data.get('name')
+            row.api_env = cleaned_data.get('api_env')
+            row.api_user = cleaned_data.get('api_user')
+            row.api_pass = cleaned_data.get('api_pass')
+            row.api_auth = cleaned_data.get('api_auth')
+            row.api_store = cleaned_data.get('api_store')
+            row.api_ver = cleaned_data.get('api_ver')
+            row.api_assets = ','.join(cleaned_data.get('api_assets'))
+            row.save()
+            createCrontab(row)
+            createCGitEntry(row)
+            return adminMenu(request)
+    else:
+        form = BranchForm()
+    return render_to_response('editbranch.html', {'form':form, 'type':'New', 'action':'newbranch/'}, context_instance=RequestContext(request))
+
+def editbranch(request, branch_id):
+    if request.method == 'POST':
+        form = BranchForm(request.POST)
+        if form.is_valid():
+            # Process the data in form.cleaned_data
+            row = Branch.objects.get(id=branch_id)
+            cleaned_data = form.cleaned_data
+            row.repo = cleaned_data.get('repo')
+            row.name = cleaned_data.get('name')
+            row.api_env = cleaned_data.get('api_env')
+            row.api_user = cleaned_data.get('api_user')
+            api_pass = cleaned_data.get('api_pass')
+            if api_pass and len(api_pass) > 0:
+                row.api_pass = api_pass
+            row.api_auth = cleaned_data.get('api_auth')
+            row.api_store = cleaned_data.get('api_store')
+            row.api_ver = cleaned_data.get('api_ver')
+            row.api_assets = ','.join(cleaned_data.get('api_assets'))
+            row.cron_type = cleaned_data.get('cron_type')
+            row.cron_interval = cleaned_data.get('cron_interval')
+            row.cron_start = cleaned_data.get('cron_start')
+            row.save()
+            updateCrontab(row)
+            createCGitEntry(row)
+            return adminMenu(request)
+    else:
+        row = Branch.objects.get(id=branch_id)
+        row.api_assets = row.api_assets.split(',')
+        form = BranchForm(instance=row)
+    return render_to_response('editbranch.html', {'form':form, 'type':'Edit', 'action':'editbranch/'+branch_id}, context_instance=RequestContext(request))
+    
+def createCGitEntry(branch):
+    removeCGitEntry(branch)
+    f = open('/usr/django/cgitrepo', 'a')
+    f.write('#ID=%d\n' % branch.id)
+    f.write('repo.url=%s\n' % branch.name)
+    f.write('repo.path=%s/.git\n' % branch.repo.location)
+    f.write('repo.desc=%s\n' % branch.name)
+    f.close()
+
+def removeCGitEntry(branch):
+    f = open('/usr/django/cgitrepo', 'r')
+    lines = f.readlines()
+    f.close()
+    linecount = 0
+    found = False
+    prefix = '#ID=%d' % branch.id
+    for line in lines:
+        if line.startswith(prefix):
+            found = True
+            break;
+        linecount += 1
+    if found:
+        start = linecount
+        linecount += 1
+        while linecount < len(lines) and len(lines[linecount]) > 0 and lines[linecount][0:1] != '#': linecount += 1
+#        del lines[start:linecount]
+        f = open('/usr/django/cgitrepo', 'w')
+        f.writelines(lines[0:start])
+        f.writelines(lines[linecount:])
+        f.close()
+
+def createCrontab(branch):
+    ctab = CronTab()
+    if branch.cron_type == 'h':
+        if branch.cron_interval > 1:
+            interval_list = [str(x) for x in range(0, 23, branch.cron_interval)]
+            interval_str = ','.join(interval_list)
+        else:
+            interval_str = '*'
+        cronline = "%s %s * * * /usr/django/cronjob.sh %s %s >/tmp/cronjob.out 2>&1" % (branch.cron_start, interval_str, branch.repo.name, branch.name)
+        item = CronItem(line=cronline + ' #' + ('StratoSource ID %d' % branch.id))
+        ctab.add(item)
+        ctab.write()
+
+def updateCrontab(branch):
+    removeCrontab(branch)
+    return createCrontab(branch)
+    
+def removeCrontab(branch):
+    ctab = CronTab()
+    comment = 'StratoSource ID %d' % branch.id
+    theItem = None
+    for item in ctab:
+        if item.raw_line.find(comment) > -1:
+            theItem = item
+            break
+
+    if theItem:
+        ctab.remove(theItem)
+        ctab.write()
+
+
+def adminMenu(request):
+    repos = Repo.objects.all()
+    branches = Branch.objects.all()
+    ctab = CronTab()
+    cronlist = [entry.render() for entry in ctab];
+    return render_to_response('admin_menu.html', {'repos': repos, 'branches':branches, 'crontab':cronlist}, context_instance=RequestContext(request))
+
+def repo_form_action(request):
+    if request.method == 'POST' and request.POST.__contains__('delRepoButton'):
+        repolist = request.POST.getlist('repocb')
+        if repolist:
+            for repoid in repolist:
+                branches = Branch.objects.filter(repo__id=repoid)
+                for branch in branches:
+                    removeCrontab(branch)
+                    removeCGitEntry(branch)
+                r = Repo.objects.get(id=repoid)
+                r.delete()
+    if request.method == 'POST' and request.POST.__contains__('addRepoButton'):
+        return redirect('/newrepo')
+
+    return adminMenu(request)
+   
+def branch_form_action(request):
+    if request.method == 'POST' and request.POST.__contains__('delBranchButton'):
+        branchlist = request.POST.getlist('branchcb')
+        if branchlist:
+            for branchid in branchlist:
+                br = Branch.objects.get(id=branchid)
+                removeCrontab(br)
+                removeCGitEntry(br)
+                br.delete()
+    if request.method == 'POST' and request.POST.__contains__('addBranchButton'):
+        return redirect('/newbranch')
+
+    return adminMenu(request)
+
+def newrepo(request):
+    if request.method == 'POST':
+        form = RepoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return adminMenu(request)
+    else:
+        form = RepoForm()
+    return render_to_response('editrepo.html', {'form':form, 'type':'New', 'action':'newrepo/'}, context_instance=RequestContext(request))
+
+def editrepo(request, repo_id):
+    if request.method == 'POST':
+        form = RepoForm(request.POST)
+        if form.is_valid():
+            row = Repo.objects.get(id=repo_id)
+            cleaned_data = form.cleaned_data
+            row.name = cleaned_data.get('name')
+            row.location = cleaned_data.get('location')
+            row.save()
+            return adminMenu(request)
+    else:
+        form = RepoForm(instance=Repo.objects.get(id=repo_id))
+    return render_to_response('editrepo.html', {'form':form, 'type':'Edit', 'action':'editrepo/'+repo_id}, context_instance=RequestContext(request))
+

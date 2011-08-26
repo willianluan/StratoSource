@@ -1,0 +1,129 @@
+
+{% extends 'layout.html' %}
+
+{% block breadcrumbs %}
+<a href="/">Home</a> -> <a href="/releases">Manage Releases</a> -> <a href="/release/{{release.id}}">{{ release.name }}</a> ->
+Manifest for {{release.branch.name|upper}}
+{% endblock %}
+
+{% block content %}
+
+    <div id="content" class="colMS">
+
+        <div id="content-main">
+            <div class="section">Release Notes for {{release.branch.name|upper}} for {{release.name}}</div>
+            <div class="module" style="padding:15px;">
+                {% autoescape off %}
+                    {{ release.release_notes }}
+                {% endautoescape %}
+            </div>            
+            <div class="section">Manifest of Changed Objects in {{release.branch.name|upper}} for {{release.name}}</div>
+            <div class="module ObjectsList">
+                {% for object in manifest %}
+                {% ifchanged object.type %}
+                {% if not forloop.first %}
+                    </table>
+                    <br/>
+                </div>
+                {% endif %}
+                <h3 class="sectionHeader">{{ object.type|title }}</h3>
+                <div id="{{ object.type|title }}List">
+                    <table>
+                        <tr>
+                            <th scope="row">Object Name</th>
+                            <th>Element Type</th>
+                            <th>Element Name</th>
+                            <th>Stories</th>
+                        </tr>
+                {% endifchanged %}
+                        <tr class="line_item_p">
+                            <td>
+                               {% ifchanged object.filename %}<strong><a href="/object/{{object.id}}" target="_blank">{{ object.filename }}</a></strong>{% endifchanged %}
+                            </td>
+                            <td>
+                                {% ifchanged %}
+                                    {% if object.el_type %}
+                                        {{ object.el_type|title }}
+                                    {% endif %}
+                                    {% if object.el_subtype %}
+                                        /{{ object.el_subtype|title }}
+                                    {% endif %}
+                                {% endifchanged %}
+                            </td>
+                            <td>
+                                {% if object.el_name %}
+                                    {{ object.el_name }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% for story in object.pending_stories.all %}
+                                    <a href="/instory/{{story.id}}?branch_name={{branch_name}}" title="{{ story.name }}">{{ story.rally_id }}</a>
+                                {% empty %}
+                                {% endfor %}
+                            </td>
+                        </tr>
+                {% if forloop.last %}
+                    </table>
+                    <br/>
+                </div>
+                {% endif %}
+                {% empty %}
+                <div>
+                    <table>
+                        <tr>
+                            <td scope="row" colspan="6">
+                                <strong>No objects pending.</strong>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                {% endfor %}
+                {% if translations|length > 0 %}
+                <h3 class="sectionHeader">Translations</h3>
+                <div id="TranslationsList">
+                    <table>
+                        <tr>
+                            <th scope="row">Label</th>
+                            <th>Locale</th>
+                            <th>Stories</th>
+                        </tr>
+                {% for translation in translations %}
+                        <tr class="line_item_{{ translation.release_status }}">
+                            <td>
+                               {% ifchanged translation.label %}<strong><a href="/translation/{{translation.id}}" target="_blank">{{ translation.label }}</a></strong>{% endifchanged %}
+                            </td>
+                            <td>
+                                {{ translation.locale }}
+                            </td>
+                            <td>
+                                {% for story in translation.pending_stories.all %}
+                                    <a href="/instory/{{story.id}}?branch_name={{branch_name}}" title="{{ story.name }}">{{ story.rally_id }}</a>
+                                {% empty %}
+                                {% endfor %}
+                            </td>
+                        </tr>
+                {% if forloop.last %}
+                    </table>
+                    <br/>
+                </div>
+                {% endif %}
+                {% empty %}
+                <div>
+                    <table>
+                        <tr>
+                            <td scope="row" colspan="6">
+                                <strong>No translations pending.</strong>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        <br class="clear" />
+    </div>
+
+
+
+{% endblock %}
