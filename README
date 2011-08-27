@@ -1,33 +1,4 @@
+Please see full install instructions at our wiki:
 
-Install the RPM via yum (Latest available at https://github.com/StratoSource/StratoSource/tree/master/latest)
-
-Create your MySQL database.  If you want to keep the configuration simple, use the namealready defined in settings.py.  Therefore, call the database "stratosource" and the owning/MySQL user "stratosource" with password "stratosource".
-
-Note: If you want to customize the names you have to edit settings.py as well.
-
-Finally, run:
-python manage.py syncdb
-
-This will create all tables and indexes.  You will be prompted to create an admin user and password.
-This is necessary to give you access to the admin pages for setting up repos.
-
-Django and StratoSource should now be available on port 80.  If not, make sure Apache is running and consult
-the httpd error log for more.
-
-Log into the StratoSource admin pages with: http://yoururl/admin using the admin user/password you created
-during the syncdb step.  From here create repos and branches as needed.  Once done, you are ready to
-use StratoSource.
-
-=================
-Importing Commits
-=================
-
-python manage.py commit <repo> <branch>
-
-=================
-Processing Diffs
-=================
-
-python manage.py sfdiff <repo> <branch>
-
+https://github.com/StratoSource/StratoSource/wiki/Installation-instructions
 
