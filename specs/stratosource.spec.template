@@ -7,7 +7,7 @@ Summary:        Process git repo dumps of salesforce assets and provide web UI f
 
 Group:          Applications/Internet
 License:        GPL
-URL:            http://www.redhat.com/
+URL:            http://www.StratoSource.com/
 Source0:        %{name}-%{version}-%{release}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 
