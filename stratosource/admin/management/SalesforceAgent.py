@@ -79,7 +79,11 @@ class SalesforceAgent:
     def close(self):
         if not self.login_result:
             raise Exception('Initialization error: not logged in')
-        self.partner.service.logout()
+	#
+	# try to avoid timeouts by not logging out, which invalidates shared session of other
+ 	# jobs using the same salesforce api credentials.
+	#
+#        self.partner.service.logout()
         self.login_result = None
 
     def _buildCustomObjectsPackage(self):
