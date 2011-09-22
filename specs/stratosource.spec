@@ -2,7 +2,7 @@
 
 Name:           stratosource
 Version: 1.0.0
-Release: 22
+Release: 23
 Summary:        Process git repo dumps of salesforce assets and provide web UI for the results
 
 Group:          Applications/Internet
@@ -16,7 +16,7 @@ Requires:       python-suds >= 0.3.9
 Requires:       memcached >= 1.4.5
 Requires:       python-memcached >= 1.47
 Requires:       python-lxml >= 2.2.7
-Requires:	Django = 1.3
+Requires:	Django >= 1.3
 Requires:       mysql >= 5.1.51
 Requires:       mysql-server >= 5.1.51
 Requires:       httpd >= 2.2.16
