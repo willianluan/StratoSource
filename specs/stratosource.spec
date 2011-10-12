@@ -2,7 +2,7 @@
 
 Name:           stratosource
 Version: 1.0.0
-Release: 23
+Release: 24
 Summary:        Process git repo dumps of salesforce assets and provide web UI for the results
 
 Group:          Applications/Internet
