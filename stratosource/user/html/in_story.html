@@ -4,7 +4,7 @@
 {% block breadcrumbs %}
 <a href="/">Home</a> -> 
 {% if branch_name %}
-<a href="/unreleased/{{branch.repo.name}}/{{branch.name}}">Unreleased Code for {{branch_name|upper}}</a>
+<a href="/unreleased/{{repo_name}}/{{branch_name}}">Unreleased Code for {{branch_name|upper}}</a>
 {% else %}
 <a href="/stories">Manage Stories</a>
 {% endif %}

@@ -81,7 +81,7 @@
                         </td>
                         <td>
                             {% for story in object.pending_stories.all %}
-                                <a href="/instory/{{story.id}}?branch_name={{branch_name}}" title="{{ story.name }}">{{ story.rally_id }}</a>
+                                <a href="/instory/{{story.id}}?repo_name={{repo_name}}&branch_name={{branch_name}}" title="{{ story.name }}">{{ story.rally_id }}</a>
                             {% empty %}
                             {% endfor %}
                         </td>
