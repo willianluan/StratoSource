@@ -114,7 +114,7 @@ def release(request, release_id):
         release.release_notes = request.POST['releaseNotes']
         release.save()
 
-    stories = Story.objects.exclude(done_on_branches=release.branch).order_by('rally_id', 'name')
+    stories = Story.objects.all().order_by('rally_id', 'name')
 
     data = {'release': release, 'avail_stories': stories}
     return render_to_response('release.html', data, context_instance=RequestContext(request))
@@ -123,7 +123,7 @@ def unreleased(request, repo_name, branch_name):
     branch = Branch.objects.get(repo__name=repo_name,name=branch_name)
 
     endDate = date.today()
-    startDate = endDate + timedelta(days=-14)
+    startDate = endDate + timedelta(days=-42)
     if request.method == u'GET' and request.GET.__contains__('startDate'):
         startDate =  datetime.strptime(request.GET['startDate'],"%m/%d/%Y")
     if request.method == u'GET' and request.GET.__contains__('endDate'):

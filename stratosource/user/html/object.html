@@ -32,7 +32,7 @@
                             </td>
                             <td> {{ delta.object.el_name }} </td>
                             <td> {{ delta.getDeltaType|title }} </td>
-                            <td> <a href="/cgit/{{ delta.commit.branch.name }}/diff/unpackaged/{{ delta.object.type }}/{{ delta.object.filename }}?id={{ delta.commit.hash }}" target="_blank">{{ delta.commit.date_added }} - <strong>{{ delta.commit.comment }}</strong></a></td>
+                            <td> <a href="/cgit/{{ delta.commit.branch.name }}/diff/unpackaged/{{ delta.object.type }}/{{ delta.object.filename }}?id={{ delta.commit.hash }}">{{ delta.commit.date_added }} - <strong>{{ delta.commit.comment }}</strong></a></td>
                         </tr>
                     {% empty %}
                         No Changes has been made to this object.
