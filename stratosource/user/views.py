@@ -122,12 +122,20 @@ def release(request, release_id):
 def unreleased(request, repo_name, branch_name):
     branch = Branch.objects.get(repo__name=repo_name,name=branch_name)
 
+    if request.method == u'GET' and request.GET.__contains__('releaseAll') and request.GET['releaseAll'] == 'true':
+        deltas = Delta.objects.exclude(object__release_status='r').filter(object__branch=branch)
+        deltas.select_related()
+        for delta in deltas.all():
+            delta.object.release_status = 'r'
+            delta.object.save()
+
     endDate = date.today()
     startDate = endDate + timedelta(days=-42)
     if request.method == u'GET' and request.GET.__contains__('startDate'):
         startDate =  datetime.strptime(request.GET['startDate'],"%m/%d/%Y")
     if request.method == u'GET' and request.GET.__contains__('endDate'):
         endDate = datetime.strptime(request.GET['endDate'],"%m/%d/%Y")
+        
     endDate = endDate + timedelta(days=1)
 
     deltas = Delta.objects.exclude(object__release_status='r').filter(object__branch=branch).filter(commit__date_added__gte = startDate).filter(commit__date_added__lte = endDate).order_by('object__type','object__filename','object__el_type','object__el_subtype','object__el_name','commit__date_added')

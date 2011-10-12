@@ -26,6 +26,7 @@
             <div class="sectionBase">
                 <span class="section">Changed Objects in {{repo_name|upper}} - {{branch_name|upper}}</span>
                 <span class="sectionActions">
+                    <span id="markAllReleased"><a href="?releaseAll=true" onclick="return confirm('This cannot be reversed and should only be done after an environment has been refreshed. All tracking will start from scratch. Are you VERY VERY sure?');">Mark ALL Released</a></span> |
                     <span id="ignoreSelected"><a href="#" onclick="if (confirm('Are you sure?')) {ignoreSelected();} return false;">Ignore Selected Objects</a></span> |
                     <a href="#" onclick="promptStoryAdd(); return false;">Associate Selected Objects to a Story</a>
                 </span>
