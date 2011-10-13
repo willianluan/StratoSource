@@ -24,10 +24,12 @@ from stratosource.admin.models import Branch, BranchLog, Repo
 from django.core.exceptions import ObjectDoesNotExist
 from crontab import CronTab, CronItem
 import subprocess
+import popen2
 import os
 import re
-import popen2
+import logging
 
+logger = logging.getLogger('console')
 
 class RepoForm(forms.ModelForm):
     class Meta:
@@ -138,6 +140,7 @@ class BranchForm(forms.ModelForm):
 def newbranch(request):
     if request.method == 'POST':
         form = BranchForm(request.POST)
+        
         if form.is_valid():
             # Process the data in form.cleaned_data
             row = Branch()
@@ -184,6 +187,8 @@ def editbranch(request, branch_id):
             updateCrontab(row)
             createCGitEntry(row)
             return adminMenu(request)
+        else:
+            logger.debug(form.errors)
     else:
         row = Branch.objects.get(id=branch_id)
         row.api_assets = row.api_assets.split(',')
@@ -193,7 +198,7 @@ def editbranch(request, branch_id):
 
 def last_log(request, branch_id):
     branch = Branch.objects.get(id=branch_id)
-    log = ''
+    log = 'No Log Found'
     try:
         branchlog = BranchLog.objects.get(branch=branch)
         log = branchlog.lastlog
@@ -267,9 +272,26 @@ def removeCrontab(branch):
 
 def adminMenu(request):
     if request.method == u'GET' and request.GET.__contains__('snapshot') and request.GET['snapshot'] == 'true':
-        repo_name = request.GET['repo_name']
-        branch_name = request.GET['branch_name']
-        subprocess.call(["/usr/django/cronjob.sh",repo_name,branch_name,">/tmp/cronjob.out 2>&1"])
+        branch_id = request.GET['branch_id']
+        branch = Branch.objects.get(id=branch_id)
+        if branch.run_status != 'r':
+            repo_name = branch.repo.name
+            branch_name = branch.name
+            pr = subprocess.Popen('/usr/django/cronjob.sh ' + repo_name + ' ' + branch_name + ' >/tmp/ssRun.out 2>&1 &', shell=True)
+            logger.debug('Started With pid ' + str(pr.pid))
+            pr.wait()
+            if pr.returncode == 0:
+                brlog = BranchLog()                
+                try:
+                    brlog = BranchLog.objects.get(branch=branch)
+                except ObjectDoesNotExist:
+                    brlog.branch = branch
+                brlog.last_log = 'Started'
+                brlog.save()
+                branch.run_status = 'r'
+                branch.save()
+                return redirect("/admin/?success=true")
+            return redirect("/admin/?failed=true")        
 
     repos = Repo.objects.all()
     branches = Branch.objects.all()

@@ -30,10 +30,12 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        if len(args) < 3: raise CommandError('usage: <repo name> <branch> <file>')
+        if len(args) < 4: raise CommandError('usage: <repo name> <branch> <file> <run_status>')
 
         br = Branch.objects.get(repo__name__exact=args[0], name__exact=args[1])
         if not br: raise CommandException("invalid repo/branch")
+        br.run_status = args[3]
+        br.save()
         
         brlog = BranchLog()
         
@@ -42,7 +44,7 @@ class Command(BaseCommand):
         except ObjectDoesNotExist:
             brlog.branch = br
 
-        lastlog = ''
+        lastlog = 'From ' + args[2] + '<br/>'
         
         for line in fileinput.input(args[2]):
             lastlog += line + '<br/>'

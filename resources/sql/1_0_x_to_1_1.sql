@@ -4,6 +4,11 @@ CREATE TABLE `admin_branchlog` (
     `branch_id` integer NOT NULL
 )
 ;
-ALTER TABLE `admin_branchlog` ADD CONSTRAINT `branch_id_refs_id_5f90c3fe` FOREIGN KEY (`branch_id`) REFERENCES `admin_branch` (`id`);
-
-alter table `admin_branch` add column `run_status` varchar(1) NOT NULL default 'u';
+ALTER TABLE `admin_branchlog` ADD CONSTRAINT `branch_id_refs_id_5f90c3fe` FOREIGN KEY (`branch_id`) REFERENCES `admin_branch` (`id`)
+;
+alter table `admin_branch` add column `run_status` varchar(1)
+;
+update `admin_branch` set `run_status`='u'
+;
+alter table `admin_branch` modify column `run_status` varchar(1) NOT NULL
+;

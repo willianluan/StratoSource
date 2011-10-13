@@ -2,8 +2,7 @@
 {% extends 'layout.html' %}
 
 {% block breadcrumbs %}
-<a href="/">Home</a> -> <a href="/releases">Manage Releases</a> -> <a href="/release/{{release.id}}">{{ release.name }}</a> ->
-Manifest for {{release.branch.name|upper}}
+<a href="/">Home</a> -> <a href="/admin">Admin</a> -> Log for for {{branch.name|upper}}
 {% endblock %}
 
 {% block content %}

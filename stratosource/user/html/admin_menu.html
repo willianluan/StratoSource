@@ -63,7 +63,14 @@
                     <td>{{ branch.repo.name }}</td>
                     <td>{{ branch.api_user }}</td>
                     <td><a href="/lastlog/{{ branch.id }}">Last Run</a></td>
-                    <td><a href="?snapshot=true&repo_name={{ branch.repo.name }}&branch_name={{ branch.name }}">Snapshot Now</a></td>
+                    {% if branch.run_status == 'r'%}
+                        <td>Running</td>
+                    {% else %}
+                        <td>
+                            {% if branch.run_status == 'e'%}Error On Last Run: {% endif %}
+                            <a onclick="return confirm('This will start a manual snapshot of your repository, are you sure you want to do this?');" href="/admin/?snapshot=true&branch_id={{ branch.id }}">Snapshot Now</a>
+                        </td>                            
+                    {% endif %}
                 </tr>
             {% endfor %}
         </table>

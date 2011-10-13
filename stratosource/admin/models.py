@@ -61,6 +61,9 @@ class Branch(models.Model):
         ('h', 'Hourly'), ('d', 'Daily'),
     )
 
+    RUNSTATUS = (
+        ('u', 'Unknown'), ('r', 'Running'), ('d', 'Done'),  ('e', 'Error'),
+    )
 
     repo =  models.ForeignKey(Repo)
     name =  models.CharField(max_length=30)
@@ -76,6 +79,7 @@ class Branch(models.Model):
                 'CustomSite,CustomTab,DataCategoryGroup,HomePageLayout,Layout,Portal,Profile,RecordType,'+
                 'RemoteSiteSetting,ReportType,Scontrol,StaticResource,Workflow')
     cron_type = models.CharField(max_length=1, choices=CRONFREQ,default='h')
+    run_status = models.CharField(max_length=1, choices=RUNSTATUS,default='u', blank=True, null=True)
     cron_interval = models.IntegerField(default=1)
     cron_start = models.CharField(max_length=5, default='0')
 
