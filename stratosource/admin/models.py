@@ -80,7 +80,11 @@ class Branch(models.Model):
     cron_start = models.CharField(max_length=5, default='0')
 
     def __unicode__(self):
-        return self.repo.name + " - " + self.name
+        return self.repo.name + " - " + self.name    
+
+class BranchLog(models.Model):
+    lastlog = models.CharField(max_length=20000)
+    branch =  models.ForeignKey(Branch)
 
 class Story(models.Model):
     rally_id =          models.CharField(max_length=20,blank=True,null=True)

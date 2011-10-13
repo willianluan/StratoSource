@@ -72,5 +72,6 @@ urlpatterns = patterns('',
     (r'^newrepo/', 'stratosource.user.admin_views.newrepo'),
     (r'^editrepo/(\d+)$', 'stratosource.user.admin_views.editrepo'),
     (r'^repo_admin_form_action', 'stratosource.user.admin_views.repo_form_action'),
+    (r'^lastlog/(.+)$', 'stratosource.user.admin_views.last_log'),
     
 )

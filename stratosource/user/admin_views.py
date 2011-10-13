@@ -20,9 +20,10 @@ from datetime import datetime
 from django import forms
 from django.template import RequestContext
 from django.shortcuts import render_to_response, redirect
-from stratosource.admin.models import Branch, Repo
+from stratosource.admin.models import Branch, BranchLog, Repo
 from django.core.exceptions import ObjectDoesNotExist
 from crontab import CronTab, CronItem
+import subprocess
 import os
 import re
 import popen2
@@ -189,6 +190,19 @@ def editbranch(request, branch_id):
         form = BranchForm(instance=row)
     return render_to_response('editbranch.html', {'form':form, 'type':'Edit', 'action':'editbranch/'+branch_id}, context_instance=RequestContext(request))
     
+
+def last_log(request, branch_id):
+    branch = Branch.objects.get(id=branch_id)
+    log = ''
+    try:
+        branchlog = BranchLog.objects.get(branch=branch)
+        log = branchlog.lastlog
+    except ObjectDoesNotExist:
+        pass
+        
+    data = {'branch': branch, 'log': log }
+    return render_to_response('last_log.html', data, context_instance=RequestContext(request))
+        
 def createCGitEntry(branch):
     removeCGitEntry(branch)
     f = open('/usr/django/cgitrepo', 'a')
@@ -252,6 +266,11 @@ def removeCrontab(branch):
 
 
 def adminMenu(request):
+    if request.method == u'GET' and request.GET.__contains__('snapshot') and request.GET['snapshot'] == 'true':
+        repo_name = request.GET['repo_name']
+        branch_name = request.GET['branch_name']
+        subprocess.call(["/usr/django/cronjob.sh",repo_name,branch_name,">/tmp/cronjob.out 2>&1"])
+
     repos = Repo.objects.all()
     branches = Branch.objects.all()
     ctab = CronTab()
