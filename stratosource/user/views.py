@@ -52,8 +52,14 @@ def configs(request):
                 for setting in allsettings:
                     if key == setting.key:
                         if setting.value != value:
-                            setting.value = value
-                            setting.save()
+                            if setting.masked:
+                                repValue = request.POST[param + '_2']
+                                if repValue == value:
+                                    setting.value = value
+                                    setting.save()
+                            else:
+                                setting.value = value
+                                setting.save()
 
         # Handle checkboxes
         for setting in allsettings:

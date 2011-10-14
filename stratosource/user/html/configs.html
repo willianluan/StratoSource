@@ -8,7 +8,24 @@
 {% block content %}
 
     <script type="text/javascript">
+        function verifyMatch(settingId){
+            if (document.getElementById(settingId).value != document.getElementById(settingId + '_2').value)
+            {
+                alert('Values entered for ' + settingId + ' do not match, please fix');
+                return false;
+            }
+            return true;
+        }
+        
         function submitForm(){
+{% for setting in settings %}
+    {% if setting.masked %}
+            if (!verifyMatch('{{ setting.key }}')){
+                return false;
+            }
+    {% endif %}
+{% endfor %}
+            
             document.getElementById('formSettings').submit();
             return false;
         }
@@ -35,7 +52,8 @@
                                 <input name="key_{{ setting.key }}" id="{{ setting.key }}" type="checkbox" name="newFieledName" value="1" {% if setting.value == '1' %}checked{% endif %}/>
                                 {% else %}
                                     {% if setting.masked %}
-                                    <input name="key_{{ setting.key }}" id="{{ setting.key }}" type="password" name="newFieledName" value="{{ setting.value }}"/>
+                                    <span><input name="key_{{ setting.key }}" id="{{ setting.key }}" type="password" name="newFieledName" value=""/></span><span style="vertical-align:middle;">&nbsp;Repeat:</span><span><input name="key_{{ setting.key }}_2" id="{{ setting.key }}_2" type="password" name="newFieledName" value=""/></span><br>
+                                    * Only Enter if you want to change it
                                     {% else %}
                                     <input name="key_{{ setting.key }}" id="{{ setting.key }}" type="text" name="newFieledName" value="{{ setting.value }}"/>
                                     {% endif %}
