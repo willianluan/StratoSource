@@ -157,6 +157,19 @@
 
                         <tr>
                             <td align="right">
+                                <label for="id_cron_type">cron Enabled:</label>
+                                {{ form.cron_enabled.errors }}
+                            </td>
+                            <td>
+                                {{ form.cron_enabled }}
+                            </td>
+                            <td>
+                                Whether or not we should schedule snapshots of this environment.
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td align="right">
                                 <label for="id_cron_type">cron Type:</label>
                                 {{ form.cron_type.errors }}
                             </td>

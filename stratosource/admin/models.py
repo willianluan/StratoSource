@@ -78,6 +78,7 @@ class Branch(models.Model):
                 'CustomPageWebLink,CustomLabels,CustomApplication,CustomObject,CustomObjectTranslation,Translations,'+
                 'CustomSite,CustomTab,DataCategoryGroup,HomePageLayout,Layout,Portal,Profile,RecordType,'+
                 'RemoteSiteSetting,ReportType,Scontrol,StaticResource,Workflow')
+    cron_enabled = models.BooleanField(default=True)
     cron_type = models.CharField(max_length=1, choices=CRONFREQ,default='h')
     run_status = models.CharField(max_length=1, choices=RUNSTATUS,default='u', blank=True, null=True)
     cron_interval = models.IntegerField(default=1)

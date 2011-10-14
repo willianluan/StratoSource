@@ -180,6 +180,7 @@ def editbranch(request, branch_id):
             row.api_store = cleaned_data.get('api_store')
             row.api_ver = cleaned_data.get('api_ver')
             row.api_assets = ','.join(cleaned_data.get('api_assets'))
+            row.cron_enabled = cleaned_data.get('cron_enabled')
             row.cron_type = cleaned_data.get('cron_type')
             row.cron_interval = cleaned_data.get('cron_interval')
             row.cron_start = cleaned_data.get('cron_start')
@@ -248,13 +249,15 @@ def createCrontab(branch):
         else:
             interval_str = '*'
         cronline = "%s %s * * * /usr/django/cronjob.sh %s %s >/tmp/cronjob.out 2>&1" % (branch.cron_start, interval_str, branch.repo.name, branch.name)
+        logger.debug('Creating cron tab with line ' + cronline)
         item = CronItem(line=cronline + ' #' + ('StratoSource ID %d' % branch.id))
         ctab.add(item)
         ctab.write()
 
 def updateCrontab(branch):
     removeCrontab(branch)
-    return createCrontab(branch)
+    if branch.cron_enabled:
+        return createCrontab(branch)
     
 def removeCrontab(branch):
     ctab = CronTab()
