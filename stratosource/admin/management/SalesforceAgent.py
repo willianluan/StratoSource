@@ -107,6 +107,7 @@ class SalesforceAgent:
         pkg = self.meta.factory.create('Package')
         pkg.fullName = ['*']
         pkg.version = _API_VERSION
+        pkg.apiAccessLevel = 'Unrestricted'
         pkgtypes = []
         for type in types:
             if type == 'CustomObject':
