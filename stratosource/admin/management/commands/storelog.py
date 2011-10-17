@@ -50,6 +50,6 @@ class Command(BaseCommand):
             lastlog += line + '<br/>'
             
         if len(lastlog) > 20000:
-            lastlog = lastlog[len(lastlog) - 20000]
+            lastlog = lastlog[len(lastlog) - 20000:]
         brlog.lastlog = lastlog
         brlog.save()
