@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #    Copyright 2010, 2011 Red Hat Inc.
 #
 #    This file is part of StratoSource.
@@ -15,7 +16,6 @@
 #    You should have received a copy of the GNU General Public License
 #    along with StratoSource.  If not, see <http://www.gnu.org/licenses/>.
 #    
-#!/usr/bin/env python
 from django.core.management import execute_manager
 try:
     import settings # Assumed to be in the same directory.
