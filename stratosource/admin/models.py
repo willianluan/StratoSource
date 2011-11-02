@@ -34,6 +34,7 @@ class ConfigSetting(models.Model):
 class UnitTestRun(models.Model):
     apex_class_id   = models.CharField(max_length=20, blank=False, null=False, unique=False)
     batch_time      = models.DateTimeField(default=datetime.datetime.now)
+    class_name      = models.CharField(max_length=200, blank=False, null=False)
 
 class UnitTestRunResult(models.Model):
     test_run =  models.ForeignKey(UnitTestRun)

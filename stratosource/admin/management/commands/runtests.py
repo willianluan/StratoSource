@@ -52,13 +52,13 @@ class Command(BaseCommand):
 
 
     def startTests(self):
-        cList = self.getClassList()
+        self.classList = self.getClassList()
         count = 0
         self.testItemIdList = {}
-        for cls in cList:
+        for cls in self.classList:
             body = cls['Body'].lower()
             if body.find('testmethod') > 0:
-                if count == 10: break
+                if count == 15: break
                 count += 1
                 print '%s -> %s' % (cls['Id'], cls['Name'])
                 data = self.invokePostREST("/services/data/v23.0/sobjects/ApexTestQueueItem", json.dumps({'ApexClassId':cls['Id']}))
@@ -118,6 +118,8 @@ class Command(BaseCommand):
         utr = UnitTestRun()
         utr.apex_class_id = queueItem['ApexClassId']
         utr.batch_time = self.batch_time
+        for cls in self.classList:
+            if cls['Id'] == utr.apex_class_id: utr.class_name = cls['Name']
         utr.save()
         if not data == None:
             records = data['records']
@@ -125,10 +127,8 @@ class Command(BaseCommand):
                 utrr = UnitTestRunResult()
                 utrr.test_run = utr
                 dt = record['TestTimestamp'][0:-9]
-                print 'testtimestamp=%s' % dt
                 utrr.start_time = datetime.datetime.strptime(dt, '%Y-%m-%dT%H:%M:%S')
                 dt = record['SystemModstamp'][0:-9]
-                print 'systemmodstamp=%s' % dt
                 utrr.end_time = datetime.datetime.strptime(dt, '%Y-%m-%dT%H:%M:%S')
                 utrr.method_name = record['MethodName']
                 utrr.outcome = record['Outcome']
