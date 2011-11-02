@@ -16,6 +16,9 @@
 #    along with StratoSource.  If not, see <http://www.gnu.org/licenses/>.
 #    
 # Django settings for stratosource project.
+import os
+
+PROJECT_PATH = os.path.abspath(os.path.split(__file__)[0])
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -106,10 +109,10 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    "/home/masmith/django/stratosource/admin/html",
-    "/home/masmith/django/stratosource/user/html",
-    "/usr/django/stratosource/admin/html",
-    "/usr/django/stratosource/user/html"
+    os.path.join(PROJECT_PATH, "admin/html"),
+    os.path.join(PROJECT_PATH, "user/html"),
+    os.path.join(PROJECT_PATH, "admin/html"),
+    os.path.join(PROJECT_PATH, "user/html")
 )
 
 INSTALLED_APPS = (

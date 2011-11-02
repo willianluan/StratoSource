@@ -21,6 +21,10 @@ from django.conf.urls.defaults import *
 from django.contrib import admin
 admin.autodiscover()
 
+import os
+
+PROJECT_PATH = os.path.abspath(os.path.split(__file__)[0])
+
 urlpatterns = patterns('',
     # Example:
     # (r'^stratosource/', include('stratosource.admin.urls')),
@@ -61,7 +65,7 @@ urlpatterns = patterns('',
     (r'^commit/(\d+)$', 'stratosource.admin.views.commit'),
 
     (r'^csmedia/(?P<path>.*)$', 'django.views.static.serve',
-        {'document_root': '/usr/django/stratosource/csmedia'}),
+        {'document_root': os.path.join(PROJECT_PATH, 'csmedia')}),
 
     # admin menu support
     (r'^admin/', 'stratosource.user.admin_views.adminMenu'),
