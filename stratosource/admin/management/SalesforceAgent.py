@@ -21,11 +21,12 @@ import suds
 import binascii
 import time
 import logging
+from urlparse import urlparse
 
 __author__="mark"
 __date__ ="$Aug 15, 2010 9:48:38 PM$"
 
-_API_VERSION = 20.0
+_API_VERSION = 23.0
 _DEFAULT_LOGNAME = '/tmp/agent.log'
 _METADATA_TIMEOUT=60 * 80
 _METADATA_POLL_SLEEP=10
@@ -61,6 +62,11 @@ class SalesforceAgent:
         logging.basicConfig(filename=name,level=logging.DEBUG)
         self.logger = logging.getLogger(__file__)
 
+    def getSessionId(self):
+        return self.sid.sessionId
+        
+    def getServerLocation(self):
+        return urlparse(self.login_result.serverUrl).netloc
 
     def login(self, user, password, server_url = None):
         if server_url: self.partner.set_options(location=server_url)

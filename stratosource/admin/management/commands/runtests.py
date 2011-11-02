@@ -1,0 +1,150 @@
+#    Copyright 2010, 2011 Red Hat Inc.
+#
+#    This file is part of StratoSource.
+#
+#    StratoSource is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    StratoSource is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with StratoSource.  If not, see <http://www.gnu.org/licenses/>.
+#    
+from django.core.management.base import BaseCommand, CommandError
+from suds.client import Client
+import os
+import base64
+import sys
+import httplib, urllib
+import json
+import time
+import datetime
+from admin.management import Utils
+from admin.models import Branch, Repo, UnitTestRun, UnitTestRunResult
+
+__author__="masmith"
+__date__ ="$Nov 1, 2011 10:41:44 AM$"
+
+
+
+class Command(BaseCommand):
+
+    def handle(self, *args, **options):
+
+        if len(args) < 2: raise CommandError('usage: runtests <repo alias> <branch>')
+        repo = Repo.objects.get(name__exact=args[0])
+        branch = Branch.objects.get(repo=repo, name__exact=args[1])
+
+        self.agent = Utils.getAgentForBranch(branch)
+        self.rest_headers = {"Authorization": "OAuth %s" % self.agent.getSessionId(), "Content-Type": "application/json" }
+        serverloc = self.agent.getServerLocation()
+        print 'server=%s' % serverloc
+        serverloc = 'cs4.salesforce.com'; ####### !!!! FIX THIS !!!!!!
+        self.rest_conn = httplib.HTTPSConnection(serverloc)
+        self.startTests()
+        self.monitorTests()
+        self.rest_conn.close()
+
+
+    def startTests(self):
+        cList = self.getClassList()
+        count = 0
+        self.testItemIdList = {}
+        for cls in cList:
+            body = cls['Body'].lower()
+            if body.find('testmethod') > 0:
+                if count == 10: break
+                count += 1
+                print '%s -> %s' % (cls['Id'], cls['Name'])
+                data = self.invokePostREST("/services/data/v23.0/sobjects/ApexTestQueueItem", json.dumps({'ApexClassId':cls['Id']}))
+                if data != None and data['success'] == True:
+                    self.testItemIdList[data['id']] = None
+                print 'data: %s' % data
+#                print response.status, response.reason
+        print '** tests scheduled'
+
+
+    def invokePostREST(self, url, payload):
+        self.rest_conn.request("POST", url, payload, headers=self.rest_headers)
+        response = self.rest_conn.getresponse()
+        resultPayload = response.read()
+        if response.status != 201:
+            print response.status, response.reason
+            return None
+        data = json.loads(resultPayload)
+        return data
+
+    def invokeGetREST(self, url):
+        self.rest_conn.request("GET", url, headers=self.rest_headers)
+        response = self.rest_conn.getresponse()
+        resultPayload = response.read()
+        if response.status != 200:
+            print response.status, response.reason
+            return None
+        data = json.loads(resultPayload)
+        return data
+
+    def monitorTests(self):
+        timer = 120
+        self.batch_time = datetime.datetime.now()
+        self.completedTests = {}
+        while timer > 0 and len(self.testItemIdList) > 0:
+            print '-- %d tests remaining' % len(self.testItemIdList)
+            params = urllib.urlencode({'q': "select Id, ApexClassId, SystemModstamp from ApexTestQueueItem where Status = 'Completed'"})
+            data = self.invokeGetREST("/services/data/v23.0/query/?%s" % params)
+            if not data == None:
+                records = data['records']
+                for record in records:
+                    if not self.isPendingTest(record): continue  # make sure only looking at OUR tests
+                    print 'record:'
+                    print record
+                    if not self.completedTests.has_key(record['Id']):
+                        self.processCompletedQueueItem(record)
+            print '%d: sleeping...' % timer
+            time.sleep(60)
+            timer -= 1
+
+
+    def processCompletedQueueItem(self, queueItem):
+        self.completedTests[queueItem['Id']] = queueItem
+        del self.testItemIdList[queueItem['Id']]
+        params = urllib.urlencode({'q': "select Id, ApexClassId, SystemModstamp, TestTimestamp, MethodName, Outcome, Message from ApexTestResult where QueueItemId = '%s'" % queueItem['Id']})
+        data = self.invokeGetREST("/services/data/v23.0/query/?%s" % params)
+        utr = UnitTestRun()
+        utr.apex_class_id = queueItem['ApexClassId']
+        utr.batch_time = self.batch_time
+        utr.save()
+        if not data == None:
+            records = data['records']
+            for record in records:
+                utrr = UnitTestRunResult()
+                utrr.test_run = utr
+                dt = record['TestTimestamp'][0:-9]
+                print 'testtimestamp=%s' % dt
+                utrr.start_time = datetime.datetime.strptime(dt, '%Y-%m-%dT%H:%M:%S')
+                dt = record['SystemModstamp'][0:-9]
+                print 'systemmodstamp=%s' % dt
+                utrr.end_time = datetime.datetime.strptime(dt, '%Y-%m-%dT%H:%M:%S')
+                utrr.method_name = record['MethodName']
+                utrr.outcome = record['Outcome']
+                utrr.message = record['Message']
+                utrr.save()
+
+
+    def isPendingTest(self, queue_item):
+        for testid in self.testItemIdList.keys():
+            if testid == queue_item['Id']: return True
+        return False
+
+    def getClassList(self):
+        params = urllib.urlencode({'q': "select id, name, body from ApexClass where Status = 'Active' and NamespacePrefix = '' order by name"})
+        data = self.invokeGetREST("/services/data/v23.0/query/?%s" % params)
+        if not data == None:
+            return data['records']
+        return nil
+

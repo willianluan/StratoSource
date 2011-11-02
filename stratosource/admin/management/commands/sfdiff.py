@@ -617,7 +617,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         global documentCache
 
-        if len(args) < 2: raise CommandError('usage: process <repo alias> <branch> {start date mm-dd-yyyy}')
+        if len(args) < 2: raise CommandError('usage: sfdiff <repo alias> <branch> {start date mm-dd-yyyy}')
         repo = Repo.objects.get(name__exact=args[0])
         branch = Branch.objects.get(repo=repo, name__exact=args[1])
 

@@ -31,6 +31,19 @@ class ConfigSetting(models.Model):
     allow_delete    = models.BooleanField(default=True)
     masked          = models.BooleanField(default=False)
 
+class UnitTestRun(models.Model):
+    apex_class_id   = models.CharField(max_length=20, blank=False, null=False, unique=False)
+    batch_time      = models.DateTimeField(default=datetime.datetime.now)
+
+class UnitTestRunResult(models.Model):
+    test_run =  models.ForeignKey(UnitTestRun)
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    method_name = models.CharField(max_length=200)
+    outcome = models.CharField(max_length=50)
+    message = models.CharField(max_length=255, blank=True, null=True)
+
+
 
 #class UserDetails(models.Model):
 #    USER_TYPES = (('dev','Developer'),('bua','Business Analyst'),('evm','Environment Manager'),('unk','Unknown'))

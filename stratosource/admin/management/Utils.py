@@ -37,7 +37,7 @@ def getAgentForBranch(branch):
 
     logger.debug("user='%s' path='%s' types=[%s] url='%s'", user, path, ' '.join(types), svcurl)
 
-    partner_wsdl = 'file://' + os.path.join(CSBase.CSCONF_DIR, 'partner.wsdl')
+    partner_wsdl = 'file://' + os.path.join(CSBase.CSCONF_DIR, 'partner%s.wsdl' % branch.api_ver)
     meta_wsdl = 'file://' + os.path.join(CSBase.CSCONF_DIR, 'metadata.wsdl')
     agent = SalesforceAgent(partner_wsdl, meta_wsdl)
 
