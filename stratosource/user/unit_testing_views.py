@@ -46,6 +46,15 @@ def results(request):
 def result(request, run_id):
     run = UnitTestRun.objects.get(id=run_id)
     results = UnitTestRunResult.objects.filter(test_run=run)
+    
+    for result in results:
+        if result.end_time == result.start_time:
+            result.runtime = '<1s'
+        else:
+            td = result.end_time - result.start_time
+            runtime = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
+            result.runtime = str(runtime) + 's'
+        
 
     data = {'run': run, 'results': results}
     return render_to_response('unit_testing_result.html', data, context_instance=RequestContext(request))
