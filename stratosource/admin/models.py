@@ -204,6 +204,8 @@ class UnitTestRun(models.Model):
     batch_time      = models.DateTimeField(default=datetime.datetime.now, db_index=True)
     class_name      = models.CharField(max_length=200, blank=False, null=False)
     branch          = models.ForeignKey(Branch)
+    tests           = models.IntegerField(default=0)
+    failures        = models.IntegerField(default=0)
 
 class UnitTestRunResult(models.Model):
     test_run =  models.ForeignKey(UnitTestRun)
