@@ -1,0 +1,58 @@
+
+{% extends 'layout.html' %}
+
+{% block breadcrumbs %}
+<a href="/">Home</a> -> Unit Test Results
+{% endblock %}
+
+{% block content %}
+
+    <div id="content" class="colMS">
+
+        <div id="content-main">
+            <div class="module ObjectsList">
+                    {% for run in testruns %}
+            {% ifchanged run.batch_time %}
+                {% if not forloop.first %}
+                    </table>
+                    <br/>
+            </div>
+            {% endif %}
+            <h3 class="sectionHeader">
+                <a href="#" onclick="toggle('{{ run.id }}List'); toggle('max{{ run.id }}'); toggle('min{{ run.id }}'); return false;"><img id="min{{ run.id }}" src="/csmedia/images/minimize.png" height="20" width="20" style="display:none;"/><img id="max{{ run.id }}" src="/csmedia/images/maximize.png" height="20" width="20"/></a> Batch started at <b>{{ run.batch_time }}</b>
+                <span class="sectionHeaderActions"><a onclick="return confirm('Are you sure?');" href="?delete={{ run.id }}" style="display:inline;">Delete Run</a></span>
+            </h3>
+              <div id="{{ run.id }}List" style="display:none;">
+                <table>
+                        <tr>
+                            <th scope="row">Test Class</th>
+                            <th>Result</th>
+                            <th>Actions</th>
+                        </tr>
+            {% endifchanged %}
+                        <tr>
+                            <td scope="row" nowrap style="width: 40%;">
+                                <a href="https://test.salesforce.com/?startURL={{ run.apex_class_id }}">{{ run.class_name }}</a>
+                            </td>
+                            <td>
+                                    {{ run.outcome }}
+                            </td>
+                            <td>
+                                    <a href="/unit_testing_result/{{ run.id }}" style="display:inline; margin-left:5px;">Detailed Results</a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td scope="row" colspan="5">
+                                <strong>No test runs have occurred.</strong>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        <br class="clear" />
+    </div>
+
+
+{% endblock %}

@@ -49,36 +49,6 @@ body {
     font-size:11px;
 }
 
-.sectionActions {
-    float: right;
-    margin: 2px;
-    vertical-align: middle;
-    color: white;
-    font-size: 9pt;
-    font-weight:bold;
-    text-align:left;
-    text-shadow:0.1em 0.1em 0.2em black;
-}
-
-.sectionActions a:link, .sectionActions a:visited {
-    color: white;
-    font-size: 9pt;
-    font-weight:bold;
-    text-align:left;
-    text-shadow:0.1em 0.1em 0.2em black;
-}
-
-.sectionHeaderActions {
-    color: white;
-    font-size: 8pt;
-    font-weight:bold;
-    text-align:left;
-    text-shadow:0.1em 0.1em 0.2em black;
-    float: right;
-    margin: 2px;
-    vertical-align: middle;
-}
-
 .betalabel {
     color:#E3E4FA;
     font-size: 11pt;
@@ -190,9 +160,16 @@ td, th {
     margin: 2px;
 }
 
-.sectionHeaderActions {
+
+.sectionActions {
     float: right;
     margin: 2px;
+    vertical-align: middle;
+    color: white;
+    font-size: 9pt;
+    font-weight:bold;
+    text-align:left;
+    text-shadow:0.1em 0.1em 0.2em black;
 }
 
 .sectionHeaderActions a:link, .sectionActions a:visited {
@@ -201,6 +178,22 @@ td, th {
     font-weight:bold;
     text-align:left;
     text-shadow:0.1em 0.1em 0.2em black;
+}
+
+.sectionHeaderActions {
+    color: white;
+    font-size: 8pt;
+    font-weight:bold;
+    text-align:left;
+    text-shadow:0.1em 0.1em 0.2em black;
+    float: right;
+    margin: 2px;
+    margin-top: 4px;    
+    vertical-align: middle;   
+}
+
+.sectionHeaderActions input{
+    margin-top: -2px;
 }
 
 input, textarea, select, .form-row p {

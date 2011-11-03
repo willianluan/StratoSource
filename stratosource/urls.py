@@ -38,6 +38,8 @@ urlpatterns = patterns('',
 
     (r'^$', 'stratosource.user.views.home'),
     (r'^configs/', 'stratosource.user.views.configs'),
+    (r'^unit_testing_results/', 'stratosource.user.unit_testing_views.results'),
+    (r'^unit_testing_admin/', 'stratosource.user.unit_testing_views.admin'),
     (r'^rally_projects/', 'stratosource.user.views.rally_projects'),
     (r'^manifest/(.+)$', 'stratosource.user.views.manifest'),
     (r'^releases', 'stratosource.user.views.releases'),

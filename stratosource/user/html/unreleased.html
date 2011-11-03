@@ -41,7 +41,7 @@
             </div>
             {% endif %}
             <h3 class="sectionHeader">
-                <a href="#" onclick="jQuery('#{{ object.type|title }}List').toggle(); jQuery('#max{{ object.type|title }}').toggle(); jQuery('#min{{ object.type|title }}').toggle();"><img id="min{{ object.type|title }}" src="/csmedia/images/minimize.png" height="20" width="20" style="display:none;"/><img id="max{{ object.type|title }}" src="/csmedia/images/maximize.png" height="20" width="20"/> {{ namestl|lookup:object.type|title }}</a>
+                <a href="#" onclick="toggle('{{ object.type|title }}List'); toggle('max{{ object.type|title }}'); toggle('min{{ object.type|title }}'); return false;"><img id="min{{ object.type|title }}" src="/csmedia/images/minimize.png" height="20" width="20" style="display:none;"/><img id="max{{ object.type|title }}" src="/csmedia/images/maximize.png" height="20" width="20"/> {{ namestl|lookup:object.type|title }}</a>
                 <span class="sectionHeaderActions">Select all in section: <input type="checkbox" onclick="selectSection('{{ object.type|title }}',this.checked)"/></span>
             </h3>
               <div id="{{ object.type|title }}List" style="display:none;">

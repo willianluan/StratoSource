@@ -30,8 +30,7 @@ class ConfigSetting(models.Model):
     type            = models.CharField(max_length=20, default='text')
     allow_delete    = models.BooleanField(default=True)
     masked          = models.BooleanField(default=False)
-
-
+  
 #class UserDetails(models.Model):
 #    USER_TYPES = (('dev','Developer'),('bua','Business Analyst'),('evm','Environment Manager'),('unk','Unknown'))
 #    user =      models.OneToOneField('User')
@@ -215,6 +214,16 @@ class UnitTestRunResult(models.Model):
     outcome = models.CharField(max_length=50)
     message = models.CharField(max_length=255, blank=True, null=True)
 
+class UnitTestSchedule(models.Model):
+    CRONFREQ = (
+        ('d', 'Daily'), ('w', 'Weeky'),        
+    )
+    
+    branch =  models.ForeignKey(Branch)
+    cron_enabled = models.BooleanField(default=True)
+    cron_type = models.CharField(max_length=1, choices=CRONFREQ,default='d')
+    cron_interval = models.IntegerField(default=1)
+    cron_start = models.CharField(max_length=5, default='0')
 
 ###
 # model signals
