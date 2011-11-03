@@ -26,7 +26,7 @@ import os
 ##
 _CSHOME='/usr/django/stratosource'
 CSCONF_DIR=os.path.join(_CSHOME, 'conf')
-CS_SF_API_VERSION = '20.0'
+CS_SF_API_VERSION = '23.0'
 
 
 

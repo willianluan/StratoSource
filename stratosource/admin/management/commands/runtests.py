@@ -24,6 +24,7 @@ import httplib, urllib
 import json
 import time
 import datetime
+from admin.management import CSBase
 from admin.management import Utils
 from admin.models import Branch, Repo, UnitTestRun, UnitTestRunResult
 
@@ -38,9 +39,9 @@ class Command(BaseCommand):
 
         if len(args) < 2: raise CommandError('usage: runtests <repo alias> <branch>')
         repo = Repo.objects.get(name__exact=args[0])
-        branch = Branch.objects.get(repo=repo, name__exact=args[1])
+        self.branch = Branch.objects.get(repo=repo, name__exact=args[1])
 
-        self.agent = Utils.getAgentForBranch(branch)
+        self.agent = Utils.getAgentForBranch(self.branch)
         self.rest_headers = {"Authorization": "OAuth %s" % self.agent.getSessionId(), "Content-Type": "application/json" }
         serverloc = self.agent.getServerLocation()
         print 'server=%s' % serverloc
@@ -61,7 +62,7 @@ class Command(BaseCommand):
                 if count == 15: break
                 count += 1
                 print '%s -> %s' % (cls['Id'], cls['Name'])
-                data = self.invokePostREST("/services/data/v23.0/sobjects/ApexTestQueueItem", json.dumps({'ApexClassId':cls['Id']}))
+                data = self.invokePostREST("sobjects/ApexTestQueueItem", json.dumps({'ApexClassId':cls['Id']}))
                 if data != None and data['success'] == True:
                     self.testItemIdList[data['id']] = None
                 print 'data: %s' % data
@@ -70,7 +71,7 @@ class Command(BaseCommand):
 
 
     def invokePostREST(self, url, payload):
-        self.rest_conn.request("POST", url, payload, headers=self.rest_headers)
+        self.rest_conn.request("POST", '/services/data/v%s/%s' % (CSBase.CS_SF_API_VERSION, url), payload, headers=self.rest_headers)
         response = self.rest_conn.getresponse()
         resultPayload = response.read()
         if response.status != 201:
@@ -80,11 +81,12 @@ class Command(BaseCommand):
         return data
 
     def invokeGetREST(self, url):
-        self.rest_conn.request("GET", url, headers=self.rest_headers)
+        self.rest_conn.request("GET", '/services/data/v%s/%s' % (CSBase.CS_SF_API_VERSION, url), headers=self.rest_headers)
         response = self.rest_conn.getresponse()
         resultPayload = response.read()
         if response.status != 200:
             print response.status, response.reason
+            print resultPayload
             return None
         data = json.loads(resultPayload)
         return data
@@ -96,7 +98,7 @@ class Command(BaseCommand):
         while timer > 0 and len(self.testItemIdList) > 0:
             print '-- %d tests remaining' % len(self.testItemIdList)
             params = urllib.urlencode({'q': "select Id, ApexClassId, SystemModstamp from ApexTestQueueItem where Status = 'Completed'"})
-            data = self.invokeGetREST("/services/data/v23.0/query/?%s" % params)
+            data = self.invokeGetREST("query/?%s" % params)
             if not data == None:
                 records = data['records']
                 for record in records:
@@ -114,10 +116,11 @@ class Command(BaseCommand):
         self.completedTests[queueItem['Id']] = queueItem
         del self.testItemIdList[queueItem['Id']]
         params = urllib.urlencode({'q': "select Id, ApexClassId, SystemModstamp, TestTimestamp, MethodName, Outcome, Message from ApexTestResult where QueueItemId = '%s'" % queueItem['Id']})
-        data = self.invokeGetREST("/services/data/v23.0/query/?%s" % params)
+        data = self.invokeGetREST("query/?%s" % params)
         utr = UnitTestRun()
         utr.apex_class_id = queueItem['ApexClassId']
         utr.batch_time = self.batch_time
+        utr.branch = self.branch
         for cls in self.classList:
             if cls['Id'] == utr.apex_class_id: utr.class_name = cls['Name']
         utr.save()
@@ -143,8 +146,8 @@ class Command(BaseCommand):
 
     def getClassList(self):
         params = urllib.urlencode({'q': "select id, name, body from ApexClass where Status = 'Active' and NamespacePrefix = '' order by name"})
-        data = self.invokeGetREST("/services/data/v23.0/query/?%s" % params)
+        data = self.invokeGetREST("query/?%s" % params)
         if not data == None:
             return data['records']
-        return nil
+        return None
 

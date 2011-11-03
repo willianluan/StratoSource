@@ -105,9 +105,9 @@ class BranchForm(forms.ModelForm):
     def clean(self):
         
         cleaned_data = self.cleaned_data
-        api_ver = cleaned_data.get("api_ver")
-        if api_ver and not re.match('^\d\d\.\d', api_ver):
-           self._errors["api_ver"] = self.error_class(['Invalid API Version - use xx.x format']);
+#        api_ver = cleaned_data.get("api_ver")
+#        if api_ver and not re.match('^\d\d\.\d', api_ver):
+#           self._errors["api_ver"] = self.error_class(['Invalid API Version - use xx.x format']);
     
         name = cleaned_data.get("name")
         if name and not re.match('^\w+$', name):
@@ -152,7 +152,7 @@ def newbranch(request):
             row.api_pass = cleaned_data.get('api_pass')
             row.api_auth = cleaned_data.get('api_auth')
             row.api_store = cleaned_data.get('api_store')
-            row.api_ver = cleaned_data.get('api_ver')
+#            row.api_ver = cleaned_data.get('api_ver')
             row.api_assets = ','.join(cleaned_data.get('api_assets'))
             row.save()
             createCrontab(row)
@@ -178,7 +178,7 @@ def editbranch(request, branch_id):
                 row.api_pass = api_pass
             row.api_auth = cleaned_data.get('api_auth')
             row.api_store = cleaned_data.get('api_store')
-            row.api_ver = cleaned_data.get('api_ver')
+#            row.api_ver = cleaned_data.get('api_ver')
             row.api_assets = ','.join(cleaned_data.get('api_assets'))
             row.cron_enabled = cleaned_data.get('cron_enabled')
             row.cron_type = cleaned_data.get('cron_type')

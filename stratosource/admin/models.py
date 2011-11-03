@@ -31,20 +31,6 @@ class ConfigSetting(models.Model):
     allow_delete    = models.BooleanField(default=True)
     masked          = models.BooleanField(default=False)
 
-class UnitTestRun(models.Model):
-    apex_class_id   = models.CharField(max_length=20, blank=False, null=False, unique=False)
-    batch_time      = models.DateTimeField(default=datetime.datetime.now)
-    class_name      = models.CharField(max_length=200, blank=False, null=False)
-
-class UnitTestRunResult(models.Model):
-    test_run =  models.ForeignKey(UnitTestRun)
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
-    method_name = models.CharField(max_length=200)
-    outcome = models.CharField(max_length=50)
-    message = models.CharField(max_length=255, blank=True, null=True)
-
-
 
 #class UserDetails(models.Model):
 #    USER_TYPES = (('dev','Developer'),('bua','Business Analyst'),('evm','Environment Manager'),('unk','Unknown'))
@@ -86,7 +72,7 @@ class Branch(models.Model):
     api_pass =  models.CharField(max_length=100, blank=True, null=True)
     api_auth =  models.CharField(max_length=50, blank=True, null=True)
     api_store = models.CharField(max_length=100, default='/tmp')
-    api_ver =   models.CharField(max_length=5, default='20.0')
+#    api_ver =   models.CharField(max_length=5, default='20.0')
     api_assets= models.CharField(max_length=500,
         default='EntitlementTemplate,HomePageComponent,ArticleType,ApexPage,ApexClass,ApexTrigger,ApexComponent,'+
                 'CustomPageWebLink,CustomLabels,CustomApplication,CustomObject,CustomObjectTranslation,Translations,'+
@@ -211,6 +197,22 @@ class TranslationDelta(models.Model):
         if self.delta_type == 'a': return 'Add'
         if self.delta_type == 'd': return 'Delete'
         if self.delta_type == 'u': return 'Update'
+
+
+class UnitTestRun(models.Model):
+    apex_class_id   = models.CharField(max_length=20, blank=False, null=False, unique=False)
+    batch_time      = models.DateTimeField(default=datetime.datetime.now, db_index=True)
+    class_name      = models.CharField(max_length=200, blank=False, null=False)
+    branch          = models.ForeignKey(Branch)
+
+class UnitTestRunResult(models.Model):
+    test_run =  models.ForeignKey(UnitTestRun)
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    method_name = models.CharField(max_length=200)
+    outcome = models.CharField(max_length=50)
+    message = models.CharField(max_length=255, blank=True, null=True)
+
 
 ###
 # model signals
