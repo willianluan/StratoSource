@@ -43,4 +43,11 @@ def results(request):
     data = {'testruns': runs}
     return render_to_response('unit_testing_results.html', data, context_instance=RequestContext(request))
 
+def result(request, run_id):
+    run = UnitTestRun.objects.get(id=run_id)
+    results = UnitTestRunResult.objects.filter(test_run=run)
+
+    data = {'run': run, 'results': results}
+    return render_to_response('unit_testing_result.html', data, context_instance=RequestContext(request))
+
 
