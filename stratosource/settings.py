@@ -19,6 +19,7 @@
 import os
 
 PROJECT_PATH = os.path.abspath(os.path.split(__file__)[0])
+ROOT_PATH = os.path.abspath(os.path.split(PROJECT_PATH)[0])
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG

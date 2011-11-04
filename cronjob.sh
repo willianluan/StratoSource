@@ -6,6 +6,7 @@
 #
 
 LOG_NAME=/tmp/$1_$2_$(date +%Y%M%d%H%M%S)_pull.log
+BASEDIR=$(dirname $0)
 REPO=$1
 BRANCH=$2
 
@@ -15,7 +16,7 @@ trap onexit INT ERR
 
 function onexit()
 {    
-    cd /usr/django/stratosource >>$LOG_NAME 2>&1
+    cd $BASEDIR/stratosource >>$LOG_NAME 2>&1
     local exit_status=${1:-$?}
     
     echo Exiting with status $exit_status
@@ -33,10 +34,10 @@ function onexit()
 
 echo Starting Snapshot of $REPO $BRANCH >>$LOG_NAME 2>&1
 
-cd /usr/django >>$LOG_NAME 2>&1
+cd $BASEDIR >>$LOG_NAME 2>&1
 ./pre-cronjob.sh $REPO $BRANCH >>$LOG_NAME 2>&1
 
-cd /usr/django/stratosource >>$LOG_NAME 2>&1
+cd $BASEDIR/stratosource >>$LOG_NAME 2>&1
 
 python manage.py storelog $REPO $BRANCH $LOG_NAME r
 
@@ -49,7 +50,7 @@ python manage.py storelog $REPO $BRANCH $LOG_NAME r
 python manage.py sfdiff $REPO $BRANCH >>$LOG_NAME 2>&1
 python manage.py storelog $REPO $BRANCH $LOG_NAME r
 
-cd /usr/django >>$LOG_NAME 2>&1
+cd $BASEDIR >>$LOG_NAME 2>&1
 ./post-cronjob.sh $REPO $BRANCH >>$LOG_NAME 2>&1
 
 onexit 99
