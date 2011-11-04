@@ -131,6 +131,12 @@ INSTALLED_APPS = (
     'stratosource.sfdiff',
 )
 
+EMAIL_HOST = ''
+EMAIL_PORT = 25
+#EMAIL_HOST_USER = ''
+#EMAIL_HOST_PASSWORD = ''
+#EMAIL_USE_TLS = ''
+
 #AUTHENTICATION_BACKENDS = (
 #    'django.contrib.auth.backends.RemoteUserBackend',
 #)
