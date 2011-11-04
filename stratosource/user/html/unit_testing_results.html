@@ -35,7 +35,11 @@
                                 <a href="/unit_testing_result/{{ run.id }}">{{ run.class_name }}</a>
                             </td>
                             <td>
+                                {% if run.successful %}
                                     {{ run.outcome }}
+                                {% else %}
+                                    <font color="red"><b>{{ run.outcome }}</b></font>
+                                {% endif %}
                             </td>
                             <td>
                                 <a href="/unit_testing_result/{{ run.id }}" style="display:inline">Detailed Results</a>|

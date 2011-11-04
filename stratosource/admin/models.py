@@ -22,8 +22,6 @@ from django.dispatch import receiver
 import datetime
 import logging
 
-#logging.basicConfig(filename='/usr/django/stratosource.log', level=logging.WARN)
-
 class ConfigSetting(models.Model):
     key             = models.CharField(max_length=250, blank=False, null=False, unique=True)
     value           = models.CharField(max_length=1000, blank=True, null=True)
@@ -216,7 +214,7 @@ class UnitTestRunResult(models.Model):
 
 class UnitTestSchedule(models.Model):
     CRONFREQ = (
-        ('d', 'Daily'), ('w', 'Weeky'),        
+        ('h', 'Hourly'), ('d', 'Daily'), ('w', 'Weeky'),        
     )
     
     branch =  models.ForeignKey(Branch)

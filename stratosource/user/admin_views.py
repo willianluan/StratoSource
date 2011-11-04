@@ -21,6 +21,7 @@ from django import forms
 from django.template import RequestContext
 from django.shortcuts import render_to_response, redirect
 from stratosource.admin.models import Branch, BranchLog, Repo
+from stratosource import settings
 from django.core.exceptions import ObjectDoesNotExist
 from crontab import CronTab, CronItem
 import subprocess
@@ -30,6 +31,7 @@ import re
 import logging
 
 logger = logging.getLogger('console')
+CRON_COMMENT = 'StratoSource ID'
 
 class RepoForm(forms.ModelForm):
     class Meta:
@@ -211,7 +213,7 @@ def last_log(request, branch_id):
         
 def createCGitEntry(branch):
     removeCGitEntry(branch)
-    f = open('/usr/django/cgitrepo', 'a')
+    f = open(os.path.join(settings.PROJECT_PATH, 'cgitrepo'), 'a')
     f.write('#ID=%d\n' % branch.id)
     f.write('repo.url=%s\n' % branch.name)
     f.write('repo.path=%s/.git\n' % branch.repo.location)
@@ -219,7 +221,7 @@ def createCGitEntry(branch):
     f.close()
 
 def removeCGitEntry(branch):
-    f = open('/usr/django/cgitrepo', 'r')
+    f = open(os.path.join(settings.PROJECT_PATH, 'cgitrepo'), 'r')
     lines = f.readlines()
     f.close()
     linecount = 0
@@ -235,7 +237,7 @@ def removeCGitEntry(branch):
         linecount += 1
         while linecount < len(lines) and len(lines[linecount]) > 0 and lines[linecount][0:1] != '#': linecount += 1
 #        del lines[start:linecount]
-        f = open('/usr/django/cgitrepo', 'w')
+        f = open(os.path.join(settings.PROJECT_PATH, 'cgitrepo'), 'w')
         f.writelines(lines[0:start])
         f.writelines(lines[linecount:])
         f.close()
@@ -248,9 +250,9 @@ def createCrontab(branch):
             interval_str = ','.join(interval_list)
         else:
             interval_str = '*'
-        cronline = "%s %s * * * /usr/django/cronjob.sh %s %s >/tmp/cronjob.out 2>&1" % (branch.cron_start, interval_str, branch.repo.name, branch.name)
+        cronline = "%s %s * * * %s %s %s >/tmp/cronjob.out 2>&1" % (branch.cron_start, interval_str, os.path.join(settings.PROJECT_PATH, 'cronjob.sh'), branch.repo.name, branch.name)
         logger.debug('Creating cron tab with line ' + cronline)
-        item = CronItem(line=cronline + ' #' + ('StratoSource ID %d' % branch.id))
+        item = CronItem(line=cronline + ' #' + (CRON_COMMENT + ' %d' % branch.id))
         ctab.add(item)
         ctab.write()
 
@@ -261,7 +263,7 @@ def updateCrontab(branch):
     
 def removeCrontab(branch):
     ctab = CronTab()
-    comment = 'StratoSource ID %d' % branch.id
+    comment = CRON_COMMENT + ' %d' % branch.id
     theItem = None
     for item in ctab:
         if item.raw_line.find(comment) > -1:
@@ -280,7 +282,7 @@ def adminMenu(request):
         if branch.run_status != 'r':
             repo_name = branch.repo.name
             branch_name = branch.name
-            pr = subprocess.Popen('/usr/django/cronjob.sh ' + repo_name + ' ' + branch_name + ' >/tmp/ssRun.out 2>&1 &', shell=True)
+            pr = subprocess.Popen(os.path.join(settings.PROJECT_PATH, 'cronjob.sh') + ' ' + repo_name + ' ' + branch_name + ' >/tmp/ssRun.out 2>&1 &', shell=True)
             logger.debug('Started With pid ' + str(pr.pid))
             pr.wait()
             if pr.returncode == 0:
@@ -299,7 +301,11 @@ def adminMenu(request):
     repos = Repo.objects.all()
     branches = Branch.objects.all()
     ctab = CronTab()
-    cronlist = [entry.render() for entry in ctab];
+    cronlist = []
+    for item in [entry.render() for entry in ctab]:
+        if item.find(CRON_COMMENT) != -1:
+            cronlist.append(item)
+    
     return render_to_response('admin_menu.html', {'repos': repos, 'branches':branches, 'crontab':cronlist}, context_instance=RequestContext(request))
 
 def repo_form_action(request):

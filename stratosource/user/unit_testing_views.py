@@ -18,21 +18,92 @@
 
 from django.template import RequestContext
 from django.shortcuts import render_to_response, redirect
-from stratosource.admin.models import UnitTestRun, UnitTestRunResult, UnitTestSchedule
+from django import forms
+from stratosource.admin.models import UnitTestRun, UnitTestRunResult, UnitTestSchedule, Branch
+from stratosource import settings
+from crontab import CronTab, CronItem
 import logging
+import os
 
 logger = logging.getLogger('console')
 
+CRON_COMMENT = 'StratoSource Unit Test Schedule ID'
+
+class UnitTestScheduleForm(forms.ModelForm):
+
+    class Meta:
+        model = UnitTestSchedule
+
+    def clean(self):
+        
+        cleaned_data = self.cleaned_data
+        branch = cleaned_data.get("branch")
+        if not branch:
+           self._errors["branch"] = self.error_class(['Choose a branch']);
+
+        cron_type = cleaned_data.get('cron_type')
+        cron_interval = int(cleaned_data.get('cron_interval'))
+        cron_start = cleaned_data.get('cron_start')
+        if cron_type == 'h':
+            if cron_interval < 1 or cron_interval > 23:
+               self._errors["cron_interval"] = self.error_class(['Interval must be between 1 and 23'])
+            offset = int(cron_start)
+            if offset < 0 or offset > 59:
+                self._errors["cron_start"] = self.error_class(['Start must be between 0 and 59'])
+
+        return cleaned_data
+
+def createCrontab(uts):
+    ctab = CronTab()
+    if uts.cron_type == 'h':
+        if uts.cron_interval > 1:
+            interval_list = [str(x) for x in range(0, 23, uts.cron_interval)]
+            interval_str = ','.join(interval_list)
+        else:
+            interval_str = '*'
+        cronline = "%s %s * * * %s runtests %s %s >/tmp/unitTestCronjob.out 2>&1" % (uts.cron_start, interval_str, os.path.join(settings.PROJECT_PATH, 'manage.py'), uts.branch.repo.name, uts.branch.name)
+        logger.debug('Creating cron tab with line ' + cronline)
+        item = CronItem(line=cronline + ' #' + ('%s %d' % (CRON_COMMENT, uts.id)))
+        ctab.add(item)
+        ctab.write()
+
+def updateCrontab(uts):
+    removeCrontab(uts)
+    if uts.cron_enabled:
+        return createCrontab(uts)
+    
+def removeCrontab(uts):
+    ctab = CronTab()
+    comment = CRON_COMMENT + ' %d' % uts.id
+    theItem = None
+    for item in ctab:
+        if item.raw_line.find(comment) > -1:
+            theItem = item
+            break
+
+    if theItem:
+        ctab.remove(theItem)
+        ctab.write()
+
 def admin(request):
-    data = {'schedules': UnitTestSchedule.objects.all()}
+    schedules = UnitTestSchedule.objects.all()
+    schedules.select_related()
+    
+    ctab = CronTab()
+    cronlist = []
+    for item in [entry.render() for entry in ctab]:
+        if item.find(CRON_COMMENT) != -1:
+            cronlist.append(item)
+    
+    data = {'schedules': schedules, 'crontab': cronlist}
     return render_to_response('unit_test_config.html', data, context_instance=RequestContext(request))
 
 def results(request):
     runs = UnitTestRun.objects.all().order_by('-batch_time', 'class_name')[:200]
-    runs.select_related()
     
     for run in runs:
-        if run.failures == 0:
+        run.successful = run.failures == 0
+        if run.successful:
             if run.failures == 0:
                 run.outcome = str(run.tests) + ' Tests Passed'
             if run.tests == 0:
@@ -59,4 +130,53 @@ def result(request, run_id):
     data = {'run': run, 'results': results}
     return render_to_response('unit_testing_result.html', data, context_instance=RequestContext(request))
 
+def new_test_schedule(request):
+    if request.method == 'POST':
+        form = UnitTestScheduleForm(request.POST)
+        if form.is_valid():
+            row = UnitTestSchedule()
+            cleaned_data = form.cleaned_data
+            row.branch = cleaned_data.get('branch')
+            row.cron_enabled = cleaned_data.get('cron_enabled')
+            row.cron_type = cleaned_data.get('cron_type')
+            row.cron_interval = cleaned_data.get('cron_interval')
+            row.cron_start = cleaned_data.get('cron_start')            
+            row.save()
+            createCrontab(row)
+            return admin(request)
+    else:
+        form = UnitTestScheduleForm()
+    return render_to_response('edit_unit_testing_schedule.html', {'form':form, 'type':'New', 'action':'new_test_schedule/'}, context_instance=RequestContext(request))
 
+def edit_test_schedule(request, uts_id):
+    if request.method == 'POST':
+        form = UnitTestScheduleForm(request.POST)
+        if form.is_valid():
+            row = UnitTestSchedule.objects.get(id=uts_id)
+            cleaned_data = form.cleaned_data
+            row.branch = cleaned_data.get('branch')
+            row.cron_enabled = cleaned_data.get('cron_enabled')
+            row.cron_type = cleaned_data.get('cron_type')
+            row.cron_interval = cleaned_data.get('cron_interval')
+            row.cron_start = cleaned_data.get('cron_start')            
+            row.save()
+
+            updateCrontab(row)
+            
+            return admin(request)
+    else:
+        form = UnitTestScheduleForm(instance=UnitTestSchedule.objects.get(id=uts_id))    
+
+    return render_to_response('edit_unit_testing_schedule.html', {'form':form, 'type':'Edit', 'action':'edit_test_schedule/'+uts_id}, context_instance=RequestContext(request))
+
+def unit_test_schedule_admin_form_action(request):
+    if request.method == 'GET' and request.GET.__contains__('deleteSchedule'):
+        scheduleId = request.GET.get('scheduleId')
+        if scheduleId:
+            uts = UnitTestSchedule.objects.get(id=scheduleId)
+            removeCrontab(br)
+            uts.delete()
+    if request.method == 'POST' and request.POST.__contains__('addScheduledTestButton'):
+        return redirect('/new_test_schedule')
+        
+    return adminMenu(request)

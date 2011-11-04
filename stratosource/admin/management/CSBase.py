@@ -19,12 +19,13 @@
 import logging
 import logging.config
 import os
+from stratosource import settings
 
 
 ##
 # Location constants
 ##
-_CSHOME='/usr/django/stratosource'
+_CSHOME=settings.PROJECT_PATH
 CSCONF_DIR=os.path.join(_CSHOME, 'conf')
 CS_SF_API_VERSION = '23.0'
 
