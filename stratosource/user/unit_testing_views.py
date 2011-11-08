@@ -99,7 +99,7 @@ def admin(request):
     return render_to_response('unit_test_config.html', data, context_instance=RequestContext(request))
 
 def results(request):
-    runs = UnitTestRun.objects.all().order_by('-batch_time', 'class_name')[:200]
+    runs = UnitTestRun.objects.all().order_by('-batch_time', 'class_name')[:1000]
     
     for run in runs:
         run.successful = run.failures == 0
