@@ -172,7 +172,7 @@ td, th {
     text-shadow:0.1em 0.1em 0.2em black;
 }
 
-.sectionHeaderActions a:link, .sectionActions a:visited {
+.sectionActions a:link, .sectionActions a:visited, .sectionHeaderActions a:link, .sectionHeaderActions a:visited {
     color: white;
     font-size: 8pt;
     font-weight:bold;
