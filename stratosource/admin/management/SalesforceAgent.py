@@ -21,6 +21,8 @@ import suds
 import binascii
 import time
 import logging
+import httplib, urllib
+import json
 from urlparse import urlparse
 
 __author__="mark"
@@ -102,6 +104,52 @@ class SalesforceAgent:
         ptm.name = 'CustomObject'
         ptm.members = [prop.fullName for prop in props]
         return ptm
+
+    def retrieve_userchanges(self):
+        classes = {}
+        triggers = {}
+        pages = {}
+        self.rest_headers = {"Authorization": "OAuth %s" % self.getSessionId(), "Content-Type": "application/json" }
+        serverloc = self.getServerLocation()
+        serverloc = 'cs4.salesforce.com'; ####### !!!! FIX THIS !!!!!!
+
+        rest_conn = httplib.HTTPSConnection(serverloc)
+        classes = self._getChangesMap(rest_conn, 'ApexClass')
+        triggers = self._getChangesMap(rest_conn, 'ApexTrigger')
+        pages = self._getChangesMap(rest_conn, 'ApexPage', withstatus=False)
+        rest_conn.close()
+        return (classes, triggers, pages)
+
+    def _getChangesMap(self, rest_conn, sfobject, withstatus=True):
+        if withstatus:
+            params = urllib.urlencode({'q': "select Id, Name, LastModifiedById, LastModifiedBy.Name, LastModifiedDate from %s where Status = 'Active' and NamespacePrefix = '' order by name" % sfobject})
+        else:
+            params = urllib.urlencode({'q': "select Id, Name, LastModifiedById, LastModifiedBy.Name, LastModifiedDate from %s where NamespacePrefix = '' order by name" % sfobject})
+        data = self.invokeGetREST(rest_conn, "query/?%s" % params)
+        if not data == None:
+            return data['records']
+        return None
+
+    def invokePostREST(self, rest_conn, url, payload):
+        rest_conn.request("POST", '/services/data/v%s/%s' % (_API_VERSION, url), payload, headers=self.rest_headers)
+        response = rest_conn.getresponse()
+        resultPayload = response.read()
+        if response.status != 201:
+            print response.status, response.reason
+            return None
+        data = json.loads(resultPayload)
+        return data
+
+    def invokeGetREST(self,rest_conn,  url):
+        rest_conn.request("GET", '/services/data/v%s/%s' % (_API_VERSION, url), headers=self.rest_headers)
+        response = rest_conn.getresponse()
+        resultPayload = response.read()
+        if response.status != 200:
+            print response.status, response.reason
+            print resultPayload
+            return None
+        data = json.loads(resultPayload)
+        return data
 
     def retrieve_meta(self, types, outputname='/tmp/retrieve.zip'):
         if not self.login_result:

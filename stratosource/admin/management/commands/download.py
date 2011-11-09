@@ -51,12 +51,14 @@ class Command(BaseCommand):
         filename = os.path.join(path, 'retrieve_{0}.zip'.format(stamp))
         print 'retrieving %s:%s' % (br.repo.name, br.name)
         print 'types: ' + br.api_assets
-        agent.retrieve_meta(types, filename)
+#        agent.retrieve_meta(types, filename)
+        classes, triggers, pages = agent.retrieve_userchanges()
         agent.close()
         self.logger.debug('finished download')
 
         if not downloadOnly:
-            from admin.management.checkin import perform_checkin
-            perform_checkin(br.repo.location, filename, br.name)
-            os.remove(filename)
+            from admin.management.checkin import perform_checkin, save_userchanges
+#            perform_checkin(br.repo.location, filename, br, userchanges=(classes,triggers,pages))
+            save_userchanges(br, classes,triggers,pages)
+#            os.remove(filename)
 

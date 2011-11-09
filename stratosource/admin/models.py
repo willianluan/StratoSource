@@ -196,9 +196,15 @@ class TranslationDelta(models.Model):
         if self.delta_type == 'u': return 'Update'
 
 
+class UnitTestBatch(models.Model):
+    batch_time      = models.DateTimeField(default=datetime.datetime.now, db_index=True)
+    branch          = models.ForeignKey(Branch)
+    tests           = models.IntegerField(default=0)
+    failures        = models.IntegerField(default=0)
+
 class UnitTestRun(models.Model):
     apex_class_id   = models.CharField(max_length=20, blank=False, null=False, unique=False)
-    batch_time      = models.DateTimeField(default=datetime.datetime.now, db_index=True)
+    batch           = models.ForeignKey(UnitTestBatch)
     class_name      = models.CharField(max_length=200, blank=False, null=False)
     branch          = models.ForeignKey(Branch)
     tests           = models.IntegerField(default=0)
@@ -222,6 +228,16 @@ class UnitTestSchedule(models.Model):
     cron_type = models.CharField(max_length=1, choices=CRONFREQ,default='d')
     cron_interval = models.IntegerField(default=1)
     cron_start = models.CharField(max_length=5, default='0')
+
+class UserChange(models.Model):
+    branch =  models.ForeignKey(Branch)
+    apex_id   = models.CharField(max_length=20, blank=False, null=False, unique=False, db_index=True)
+    apex_name = models.CharField(max_length=200, blank=False, null=False, unique=False)
+    user_id   = models.CharField(max_length=20, blank=False, null=False, unique=False, db_index=True)
+    batch_time = models.DateTimeField()
+    user_name = models.CharField(max_length=100)
+    last_update = models.DateTimeField()
+    
 
 ###
 # model signals

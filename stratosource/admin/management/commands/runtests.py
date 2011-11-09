@@ -26,7 +26,7 @@ import time
 import datetime
 from admin.management import CSBase
 from admin.management import Utils
-from admin.models import Branch, Repo, UnitTestRun, UnitTestRunResult
+from admin.models import Branch, Repo, UnitTestBatch, UnitTestRun, UnitTestRunResult
 
 __author__="masmith"
 __date__ ="$Nov 1, 2011 10:41:44 AM$"
@@ -59,7 +59,7 @@ class Command(BaseCommand):
         for cls in self.classList:
             body = cls['Body'].lower()
             if body.find('testmethod') > 0:
-                #if count == 20: break
+                #if count == 10: break
                 count += 1
                 print '%s -> %s' % (cls['Id'], cls['Name'])
                 data = self.invokePostREST("sobjects/ApexTestQueueItem", json.dumps({'ApexClassId':cls['Id']}))
@@ -92,8 +92,8 @@ class Command(BaseCommand):
         return data
 
     def monitorTests(self):
-        timer = 120
-        self.batch_time = datetime.datetime.now()
+        timer = 7
+#        self.batch_time = datetime.datetime.now()
         self.completedTests = {}
         while timer > 0 and len(self.testItemIdList) > 0:
             print '-- %d tests remaining' % len(self.testItemIdList)
@@ -103,6 +103,7 @@ class Command(BaseCommand):
                 records = data['records']
                 for record in records:
                     if not self.isPendingTest(record): continue  # make sure only looking at OUR tests
+                    timer = 7
                     print 'record:'
                     print record
                     if not self.completedTests.has_key(record['Id']):
@@ -117,9 +118,15 @@ class Command(BaseCommand):
         del self.testItemIdList[queueItem['Id']]
         params = urllib.urlencode({'q': "select Id, ApexClassId, SystemModstamp, TestTimestamp, MethodName, Outcome, Message from ApexTestResult where QueueItemId = '%s'" % queueItem['Id']})
         data = self.invokeGetREST("query/?%s" % params)
+        
+        utb = UnitTestBatch()
+        utb.batch_time = datetime.datetime.now()
+        utb.branch = self.branch
+        utb.save()
+
         utr = UnitTestRun()
+        utr.batch = utb
         utr.apex_class_id = queueItem['ApexClassId']
-        utr.batch_time = self.batch_time
         utr.branch = self.branch
         for cls in self.classList:
             if cls['Id'] == utr.apex_class_id: utr.class_name = cls['Name']

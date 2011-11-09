@@ -20,12 +20,15 @@ import logging
 import logging.config
 import os
 import popen2
+import datetime
 import string
+from django.db import transaction
+from admin.models import Branch, UserChange
 
 __author__="mark"
 __date__ ="$Oct 6, 2010 8:41:36 PM$"
 
-def perform_checkin(repodir, zipfile, branch):
+def perform_checkin(repodir, zipfile, branch, userchanges=None):
 
     LOG = repodir + '/../checkin.log'
 
@@ -39,14 +42,14 @@ def perform_checkin(repodir, zipfile, branch):
     log.info("Starting checkin")
     log.info("repodir " + repodir)
     log.info("zipfile " + zipfile)
-    log.info("branch " + branch)
+    log.info("branch " + branch.name)
 
     print 'checkout'
-    os.system('git reset --hard ' + branch + ' >>' + LOG)
+    os.system('git reset --hard ' + branch.name + ' >>' + LOG)
 
     print 'checking deletes'
     log.info("Getting list of deleted files")
-    os.system('git reset --hard %s >> %s' % (branch, LOG))
+    os.system('git reset --hard %s >> %s' % (branch.name, LOG))
     os.system('rm -rf %s/*' % repodir)
     os.system('unzip -o -qq %s >> %s' % (zipfile, LOG))
 
@@ -63,7 +66,7 @@ def perform_checkin(repodir, zipfile, branch):
     log.info("found %d file(s) to remove" % len(rm_list))
 
     log.info("Resetting repo back to HEAD")
-    os.system('git reset --hard %s >> %s' % (branch,LOG))
+    os.system('git reset --hard %s >> %s' % (branch.name,LOG))
     os.system('unzip -o -qq %s >> %s' % (zipfile,LOG))
 
     for name in rm_list:
@@ -73,6 +76,31 @@ def perform_checkin(repodir, zipfile, branch):
     log.info("Laying down changes")
 
     os.system('git add * >> %s' % LOG)
-    os.system('git commit -m "incremental snapshot for %s on `date`" >> %s' % (branch, LOG))
+    os.system('git commit -m "incremental snapshot for %s on `date`" >> %s' % (branch.name, LOG))
+
+
     log.info("Completed checkin")
 
+@transaction.commit_on_success
+def save_userchanges(branch, classes, triggers, pages):
+    allchanges = classes + triggers + pages
+    batch_time = datetime.datetime.now()
+    for change in allchanges:
+        recents = list(UserChange.objects.filter(apex_id__exact=change['Id']).order_by('last_update').reverse()[:1])
+        if len(recents) == 0:
+            recent = UserChange()
+        else:
+            recent = recents.get(0)
+        if recent.user_id != change['LastModifiedById']:
+            print 'change!'
+            recent.branch = branch
+            recent.apex_id = change['Id']
+            recent.apex_name = change['Name']
+            recent.user_id = change['LastModifiedById']
+            recent.user_name = change['LastModifiedBy']['Name']
+            lu = change['LastModifiedDate'][0:-9]
+            recent.last_update = datetime.datetime.strptime(lu, '%Y-%m-%dT%H:%M:%S')
+            recent.batch_time = batch_time
+            recent.save()
+        else:
+            print 'no change'
