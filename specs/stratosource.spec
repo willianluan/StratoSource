@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:           stratosource
-Version: 2.0.2
+Version: 2.0.3
 Release: 0
 Summary:        Process git repo dumps of salesforce assets and provide web UI for the results
 
@@ -42,6 +42,7 @@ mkdir -p %{buildroot}/usr/django
 cp -R stratosource %{buildroot}/usr/django/
 cp -R resources %{buildroot}/usr/django/
 cp *cronjob.sh %{buildroot}/usr/django/
+cp runmanage.sh %{buildroot}/usr/django/
 
 %clean
 rm -rf $RPM_BUILD_ROOT

@@ -3,7 +3,7 @@
 ##
 MAJOR=2
 MINOR=0
-PATCH=2
+PATCH=3
 REL=0
 VERSION=$MAJOR.$MINOR.$PATCH
 NAME=stratosource-$VERSION
@@ -14,6 +14,7 @@ mkdir $NAME
 cp -R stratosource $NAME
 cp -R resources $NAME
 cp *cronjob.sh $NAME
+cp runmanage.sh $NAME
 
 SOURCEDIR="/tmp/stratosource"
 mkdir -p $SOURCEDIR/SOURCES
