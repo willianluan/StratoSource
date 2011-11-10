@@ -41,9 +41,10 @@ class UnitTestScheduleForm(forms.ModelForm):
         if not branch:
            self._errors["branch"] = self.error_class(['Choose a branch']);
            
-        already_scheduled = UnitTestSchedule.objects.filter(branch=branch)
-        if len(already_scheduled) > 0:
-            self._errors["branch"] = self.error_class(['There is already a unit test schedule for this branch, only one schedule is allowed per branch']);
+        if self.is_new:
+            already_scheduled = UnitTestSchedule.objects.filter(branch=branch)
+            if len(already_scheduled) > 0:
+                self._errors["branch"] = self.error_class(['There is already a unit test schedule for this branch, only one schedule is allowed per branch']);
 
         cron_type = cleaned_data.get('cron_type')
         cron_interval = int(cleaned_data.get('cron_interval'))
@@ -136,6 +137,7 @@ def result(request, run_id):
 def new_test_schedule(request):
     if request.method == 'POST':
         form = UnitTestScheduleForm(request.POST)
+        form.is_new = True
         if form.is_valid():
             row = UnitTestSchedule()
             cleaned_data = form.cleaned_data
@@ -156,6 +158,7 @@ def new_test_schedule(request):
 def edit_test_schedule(request, uts_id):
     if request.method == 'POST':
         form = UnitTestScheduleForm(request.POST)
+        form.is_new = False
         if form.is_valid():
             row = UnitTestSchedule.objects.get(id=uts_id)
             cleaned_data = form.cleaned_data
