@@ -23,7 +23,7 @@ from django.template import Template, TemplateDoesNotExist, Context
 from django.template.loader import get_template
 from stratosource.admin.models import UnitTestBatch, UnitTestRun, UnitTestRunResult, UnitTestSchedule, Branch
 from stratosource.admin.management import ConfigCache
-from django.core.exceptions import DoesNotExist
+from django.core.exceptions import ObjectDoesNotExist
 import logging
 
 logger = logging.getLogger('console')
@@ -35,7 +35,7 @@ def email_results(batch, failures, runs):
     
     try:
         schedule = UnitTestSchedule.objects.get(branch=batch.branch)
-    except DoesNotExist:
+    except ObjectDoesNotExist:
         logger.error('No Schedule exists for this branch (' + batch.branch.name + '), so no way to figure out who to email')
         return
 
