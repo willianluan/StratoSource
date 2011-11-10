@@ -4,6 +4,8 @@ alter table `admin_unittestschedule` add column
 alter table `admin_unittestschedule` add column
     `email_only_failures` bool NOT NULL;
 
+INSERT INTO `stratosource`.`admin_configsetting` (`key`, `type`) VALUES ('email.host', 'text');
+INSERT INTO `stratosource`.`admin_configsetting` (`key`, `type`) VALUES ('email.from', 'text');
 
 DROP TABLE `admin_unittestrunresult`;
 DROP TABLE `admin_unittestrun`;
