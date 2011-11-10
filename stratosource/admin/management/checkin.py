@@ -90,9 +90,8 @@ def save_userchanges(branch, classes, triggers, pages):
         if len(recents) == 0:
             recent = UserChange()
         else:
-            recent = recents.get(0)
+            recent = recents[0]
         if recent.user_id != change['LastModifiedById']:
-            print 'change!'
             recent.branch = branch
             recent.apex_id = change['Id']
             recent.apex_name = change['Name']
@@ -102,5 +101,4 @@ def save_userchanges(branch, classes, triggers, pages):
             recent.last_update = datetime.datetime.strptime(lu, '%Y-%m-%dT%H:%M:%S')
             recent.batch_time = batch_time
             recent.save()
-        else:
-            print 'no change'
+ 

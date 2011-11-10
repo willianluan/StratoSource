@@ -69,7 +69,6 @@ class Branch(models.Model):
     api_pass =  models.CharField(max_length=100, blank=True, null=True)
     api_auth =  models.CharField(max_length=50, blank=True, null=True)
     api_store = models.CharField(max_length=100, default='/tmp')
-#    api_ver =   models.CharField(max_length=5, default='20.0')
     api_assets= models.CharField(max_length=500,
         default='EntitlementTemplate,HomePageComponent,ArticleType,ApexPage,ApexClass,ApexTrigger,ApexComponent,'+
                 'CustomPageWebLink,CustomLabels,CustomApplication,CustomObject,CustomObjectTranslation,Translations,'+
@@ -149,12 +148,23 @@ class DeployableObject(models.Model):
         if not self.el_name is None: s = s + " - " + self.el_name
         return s
 
+
+class UserChange(models.Model):
+    branch =  models.ForeignKey(Branch)
+    apex_id   = models.CharField(max_length=20, blank=False, null=False, unique=False, db_index=True)
+    apex_name = models.CharField(max_length=200, blank=False, null=False, unique=False)
+    user_id   = models.CharField(max_length=20, blank=False, null=False, unique=False, db_index=True)
+    batch_time = models.DateTimeField()
+    user_name = models.CharField(max_length=100)
+    last_update = models.DateTimeField()
+
 class Delta(models.Model):
     DELTA_TYPES = (('a','Add'),('d','Delete'),('u','Update'))
 
     object =        models.ForeignKey(DeployableObject)
     commit =        models.ForeignKey(Commit)
     delta_type =    models.CharField(max_length=1,choices=DELTA_TYPES)
+    #user_change =   models.ForeignKey(UserChange, blank=True, null=True)
 
     def __unicode__(self):
         return self.object.__unicode__() + " - " + self.delta_type
@@ -234,14 +244,6 @@ class UnitTestSchedule(models.Model):
     cron_interval = models.IntegerField(default=1)
     cron_start = models.CharField(max_length=5, default='0')
 
-class UserChange(models.Model):
-    branch =  models.ForeignKey(Branch)
-    apex_id   = models.CharField(max_length=20, blank=False, null=False, unique=False, db_index=True)
-    apex_name = models.CharField(max_length=200, blank=False, null=False, unique=False)
-    user_id   = models.CharField(max_length=20, blank=False, null=False, unique=False, db_index=True)
-    batch_time = models.DateTimeField()
-    user_name = models.CharField(max_length=100)
-    last_update = models.DateTimeField()
     
 
 ###

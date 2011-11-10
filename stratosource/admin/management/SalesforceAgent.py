@@ -115,8 +115,11 @@ class SalesforceAgent:
 
         rest_conn = httplib.HTTPSConnection(serverloc)
         classes = self._getChangesMap(rest_conn, 'ApexClass')
+        for clazz in classes: clazz['Name'] += '.cls'
         triggers = self._getChangesMap(rest_conn, 'ApexTrigger')
+        for trigger in triggers: trigger['Name'] += '.trigger'
         pages = self._getChangesMap(rest_conn, 'ApexPage', withstatus=False)
+        for page in pages: page['Name'] += '.page'
         rest_conn.close()
         return (classes, triggers, pages)
 
@@ -125,12 +128,12 @@ class SalesforceAgent:
             params = urllib.urlencode({'q': "select Id, Name, LastModifiedById, LastModifiedBy.Name, LastModifiedDate from %s where Status = 'Active' and NamespacePrefix = '' order by name" % sfobject})
         else:
             params = urllib.urlencode({'q': "select Id, Name, LastModifiedById, LastModifiedBy.Name, LastModifiedDate from %s where NamespacePrefix = '' order by name" % sfobject})
-        data = self.invokeGetREST(rest_conn, "query/?%s" % params)
+        data = self._invokeGetREST(rest_conn, "query/?%s" % params)
         if not data == None:
             return data['records']
         return None
 
-    def invokePostREST(self, rest_conn, url, payload):
+    def _invokePostREST(self, rest_conn, url, payload):
         rest_conn.request("POST", '/services/data/v%s/%s' % (_API_VERSION, url), payload, headers=self.rest_headers)
         response = rest_conn.getresponse()
         resultPayload = response.read()
@@ -140,7 +143,7 @@ class SalesforceAgent:
         data = json.loads(resultPayload)
         return data
 
-    def invokeGetREST(self,rest_conn,  url):
+    def _invokeGetREST(self,rest_conn,  url):
         rest_conn.request("GET", '/services/data/v%s/%s' % (_API_VERSION, url), headers=self.rest_headers)
         response = rest_conn.getresponse()
         resultPayload = response.read()

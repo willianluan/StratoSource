@@ -20,7 +20,7 @@ from datetime import datetime
 from django import forms
 from django.template import RequestContext
 from django.shortcuts import render_to_response, redirect
-from stratosource.admin.models import Branch, BranchLog, Repo
+from stratosource.admin.models import Branch, BranchLog, Repo, DeployableObject, Delta
 from stratosource import settings
 from django.core.exceptions import ObjectDoesNotExist
 from crontab import CronTab, CronItem
@@ -318,6 +318,10 @@ def repo_form_action(request):
                     removeCrontab(branch)
                     removeCGitEntry(branch)
                 r = Repo.objects.get(id=repoid)
+                brlist = Branch.objects.filter(repo=r)
+                for br in brlist:
+                    branchCascadeDelete(br)
+                brlist.delete()
                 r.delete()
     if request.method == 'POST' and request.POST.__contains__('addRepoButton'):
         return redirect('/newrepo')
@@ -332,11 +336,22 @@ def branch_form_action(request):
                 br = Branch.objects.get(id=branchid)
                 removeCrontab(br)
                 removeCGitEntry(br)
+                branchCascadeDelete(br[0])
                 br.delete()
     if request.method == 'POST' and request.POST.__contains__('addBranchButton'):
         return redirect('/newbranch')
 
     return adminMenu(request)
+
+def branchCascadeDelete(br):
+    deplist = DeployableObject.objects.filter(branch=br)
+    for dep in deplist:
+        deltas = Delta.objects.filter(object=dep)
+        deltas.delete()
+    deplist.delete()
+    BranchLog.objects.filter(branch=br).delete()
+    br.delete()
+
 
 def newrepo(request):
     if request.method == 'POST':

@@ -23,7 +23,7 @@ import subprocess
 from datetime import datetime
 from django.db import transaction
 from lxml import etree
-from stratosource.admin.models import Branch, Commit, Repo, Delta, DeployableTranslation, TranslationDelta, DeployableObject, AdminMessage
+from stratosource.admin.models import Branch, Commit, Repo, Delta, DeployableTranslation, TranslationDelta, DeployableObject, AdminMessage, UserChange
 
 
 __author__="masmith"
@@ -274,6 +274,7 @@ def insertDeltas(commit, objectName, type, items, delta_type, el_type, el_subtyp
     for item in items:
         deployable = getDeployable(commit.branch, objectName, type, el_type, item, el_subtype)
         delta = Delta()
+#        delta.last_change = getLastChange(objectName)
         delta.object = deployable
         delta.commit = commit
         delta.delta_type = delta_type
@@ -281,6 +282,12 @@ def insertDeltas(commit, objectName, type, items, delta_type, el_type, el_subtyp
 #        xtra = ''
 #        if not el_type is None: xtra += ' el_type=' + el_type
 #        print 'DELTA: object=' + deployable.filename + 'item=' + item + ', delta_type=' + delta_type + xtra
+
+def getLastChange(objectName):
+    recents = list(UserChange.objects.filter(apex_name__exact=objectName).order_by('last_update').reverse()[:1])
+    if len(recents) == 0:
+        return None
+        return recents[0]
 
 def getDeployableTranslation(branch, label, locale):
     try:
