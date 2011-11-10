@@ -201,6 +201,7 @@ class UnitTestBatch(models.Model):
     branch          = models.ForeignKey(Branch)
     tests           = models.IntegerField(default=0)
     failures        = models.IntegerField(default=0)
+    runtime         = models.IntegerField(default=0)
 
 class UnitTestRun(models.Model):
     apex_class_id   = models.CharField(max_length=20, blank=False, null=False, unique=False)
@@ -209,6 +210,7 @@ class UnitTestRun(models.Model):
     branch          = models.ForeignKey(Branch)
     tests           = models.IntegerField(default=0)
     failures        = models.IntegerField(default=0)
+    runtime         = models.IntegerField(default=0)
 
 class UnitTestRunResult(models.Model):
     test_run =  models.ForeignKey(UnitTestRun)
@@ -217,6 +219,7 @@ class UnitTestRunResult(models.Model):
     method_name = models.CharField(max_length=200)
     outcome = models.CharField(max_length=50)
     message = models.CharField(max_length=255, blank=True, null=True)
+    runtime         = models.IntegerField(default=0)
 
 class UnitTestSchedule(models.Model):
     CRONFREQ = (

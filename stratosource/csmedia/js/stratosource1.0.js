@@ -7,7 +7,7 @@ var openSections = {};
 $(document).ready(function() {
     var h = document.location.hash;
     if (h.length > 1){
-        var sections = h.substring(1,h.length - 1).split(',');
+        var sections = getSections();
         for (i in sections){
             jQuery('#' + sections[i]).show();
             if (sections[i].indexOf('min') > -1){
@@ -17,6 +17,11 @@ $(document).ready(function() {
         }
     }
 });
+
+function getSections(){
+    var h = document.location.hash;
+    return h.substring(1,h.length - 1).split(',');
+}
 
 function toggle(objectId){
     jQuery('#' + objectId).toggle();

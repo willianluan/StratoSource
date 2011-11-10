@@ -54,6 +54,14 @@ class Command(BaseCommand):
 
     def startTests(self):
         self.classList = self.getClassList()
+
+        utb = UnitTestBatch()
+        utb.batch_time = datetime.datetime.now()
+        utb.branch = self.branch
+        utb.save()
+        
+        self.utb = utb
+
         count = 0
         self.testItemIdList = {}
         for cls in self.classList:
@@ -119,13 +127,9 @@ class Command(BaseCommand):
         params = urllib.urlencode({'q': "select Id, ApexClassId, SystemModstamp, TestTimestamp, MethodName, Outcome, Message from ApexTestResult where QueueItemId = '%s'" % queueItem['Id']})
         data = self.invokeGetREST("query/?%s" % params)
         
-        utb = UnitTestBatch()
-        utb.batch_time = datetime.datetime.now()
-        utb.branch = self.branch
-        utb.save()
 
         utr = UnitTestRun()
-        utr.batch = utb
+        utr.batch = self.utb
         utr.apex_class_id = queueItem['ApexClassId']
         utr.branch = self.branch
         for cls in self.classList:

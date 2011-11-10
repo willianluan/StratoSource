@@ -19,7 +19,7 @@
 from django.template import RequestContext
 from django.shortcuts import render_to_response, redirect
 from django import forms
-from stratosource.admin.models import UnitTestRun, UnitTestRunResult, UnitTestSchedule, Branch
+from stratosource.admin.models import UnitTestBatch, UnitTestRun, UnitTestRunResult, UnitTestSchedule, Branch
 from stratosource import settings
 from crontab import CronTab, CronItem
 import logging
@@ -99,7 +99,14 @@ def admin(request):
     return render_to_response('unit_test_config.html', data, context_instance=RequestContext(request))
 
 def results(request):
-    runs = UnitTestRun.objects.all().order_by('-batch_time', 'class_name')[:1000]
+    batches = UnitTestBatch.objects.all().order_by('-batch_time')[:50]
+
+    data = {'batches': batches}
+    return render_to_response('unit_testing_results.html', data, context_instance=RequestContext(request))
+
+def ajax_unit_test_resultslist(request, batch_id):
+    batch = UnitTestBatch.objects.get(id=batch_id)
+    runs = UnitTestRun.objects.filter(batch=batch).order_by('class_name')
     
     for run in runs:
         run.successful = run.failures == 0
@@ -111,8 +118,8 @@ def results(request):
         else:
             run.outcome = str(run.failures) + ' of ' + str(run.tests) + ' Tests Failed'
 
-    data = {'testruns': runs}
-    return render_to_response('unit_testing_results.html', data, context_instance=RequestContext(request))
+    data = {'batch': batch, 'runs': runs}
+    return render_to_response('ajax_unit_testing_batch_list.html', data, context_instance=RequestContext(request))
 
 def result(request, run_id):
     run = UnitTestRun.objects.get(id=run_id)

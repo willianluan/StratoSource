@@ -1,6 +1,29 @@
 
 {% extends 'layout.html' %}
 
+{% block jscript %}
+        <script type="text/javascript">
+            function toggleList(id){
+                if (!jQuery('#' + id + 'List').is(":visible") ){
+                    jQuery('#' + id + 'List').load('/ajax/unit_testing_result_list/' + id);
+                }
+                toggle(id + 'List');
+            }
+            
+            $(document).ready(function() {
+                var sections = getSections();
+                for (i in sections){
+                    id = sections[i];
+                    if (id.indexOf('List') == id.length - 4){
+                        recordId = id.substring(0,id.length - 4);
+                        jQuery('#' + id).load('/ajax/unit_testing_result_list/' + recordId);
+                    }
+                }
+            });
+        </script>
+{% endblock %}
+
+
 {% block breadcrumbs %}
 <a href="/">Home</a> -> Unit Test Results
 {% endblock %}
@@ -11,50 +34,16 @@
 
         <div id="content-main">
             <div class="module ObjectsList">
-                    {% for run in testruns %}
-            {% ifchanged run.batch_time %}
-                {% if not forloop.first %}
-                    </table>
-                    <br/>
-            </div>
-            {% endif %}
-            <h3 class="sectionHeader">
-                <a href="#" onclick="toggle('{{ run.id }}List'); toggle('max{{ run.id }}'); toggle('min{{ run.id }}'); return false;"><img id="min{{ run.id }}" src="/csmedia/images/minimize.png" height="20" width="20" style="display:none;"/><img id="max{{ run.id }}" src="/csmedia/images/maximize.png" height="20" width="20"/> Batch started at {{ run.batch_time }}</a>
-                <span class="sectionHeaderActions"><a onclick="return confirm('Are you sure?');" href="?delete={{ run.id }}" style="display:inline;">Delete Run</a></span>
-            </h3>
-              <div id="{{ run.id }}List" style="display:none;">
-                <table>
-                        <tr>
-                            <th scope="row">Test Class</th>
-                            <th>Result</th>
-                            <th>Actions</th>
-                        </tr>
-            {% endifchanged %}
-                        <tr>
-                            <td scope="row" nowrap style="width: 40%;">
-                                <a href="/unit_testing_result/{{ run.id }}">{{ run.class_name }}</a>
-                            </td>
-                            <td>
-                                {% if run.successful %}
-                                    {{ run.outcome }}
-                                {% else %}
-                                    <font color="red"><b>{{ run.outcome }}</b></font>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <a href="/unit_testing_result/{{ run.id }}" style="display:inline">Detailed Results</a>|
-                                <a href="https://test.salesforce.com/?startURL={{ run.apex_class_id }}" target="sfTest" style="display:inline; margin-left:3px;">Go To Class</a>
-                            </td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td scope="row" colspan="5">
-                                <strong>No test runs have occurred.</strong>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </table>
-            </div>
+            {% for batch in batches %}
+                <h3 class="sectionHeader">
+                    <a href="#" onclick="toggleList('{{ batch.id }}'); toggle('max{{ batch.id }}'); toggle('min{{ batch.id }}'); return false;"><img id="min{{ batch.id }}" src="/csmedia/images/minimize.png" height="20" width="20" style="display:none;"/><img id="max{{ batch.id }}" src="/csmedia/images/maximize.png" height="20" width="20"/> Unit Test Batch on {{batch.branch.name|upper}} started at {{ batch.batch_time }}</a>
+                    <span class="sectionHeaderActions"><!--<a onclick="return confirm('Are you sure?');" href="?delete={{ batch.id }}" style="display:inline;">Delete Run</a>--></span>
+                </h3>
+                <div id="{{ batch.id }}List" style="display:none;">
+                </div>
+            {% empty %}
+                <div>No test runs have occurred.</div>
+            {% endfor %}
         </div>
         <br class="clear" />
     </div>
