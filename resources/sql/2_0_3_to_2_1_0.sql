@@ -1,3 +1,10 @@
+alter table `admin_unittestschedule` add column
+    `results_email_address` varchar(500) NOT NULL;
+
+alter table `admin_unittestschedule` add column
+    `email_only_failures` bool NOT NULL;
+
+
 DROP TABLE `admin_unittestrunresult`;
 DROP TABLE `admin_unittestrun`;
 
