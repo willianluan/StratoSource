@@ -19,7 +19,7 @@ from stratosource.admin.models import ConfigSetting
 from django.core.exceptions import ObjectDoesNotExist
 
 STANDARDCHKSETTINGS='rally.enabled'
-STANDARDTXTSETTINGS='rally.login'
+STANDARDTXTSETTINGS='rally.login,email.host,email.from'
 STANDARDPASSWORDS='rally.password'
 
 for name in STANDARDTXTSETTINGS.split(','):

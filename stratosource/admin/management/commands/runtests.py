@@ -27,6 +27,8 @@ import datetime
 from admin.management import CSBase
 from admin.management import Utils
 from admin.models import Branch, Repo, UnitTestBatch, UnitTestRun, UnitTestRunResult
+from stratosource.admin.management import UnitTestRunUtil
+
 
 __author__="masmith"
 __date__ ="$Nov 1, 2011 10:41:44 AM$"
@@ -67,7 +69,7 @@ class Command(BaseCommand):
         for cls in self.classList:
             body = cls['Body'].lower()
             if body.find('testmethod') > 0:
-                #if count == 10: break
+                if count == 10: break
                 count += 1
                 print '%s -> %s' % (cls['Id'], cls['Name'])
                 data = self.invokePostREST("sobjects/ApexTestQueueItem", json.dumps({'ApexClassId':cls['Id']}))
@@ -119,6 +121,7 @@ class Command(BaseCommand):
             print '%d: sleeping...' % timer
             time.sleep(60)
             timer -= 1
+        UnitTestRunUtil.processRun(self.utb.id)
 
 
     def processCompletedQueueItem(self, queueItem):

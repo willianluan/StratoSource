@@ -39,6 +39,7 @@
                     <a href="#" onclick="toggleList('{{ batch.id }}'); toggle('max{{ batch.id }}'); toggle('min{{ batch.id }}'); return false;"><img id="min{{ batch.id }}" src="/csmedia/images/minimize.png" height="20" width="20" style="display:none;"/><img id="max{{ batch.id }}" src="/csmedia/images/maximize.png" height="20" width="20"/> Unit Test Batch on {{batch.branch.name|upper}} started at {{ batch.batch_time }}</a>
                     <span class="sectionHeaderActions"><!--<a onclick="return confirm('Are you sure?');" href="?delete={{ batch.id }}" style="display:inline;">Delete Run</a>--></span>
                 </h3>
+                <div  class="module biggertext" style="padding:3px; background: white;">{{ batch.tests }} Tests Run, {{ batch.failures }} Failed, {{ batch.runtime }} Seconds total System Runtime</div>
                 <div id="{{ batch.id }}List" style="display:none;">
                 </div>
             {% empty %}

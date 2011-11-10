@@ -40,6 +40,10 @@ class UnitTestScheduleForm(forms.ModelForm):
         branch = cleaned_data.get("branch")
         if not branch:
            self._errors["branch"] = self.error_class(['Choose a branch']);
+           
+        already_scheduled = UnitTestSchedule.objects.filter(branch=branch)
+        if len(already_scheduled) > 0:
+            self._errors["branch"] = self.error_class(['There is already a unit test schedule for this branch, only one schedule is allowed per branch']);
 
         cron_type = cleaned_data.get('cron_type')
         cron_interval = int(cleaned_data.get('cron_interval'))
@@ -100,11 +104,12 @@ def admin(request):
 
 def results(request):
     batches = UnitTestBatch.objects.all().order_by('-batch_time')[:50]
-
+    
     data = {'batches': batches}
     return render_to_response('unit_testing_results.html', data, context_instance=RequestContext(request))
 
 def ajax_unit_test_resultslist(request, batch_id):
+    
     batch = UnitTestBatch.objects.get(id=batch_id)
     runs = UnitTestRun.objects.filter(batch=batch).order_by('class_name')
     
@@ -123,16 +128,7 @@ def ajax_unit_test_resultslist(request, batch_id):
 
 def result(request, run_id):
     run = UnitTestRun.objects.get(id=run_id)
-    results = UnitTestRunResult.objects.filter(test_run=run)
-    
-    for result in results:
-        if result.end_time == result.start_time:
-            result.runtime = '<1s'
-        else:
-            td = result.end_time - result.start_time
-            runtime = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
-            result.runtime = str(runtime) + 's'
-        
+    results = UnitTestRunResult.objects.filter(test_run=run)       
 
     data = {'run': run, 'results': results}
     return render_to_response('unit_testing_result.html', data, context_instance=RequestContext(request))
@@ -144,6 +140,8 @@ def new_test_schedule(request):
             row = UnitTestSchedule()
             cleaned_data = form.cleaned_data
             row.branch = cleaned_data.get('branch')
+            row.results_email_address = cleaned_data.get('results_email_address')
+            row.email_only_failures = cleaned_data.get('email_only_failures')
             row.cron_enabled = cleaned_data.get('cron_enabled')
             row.cron_type = cleaned_data.get('cron_type')
             row.cron_interval = cleaned_data.get('cron_interval')
@@ -162,6 +160,8 @@ def edit_test_schedule(request, uts_id):
             row = UnitTestSchedule.objects.get(id=uts_id)
             cleaned_data = form.cleaned_data
             row.branch = cleaned_data.get('branch')
+            row.results_email_address = cleaned_data.get('results_email_address')
+            row.email_only_failures = cleaned_data.get('email_only_failures')
             row.cron_enabled = cleaned_data.get('cron_enabled')
             row.cron_type = cleaned_data.get('cron_type')
             row.cron_interval = cleaned_data.get('cron_interval')

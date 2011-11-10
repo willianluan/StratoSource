@@ -40,6 +40,32 @@
 
                         <tr>
                             <td align="right">
+                                <label for="id_cron_type">Report Email:</label>
+                                {{ form.results_email_address.errors }}
+                            </td>
+                            <td>
+                                {{ form.results_email_address }}
+                            </td>
+                            <td>
+                                Which email address to send reports to
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td align="right">
+                                <label for="id_cron_type">Report ONLY on Failures:</label>
+                                {{ form.email_only_failures.errors }}
+                            </td>
+                            <td>
+                                {{ form.email_only_failures }}
+                            </td>
+                            <td>
+                                Email out reports even if there are NO failures
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td align="right">
                                 <label for="id_cron_type">cron Enabled:</label>
                                 {{ form.cron_enabled.errors }}
                             </td>

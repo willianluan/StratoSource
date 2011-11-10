@@ -219,7 +219,7 @@ class UnitTestRunResult(models.Model):
     method_name = models.CharField(max_length=200)
     outcome = models.CharField(max_length=50)
     message = models.CharField(max_length=255, blank=True, null=True)
-    runtime         = models.IntegerField(default=0)
+    runtime = models.IntegerField(default=0)
 
 class UnitTestSchedule(models.Model):
     CRONFREQ = (
@@ -227,6 +227,8 @@ class UnitTestSchedule(models.Model):
     )
     
     branch =  models.ForeignKey(Branch)
+    results_email_address = models.CharField(max_length=500)
+    email_only_failures = models.BooleanField(default=True)
     cron_enabled = models.BooleanField(default=True)
     cron_type = models.CharField(max_length=1, choices=CRONFREQ,default='d')
     cron_interval = models.IntegerField(default=1)
