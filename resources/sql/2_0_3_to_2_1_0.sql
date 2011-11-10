@@ -1,6 +1,5 @@
-DROP TABLE `admin_unittestbatch`;
-DROP TABLE `admin_unittestrun`;
 DROP TABLE `admin_unittestrunresult`;
+DROP TABLE `admin_unittestrun`;
 
 CREATE TABLE `admin_unittestbatch` (
     `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
