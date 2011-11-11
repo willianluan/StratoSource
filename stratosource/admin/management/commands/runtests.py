@@ -69,7 +69,7 @@ class Command(BaseCommand):
         for cls in self.classList:
             body = cls['Body'].lower()
             if body.find('testmethod') > 0:
-                #if count == 10: break
+                if count == 20: break
                 count += 1
                 print '%s -> %s' % (cls['Id'], cls['Name'])
                 data = self.invokePostREST("sobjects/ApexTestQueueItem", json.dumps({'ApexClassId':cls['Id']}))

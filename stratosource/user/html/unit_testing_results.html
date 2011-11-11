@@ -3,6 +3,10 @@
 
 {% block jscript %}
         <script type="text/javascript">
+            if (document.location.search != null && document.location.search.indexOf('sendReport') > -1){
+                document.location = document.location.pathname + document.location.hash;
+            }
+
             function toggleList(id){
                 if (!jQuery('#' + id + 'List').is(":visible") ){
                     jQuery('#' + id + 'List').load('/ajax/unit_testing_result_list/' + id);

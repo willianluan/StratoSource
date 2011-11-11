@@ -1,0 +1,4 @@
+#ID=22
+repo.url=qa
+repo.path=/home/jkruger/source/.git
+repo.desc=qa
