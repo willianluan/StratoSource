@@ -105,13 +105,12 @@ class SalesforceAgent:
         ptm.members = [prop.fullName for prop in props]
         return ptm
 
-    def retrieve_userchanges(self):
+    def retrieve_userchanges(self, pod):
         classes = {}
         triggers = {}
         pages = {}
         self.rest_headers = {"Authorization": "OAuth %s" % self.getSessionId(), "Content-Type": "application/json" }
-        serverloc = self.getServerLocation()
-        serverloc = 'cs4.salesforce.com'; ####### !!!! FIX THIS !!!!!!
+        serverloc = pod + '.salesforce.com'
 
         rest_conn = httplib.HTTPSConnection(serverloc)
         classes = self._getChangesMap(rest_conn, 'ApexClass')

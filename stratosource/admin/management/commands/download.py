@@ -52,7 +52,7 @@ class Command(BaseCommand):
         print 'retrieving %s:%s' % (br.repo.name, br.name)
         print 'types: ' + br.api_assets
         agent.retrieve_meta(types, filename)
-        classes, triggers, pages = agent.retrieve_userchanges()
+        classes, triggers, pages = agent.retrieve_userchanges(br.api_pod)
         agent.close()
         self.logger.debug('finished download')
 

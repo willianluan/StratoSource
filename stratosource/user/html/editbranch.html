@@ -128,6 +128,20 @@
                                 Salesforce API authentication token, optional as needed.
                             </td>
                         </tr>
+
+                        <tr>
+                            <td align="right">
+                                <label for="id_api_ver">Salesforce Pod:</label>
+                                {{ form.api_pod.errors }}
+                            </td>
+                            <td>
+                                {{ form.api_pod }}
+                            </td>
+                            <td>
+                                Your assigned Salesforce Pod (cs1, cs4, na1, etc). You can find this value in your browser URL after logging into the environment.
+                            </td>
+                        </tr>
+
 <!--
                         <tr>
                             <td align="right">
