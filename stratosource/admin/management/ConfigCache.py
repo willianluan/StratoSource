@@ -37,7 +37,7 @@ def refresh():
 
 def get_config_value(key):
     if not session.has_key('settings'):
-        logger.debug('Refreshing cachce')
+        logger.debug('Refreshing cache')
         refresh()
     settings = session['settings']
     if settings.has_key(key):

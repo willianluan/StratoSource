@@ -23,7 +23,7 @@ import re
 from django.template import RequestContext
 from django.shortcuts import render_to_response, redirect
 from stratosource.admin.models import Story, Release, DeployableObject, DeployableTranslation, Delta, Branch, ConfigSetting
-from stratosource.user.rallyintegration import get_stories, get_projects
+from stratosource.user import rallyintegration
 from stratosource.admin.management import ConfigCache
 import logging
 
@@ -44,6 +44,7 @@ def configs(request):
     allsettings = ConfigSetting.objects.all();
 
     if request.method == u'POST':
+        logger.debug('Got a post!')
         params = dict(request.POST.items())
         for param in params:
             if param.startswith('key_'):
@@ -51,10 +52,13 @@ def configs(request):
                 value = request.POST[param]
                 for setting in allsettings:
                     if key == setting.key:
+                        logger.debug('Working on ' + setting.key + '!')
                         if setting.value != value:
                             if setting.masked:
                                 repValue = request.POST[param + '_2']
+                                logger.debug('Checking if the values match!')
                                 if repValue == value:
+                                    logger.debug('Values Match!')
                                     setting.value = value
                                     setting.save()
                             else:
@@ -180,23 +184,8 @@ def stories(request):
         story.delete()
 
     if request.method == u'GET' and request.GET.__contains__('refresh'):
-        projectList = ConfigCache.get_config_value('rally.pickedprojects')
-        if len(projectList) > 0:
-            rallyStories = get_stories(projectList.split(';'))
-            dbstories = Story.objects.filter(rally_id__in=rallyStories.keys())
-            dbStoryMap = {}
-            for dbstory in dbstories:
-                dbStoryMap[dbstory.rally_id] = dbstory
-
-            for story in rallyStories.values():
-                dbstory = story
-                if story.rally_id in dbStoryMap:
-                    # Override with database version if it exists
-                    dbstory = dbStoryMap[story.rally_id]
-                    dbstory.name = story.name
-                dbstory.sprint = story.sprint
-                dbstory.save()
-
+        rallyintegration.refresh()
+        
     stories = Story.objects.all().order_by('sprint', 'rally_id', 'name')
     stories.select_related()
     data = {'stories': stories, 'rally_refresh' : ConfigCache.get_config_value('rally.enabled') == '1'}
