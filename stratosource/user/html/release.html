@@ -8,6 +8,26 @@
 {% block jscript %}
     <script src="/csmedia/js/cs_release_management1.0.js" type="text/javascript"></script>
     <script src="/csmedia/js/cs_releases1.0.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        // Return a helper with preserved width of cells
+        var fixHelper = function(e, ui) {
+            ui.children().each(function() {
+                jQuery(this).width($(this).width());
+            });
+            return ui;
+        };
+         
+        var updateHelper = function(e, ui) {
+            alert('done! ' + jQuery("#sortable tbody").sortable( "toArray" ));
+        };
+        
+        $(document).ready(function() {
+            jQuery("#sortable tbody").sortable({
+                helper: fixHelper,
+                update: updateHelper
+            }).disableSelection()
+        });
+    </script>
 {% endblock %}
 
 {% block content %}
@@ -17,15 +37,56 @@
         <div id="content-main">
             <form id="releaseNotes" name="releaseNotes" method="POST">{% csrf_token %}
                 <div class="module">
-                    <h2>
+                    <div class="section">
                             <span class="section">Release Notes</span>
                             <span class="sectionActions">
-                                <a href="#" onclick="document.getElementById('releaseNotes').submit(); return false;">Save Notes</a> |
                                 <a href="/manifest/{{release.id}}">Show Manifest</a>
                             </span>
-                    </h2>
+                    </div>
                     <div style="padding: 10px;">
-                        <textarea name="releaseNotes" cols="100" rows="5">{{ release.release_notes }}</textarea>
+                        <textarea name="releaseNotes" cols="100" rows="5">{{ release.release_notes }}</textarea><br/>
+                        <input type="button" onclick="document.getElementById('releaseNotes').submit(); return false;" value="Save Notes"/>
+                    </div>
+                </div>
+                <div class="module">
+                    <div class="section">
+                            <span class="section">Release Tasks</span>
+                    </div>
+                    <div style="padding: 10px;">
+                        <table style="width:800px" id="sortable">
+                            <thead>
+                                <tr>
+                                    <th style="width:100%;">Task</th>
+                                    <th>FTE1</th>
+                                    <th>QA</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr id="One">
+                                    <td>Task One</td>
+                                    <td><input type="checkbox" name="taskDone"></td>
+                                    <td><input type="checkbox" name="taskDone"></td>
+                                </tr>
+                                <tr id="Two">
+                                    <td>Task Two</td>
+                                    <td><input type="checkbox" name="taskDone"></td>
+                                    <td><input type="checkbox" name="taskDone"></td>
+                                </tr>
+                                <tr id="Three">
+                                    <td>Task Task 3</td>
+                                    <td><input type="checkbox" name="taskDone"></td>
+                                    <td><input type="checkbox" name="taskDone"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table style="width:800px">
+                            <tr>
+                                <td>
+                                    <input style="width:90%;" type="text" name="name" maxlength="1000">
+                                    <input type="button" onclick="alert('Call Add javascript');" value="Add"/>
+                                </td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
             </form>
@@ -34,8 +95,7 @@
                     <caption>
                         <span class="section">Stories in {{ release.name }}</span>
                         <span class="sectionActions">
-                            <a href="#" onclick="promptAddStories();">Add Stories</a> |
-                            <a href="/manifest/{{release.id}}">Show Manifest</a>
+                            <a href="#" onclick="promptAddStories();">Add Stories</a>
                             {% if not release.released %}
                                  | <a href="#" onclick="markReleased('{{ release.id }}', '{{ release.name|addslashes }}', '{{ branch|addslashes }}', true);">Mark All Released</a>
                             {% endif %}

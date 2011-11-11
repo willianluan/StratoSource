@@ -22,7 +22,7 @@ from django.utils.encoding import smart_str
 import re
 from django.template import RequestContext
 from django.shortcuts import render_to_response, redirect
-from stratosource.admin.models import Story, Release, DeployableObject, DeployableTranslation, Delta, Branch, ConfigSetting
+from stratosource.admin.models import Story, Release, ReleaseTask, DeployableObject, DeployableTranslation, Delta, Branch, ConfigSetting
 from stratosource.user import rallyintegration
 from stratosource.admin.management import ConfigCache
 import logging
@@ -114,6 +114,7 @@ def releases(request):
 
 def release(request, release_id):
     release = Release.objects.get(id=release_id)
+    tasks = ReleaseTask.objects.filter(release=release).order_by('order')
 
     if request.method == u'GET' and request.GET.__contains__('remove_story_id'):
         story = Story.objects.get(id=request.GET['remove_story_id'])
@@ -126,7 +127,7 @@ def release(request, release_id):
 
     stories = Story.objects.all().order_by('rally_id', 'name')
 
-    data = {'release': release, 'avail_stories': stories}
+    data = {'release': release, 'avail_stories': stories, 'tasks': tasks}
     return render_to_response('release.html', data, context_instance=RequestContext(request))
 
 def unreleased(request, repo_name, branch_name):

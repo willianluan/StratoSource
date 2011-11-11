@@ -126,6 +126,12 @@ class Release(models.Model):
 
     def __unicode__(self):
         return self.name
+    
+class ReleaseTask(models.Model):
+    name =           models.CharField(max_length=1000)
+    done_in_branch = models.CharField(max_length=100)
+    order =          models.IntegerField(default=0)
+    release =        models.ForeignKey(Release, db_index=True)
 
 class DeployableObject(models.Model):
     STATUS_TYPES = (('a','Active'),('d','Deleted'))
