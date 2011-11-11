@@ -21,6 +21,7 @@ from django.shortcuts import render_to_response, redirect
 from django import forms
 from stratosource.admin.models import UnitTestBatch, UnitTestRun, UnitTestRunResult, UnitTestSchedule, Branch
 from stratosource import settings
+from stratosource.admin.management import UnitTestRunUtil
 from crontab import CronTab, CronItem
 import logging
 import os
@@ -105,6 +106,10 @@ def admin(request):
 
 def results(request):
     batches = UnitTestBatch.objects.all().order_by('-batch_time')[:50]
+    
+    if request.method == 'GET' and request.GET.__contains__('sendReport'):
+        batch_id = request.GET['sendReport']
+        UnitTestRunUtil.processRun(batch_id)
     
     data = {'batches': batches}
     return render_to_response('unit_testing_results.html', data, context_instance=RequestContext(request))
