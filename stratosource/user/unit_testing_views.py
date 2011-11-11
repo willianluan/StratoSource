@@ -67,7 +67,7 @@ def createCrontab(uts):
             interval_str = ','.join(interval_list)
         else:
             interval_str = '*'
-        cronline = "%s %s * * * %s runtests %s %s >/tmp/unitTestCronjob.out 2>&1" % (uts.cron_start, interval_str, os.path.join(settings.ROOT_PATH, 'runmanage.sh'), uts.branch.repo.name, uts.branch.name)
+        cronline = "%s %s * * * %s runtests %s %s >/tmp/unitTestCronjob%s.out 2>&1" % (uts.cron_start, interval_str, os.path.join(settings.ROOT_PATH, 'runmanage.sh'), uts.branch.repo.name, uts.branch.name, uts.id)
         logger.debug('Creating cron tab with line ' + cronline)
         item = CronItem(line=cronline + ' #' + ('%s %d' % (CRON_COMMENT, uts.id)))
         ctab.add(item)
