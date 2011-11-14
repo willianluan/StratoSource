@@ -58,6 +58,9 @@ if [ $? -eq 1 ]; then
   sed -i "s|PYTHON_SITEPKG|$SITEPKG|" /etc/httpd/conf/httpd.conf
 fi
 
+echo 'configure mysql'
+mysql_install_db
+
 echo 'configuring cgit'
 eval grep django /etc/cgitrc
 if [ $? -eq 1 ]; then

@@ -86,7 +86,7 @@ def save_userchanges(branch, classes, triggers, pages):
     allchanges = classes + triggers + pages
     batch_time = datetime.datetime.now()
     for change in allchanges:
-        recents = list(UserChange.objects.filter(apex_id__exact=change['Id']).order_by('last_update').reverse()[:1])
+        recents = list(UserChange.objects.filter(apex_id__exact=change['Id'], branch=branch).order_by('last_update').reverse()[:1])
         if len(recents) == 0:
             recent = UserChange()
         else:

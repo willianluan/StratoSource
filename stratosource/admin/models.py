@@ -171,7 +171,7 @@ class Delta(models.Model):
     object =        models.ForeignKey(DeployableObject)
     commit =        models.ForeignKey(Commit)
     delta_type =    models.CharField(max_length=1,choices=DELTA_TYPES)
-    #user_change =   models.ForeignKey(UserChange, blank=True, null=True)
+    user_change =   models.ForeignKey(UserChange, blank=True, null=True)
 
     def __unicode__(self):
         return self.object.__unicode__() + " - " + self.delta_type

@@ -225,6 +225,7 @@ def getAllObjectChanges(objectName, lFileCache, rFileCache, elementname, resolve
 ##
 
 def createFileCache(hash, map, branch_name):
+    print 'cwd=' + os.getcwd()
     tmpbranch = branch_name + '_sfdiff'
     subprocess.check_call(["git","checkout",branch_name])
     if branchExists(tmpbranch):
@@ -274,7 +275,7 @@ def insertDeltas(commit, objectName, type, items, delta_type, el_type, el_subtyp
     for item in items:
         deployable = getDeployable(commit.branch, objectName, type, el_type, item, el_subtype)
         delta = Delta()
-#        delta.last_change = getLastChange(objectName)
+        delta.user_change = getLastChange(objectName)
         delta.object = deployable
         delta.commit = commit
         delta.delta_type = delta_type
@@ -284,10 +285,11 @@ def insertDeltas(commit, objectName, type, items, delta_type, el_type, el_subtyp
 #        print 'DELTA: object=' + deployable.filename + 'item=' + item + ', delta_type=' + delta_type + xtra
 
 def getLastChange(objectName):
-    recents = list(UserChange.objects.filter(apex_name__exact=objectName).order_by('last_update').reverse()[:1])
+    recents = list(UserChange.objects.filter(apex_name__exact=objectName, branch=working_branch).order_by('last_update').reverse()[:1])
+
     if len(recents) == 0:
         return None
-        return recents[0]
+    return recents[0]
 
 def getDeployableTranslation(branch, label, locale):
     try:
@@ -319,7 +321,7 @@ def analyzeObjectChanges(list, lFileCache, rFileCache, elementname, commit):
     changesFound = False
     for objectName in list:
         try:
-#            print'  object name is', objectName, 'element name is', elementname
+            print'  object name is', objectName, 'element name is', elementname
             inserts, updates, deletes = getAllObjectChanges(objectName, lFileCache, rFileCache, elementname, objectChangeResolver)
             if (inserts and len(inserts)) or (updates and len(updates)) or (deletes and len(deletes)):
                 if inserts: insertDeltas(commit, objectName, 'objects', inserts.keys(), 'a', elementname)
@@ -523,6 +525,9 @@ def analyzeWorkflowChanges(list, lFileCache, rFileCache, elementname, commit):
 def analyzeCommit(branch, commit):
     global documentCache
     global mapCache
+    global working_branch
+
+    working_branch = branch
 
     documentCache = {}  # do not want to accumulate this stuff over multiple iterations
     mapCache = {}
@@ -539,23 +544,23 @@ def analyzeCommit(branch, commit):
     ##
     # call "git diff" to get a list of changed files
     ##
-    map = getDiffNames(lhash, rhash)
+    omap = getDiffNames(lhash, rhash)
 
     ##
     # load all changed files from each hash into a map for performance
     ##
-    lFileCache = createFileCache(lhash, map, branch.name)
-    rFileCache = createFileCache(rhash, map, branch.name)
+    lFileCache = createFileCache(lhash, omap, branch.name)
+    rFileCache = createFileCache(rhash, omap, branch.name)
 
-    for type,list in map.items():
+    for otype,olist in omap.items():
         #print type
-        if type == 'objects':
-            analyzeObjectChanges(list, lFileCache, rFileCache, 'fields', commit)
-            analyzeObjectChanges(list, lFileCache, rFileCache, 'validationRules', commit)
-            analyzeObjectChanges(list, lFileCache, rFileCache, 'webLinks', commit)
-            analyzeRecordTypeChanges(list, lFileCache, rFileCache, commit)
-            analyzeObjectChanges(list, lFileCache, rFileCache, 'namedFilters', commit)
-            analyzeObjectChanges(list, lFileCache, rFileCache, 'listViews', commit)
+        if otype == 'objects':
+            analyzeObjectChanges(olist, lFileCache, rFileCache, 'fields', commit)
+            analyzeObjectChanges(olist, lFileCache, rFileCache, 'validationRules', commit)
+            analyzeObjectChanges(olist, lFileCache, rFileCache, 'webLinks', commit)
+            analyzeRecordTypeChanges(olist, lFileCache, rFileCache, commit)
+            analyzeObjectChanges(olist, lFileCache, rFileCache, 'namedFilters', commit)
+            analyzeObjectChanges(olist, lFileCache, rFileCache, 'listViews', commit)
             # misc single-node elements
 #                analyzeObjectChanges(list, lFileCache, rFileCache, 'label', commit)
 #                analyzeObjectChanges(list, lFileCache, rFileCache, 'nameField', commit, nameKey='label')
@@ -563,25 +568,25 @@ def analyzeCommit(branch, commit):
 #                analyzeObjectChanges(list, lFileCache, rFileCache, 'searchLayouts', commit)
 #                analyzeObjectChanges(list, lFileCache, rFileCache, 'sharingModel', commit)
 
-        elif type == 'translations':
-            analyzeTranslationChanges(list, lFileCache, rFileCache, commit)
+        elif otype == 'translations':
+            analyzeTranslationChanges(olist, lFileCache, rFileCache, commit)
 
-        elif type == 'workflows':
-            analyzeWorkflowChanges(list, lFileCache, rFileCache, 'alerts', commit)
-            analyzeWorkflowChanges(list, lFileCache, rFileCache, 'fieldUpdates', commit)
-            analyzeWorkflowChanges(list, lFileCache, rFileCache, 'rules', commit)
-            analyzeWorkflowChanges(list, lFileCache, rFileCache, 'tasks', commit)
+        elif otype == 'workflows':
+            analyzeWorkflowChanges(olist, lFileCache, rFileCache, 'alerts', commit)
+            analyzeWorkflowChanges(olist, lFileCache, rFileCache, 'fieldUpdates', commit)
+            analyzeWorkflowChanges(olist, lFileCache, rFileCache, 'rules', commit)
+            analyzeWorkflowChanges(olist, lFileCache, rFileCache, 'tasks', commit)
 
-        elif type == 'objectTranslations':
-            analyzeObjectTranslationChanges(list, lFileCache, rFileCache, 'fields', commit)
-            analyzeObjectTranslationChanges(list, lFileCache, rFileCache, 'validationRules', commit)
-            analyzeObjectTranslationChanges(list, lFileCache, rFileCache, 'webLinks', commit)
+        elif otype == 'objectTranslations':
+            analyzeObjectTranslationChanges(olist, lFileCache, rFileCache, 'fields', commit)
+            analyzeObjectTranslationChanges(olist, lFileCache, rFileCache, 'validationRules', commit)
+            analyzeObjectTranslationChanges(olist, lFileCache, rFileCache, 'webLinks', commit)
 
-        elif type == 'labels':
-            analyzeLabelChanges(list, lFileCache, rFileCache, 'labels', commit)
+        elif otype == 'labels':
+            analyzeLabelChanges(olist, lFileCache, rFileCache, 'labels', commit)
 
         else:
-            for listitem in list:
+            for listitem in olist:
                 delta_type = None
                 if lFileCache.has_key(listitem) and rFileCache.has_key(listitem) == False:
                     delta_type = 'd'
@@ -591,8 +596,9 @@ def analyzeCommit(branch, commit):
                     delta_type = 'u'
 
                 delta = Delta()
-                delta.object = getDeployable(branch, listitem, type, None, None, None)
+                delta.object = getDeployable(branch, listitem, otype, None, None, None)
                 delta.commit = commit
+                delta.user_change = getLastChange(listitem)
                 delta.delta_type = delta_type
                 delta.save()
 
