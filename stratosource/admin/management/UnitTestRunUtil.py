@@ -31,7 +31,9 @@ logger = logging.getLogger('console')
 
 def email_results(batch, failures, runs):
     long_runners = UnitTestRunResult.objects.filter(test_run__in=runs).order_by('-runtime')[:5]
+    long_runners.select_related()
     long_runner_classes = UnitTestRun.objects.filter(batch=batch).order_by('-runtime')[:5]
+    long_runner_classes.select_related()
     
     try:
         schedule = UnitTestSchedule.objects.get(branch=batch.branch)

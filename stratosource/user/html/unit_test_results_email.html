@@ -40,7 +40,7 @@
             {% for result in failures %}
             <tr>
                 <td scope="row" nowrap style="width: 30%;">
-                    <a href="https://test.salesforce.com/?startURL={{ result.test_run.apex_class_id }}">{{ result.test_run.class_name }}.{{ result.method_name }}</a>
+                    <a href="https://{{result.test_run.branch.api_pod}}.salesforce.com/{{ result.test_run.apex_class_id }}">{{ result.test_run.class_name }}.{{ result.method_name }}</a>
                 </td>
                 <td style="width: 50%;">
                     {{ result.message }}
@@ -67,7 +67,7 @@
             {% for result in long_runners %}
             <tr>
                 <td scope="row" nowrap style="width: 30%;">
-                    <a href="https://test.salesforce.com/?startURL={{ result.test_run.apex_class_id }}">{{ result.test_run.class_name }}.{{ result.method_name }}</a>
+                    <a href="https://{{result.test_run.branch.api_pod}}.salesforce.com/{{ result.test_run.apex_class_id }}">{{ result.test_run.class_name }}.{{ result.method_name }}</a>
                 </td>
                 <td style="width: 50%;">
                     {{ result.runtime }} Seconds
@@ -87,7 +87,7 @@
             {% for run in long_runner_classes %}
             <tr>
                 <td scope="row" nowrap style="width: 30%;">
-                    <a href="https://test.salesforce.com/?startURL={{ result.test_run.apex_class_id }}">{{ run.class_name }}</a>
+                    <a href="https://{{ run.branch.api_pod}}.salesforce.com/{{ run.apex_class_id }}">{{ run.class_name }}</a>
                 </td>
                 <td style="width: 50%;">
                     {{ run.runtime }} Seconds
