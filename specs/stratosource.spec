@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:           stratosource
-Version: 2.1.10
+Version: 2.2.0
 Release: 0
 Summary:        Process git repo dumps of salesforce assets and provide web UI for the results
 
@@ -57,6 +57,9 @@ if [ $? -eq 1 ]; then
   cat  < /usr/django/resources/httpd-append.conf >> /etc/httpd/conf/httpd.conf 
   sed -i "s|PYTHON_SITEPKG|$SITEPKG|" /etc/httpd/conf/httpd.conf
 fi
+
+echo 'configure mysql'
+mysql_install_db
 
 echo 'configuring cgit'
 eval grep django /etc/cgitrc

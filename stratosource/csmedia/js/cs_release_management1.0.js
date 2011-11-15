@@ -140,9 +140,9 @@ function saveTask(id, branch_id){
     jQuery.ajax({
       url: "/ajax/editreleasetask/?rel_id={{ release.id }}&task_id=" + id + '&newVal=' + escape(newVal) + '&branch_id=' + branch_id,
       success: function(){
-        refreshTasks();
         editingTask = '';
         lastValue = '';
+        refreshTasks();
       }
     });    
 }
