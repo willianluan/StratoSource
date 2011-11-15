@@ -57,7 +57,7 @@ body {
     margin-left: 3px;
 }
 
-th {
+thead th, th {
     text-align: left;
     background:url('http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/themes/dot-luv/images/ui-bg_dots-small_20_333333_2x2.png');
     filter:alpha(opacity=60);
@@ -65,7 +65,7 @@ th {
     color: white;
 }
 
-tr {
+tbody tr, tr {
     border-bottom-style: solid;
     border-bottom-color: #dddddd;
     border-bottom-width: 2px;
@@ -234,4 +234,10 @@ input, textarea, select, .form-row p {
 
 .module caption, .section, .sectionBase{
     background:url('http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/themes/dot-luv/images/ui-bg_dots-small_40_00498f_2x2.png');
+}
+
+.align_center {
+    text-align:center;
+    vertical-align: middle;
+    padding: 2px;
 }

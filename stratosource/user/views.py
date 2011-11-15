@@ -114,8 +114,8 @@ def releases(request):
 
 def release(request, release_id):
     release = Release.objects.get(id=release_id)
-    tasks = ReleaseTask.objects.filter(release=release).order_by('order')
-
+    branches = Branch.objects.all()
+    
     if request.method == u'GET' and request.GET.__contains__('remove_story_id'):
         story = Story.objects.get(id=request.GET['remove_story_id'])
         release.stories.remove(story)
@@ -127,7 +127,7 @@ def release(request, release_id):
 
     stories = Story.objects.all().order_by('rally_id', 'name')
 
-    data = {'release': release, 'avail_stories': stories, 'tasks': tasks}
+    data = {'release': release, 'avail_stories': stories, 'branches': branches}
     return render_to_response('release.html', data, context_instance=RequestContext(request))
 
 def unreleased(request, repo_name, branch_name):

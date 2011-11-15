@@ -16,18 +16,16 @@
 #    along with StratoSource.  If not, see <http://www.gnu.org/licenses/>.
 #    
 from datetime import datetime
-from stratosource.admin.models import Release
-from stratosource.admin.models import Story
-from stratosource.admin.models import Branch
-from stratosource.admin.models import DeployableObject
-from stratosource.admin.models import DeployableTranslation
+from stratosource.admin.models import Release, Story, Branch, DeployableObject, DeployableTranslation, ReleaseTask
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.utils import simplejson
+from django.db import transaction
 import logging
 
+logger = logging.getLogger('console')
 
 def createrelease(request):
     results = {'success':False}
@@ -334,3 +332,105 @@ def addtostory(request):
 
     json = simplejson.dumps(results)
     return HttpResponse(json, mimetype='application/json')
+
+def get_release_tasks(request, release_id):
+    release = Release.objects.get(id=release_id)
+    branches = Branch.objects.all()
+
+    tasks = ReleaseTask.objects.filter(release=release).order_by('order')
+    
+    for task in tasks:
+        task.done_in_branch_list = task.done_in_branch.split(',')
+        
+    for branch in branches:
+        branch.tid = str(branch.id)
+    
+    data = {'success':True, 'tasks': tasks, 'branches': branches}
+
+    return render_to_response('release_tasks_ajax.html', data, context_instance=RequestContext(request))
+    
+def add_release_task(request):
+    results = {'success':False}
+    try:
+        release_id = request.GET['rel_id']
+        release = Release.objects.get(id=release_id)
+        task = ReleaseTask()
+        task.release = release
+        task.order = 999
+        task.name = request.GET['task']
+        task.save()
+        
+        results = {'success':True}
+    except Exception as ex:
+        results = {'success':False, 'error':ex.message}
+
+    json = simplejson.dumps(results)
+    return HttpResponse(json, mimetype='application/json')
+    
+def edit_release_task(request):
+    task_id = request.GET['task_id']
+    
+    done_on_branch = request.GET['branch_id']
+    
+    task = ReleaseTask.objects.get(id=task_id)
+    
+    if request.GET.__contains__('newVal'):
+        newVal = request.GET['newVal']
+        task.name = newVal
+
+    if request.GET.__contains__('done'):
+        is_done = request.GET['done'] == 'true'
+        task.done_in_branch_list = task.done_in_branch.split(',')
+        try:
+            task.done_in_branch_list.remove(done_on_branch)
+        except Exception:
+            logger.debug('Not in list')
+    
+        if is_done:
+            task.done_in_branch_list.append(done_on_branch)
+    
+        str = ''
+        for id in task.done_in_branch_list:
+            if id != '':
+                if str == '':
+                    str = id
+                else:
+                    str = str + ',' + id
+    
+        task.done_in_branch = str
+        logger.debug('task.done_in_branch ' + task.done_in_branch)
+    
+    task.save()
+
+    results = {'success':True}
+
+    json = simplejson.dumps(results)
+    return HttpResponse(json, mimetype='application/json')    
+
+@transaction.commit_on_success   
+def reorder_release_tasks(request):
+    order = request.GET['order']
+    id_list = order.split(',')
+    i = 0
+    for id in id_list:
+        task = ReleaseTask.objects.get(id=id)
+        task.order = i
+        i = i + 1
+        task.save()
+
+    results = {'success':True}
+
+    json = simplejson.dumps(results)
+    return HttpResponse(json, mimetype='application/json')    
+
+def delete_release_task(request):
+    release_id = request.GET['rel_id']
+    task_id = request.GET['task_id']
+    
+    task = ReleaseTask.objects.get(id=task_id)
+    task.delete()
+    
+    results = {'success':True}
+
+    json = simplejson.dumps(results)
+    return HttpResponse(json, mimetype='application/json')    
