@@ -8,3 +8,8 @@ CREATE TABLE `admin_releasetask` (
 ;
 ALTER TABLE `admin_releasetask` ADD CONSTRAINT `release_id_refs_id_93563b04` FOREIGN KEY (`release_id`) REFERENCES `admin_release` (`id`);
 
+
+ALTER TABLE `admin_delta` ADD column
+    `user_change_id` integer;
+ALTER TABLE `admin_delta` ADD CONSTRAINT `user_change_id_refs_id_84225281` FOREIGN KEY (`user_change_id`) REFERENCES `admin_userchange` (`id`);
+
