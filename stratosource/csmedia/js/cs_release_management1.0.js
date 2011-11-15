@@ -62,7 +62,7 @@ function addTask(){
     task = jQuery('#taskName').val();
     if (task != null && task != ''){
         jQuery.ajax({
-          url: "/ajax/addreleasetask/?rel_id=' + release_id + '&task=" + escape(task),
+          url: "/ajax/addreleasetask/?rel_id=" + release_id + "&task=" + escape(task),
           success: function(){
             refreshTasks();
             jQuery('#taskName').val('');
@@ -74,7 +74,7 @@ function addTask(){
 
 function flagTask(release_id, id, is_checked, branch_id){
     jQuery.ajax({
-      url: "/ajax/editreleasetask/?rel_id=' + release_id + '&task_id=" + id + '&done=' + is_checked + '&branch_id=' + branch_id,
+      url: "/ajax/editreleasetask/?rel_id=" + release_id + "&task_id=" + id + '&done=' + is_checked + '&branch_id=' + branch_id,
       success: function(){
       }
     });
@@ -84,7 +84,7 @@ function flagTask(release_id, id, is_checked, branch_id){
 function deleteTask(id){
     if (confirm('Are you sure?')){
         jQuery.ajax({
-          url: "/ajax/delreleasetask/?rel_id=' + release_id + '&task_id=" + id,
+          url: "/ajax/delreleasetask/?rel_id=" + release_id + "&task_id=" + id,
           success: function(){
             refreshTasks();
           }
@@ -138,7 +138,7 @@ function cancelEdit(){
 function saveTask(id, branch_id){
     newVal = jQuery('#taskName' + id).val();
     jQuery.ajax({
-      url: "/ajax/editreleasetask/?rel_id=' + release_id + '&task_id=" + id + '&newVal=' + escape(newVal) + '&branch_id=' + branch_id,
+      url: "/ajax/editreleasetask/?rel_id=" + release_id + "&task_id=" + id + '&newVal=' + escape(newVal) + '&branch_id=' + branch_id,
       success: function(){
         editingTask = '';
         lastValue = '';
