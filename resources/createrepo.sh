@@ -22,8 +22,10 @@ fi
 NAME=$1
 
 cd $BASEDIR
-git init $NAME
+mkdir $NAME
 cd $NAME
+git init code
+cd code
 touch .gitignore
 git add .gitignore
 git commit -m "initial commit"
