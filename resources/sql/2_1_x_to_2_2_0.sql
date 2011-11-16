@@ -13,3 +13,4 @@ ALTER TABLE `admin_delta` ADD column
     `user_change_id` integer;
 ALTER TABLE `admin_delta` ADD CONSTRAINT `user_change_id_refs_id_84225281` FOREIGN KEY (`user_change_id`) REFERENCES `admin_userchange` (`id`);
 
+alter table `admin_branch` drop column api_ver;
