@@ -5,49 +5,81 @@
 <a href="/">Home</a> -> Manage Stories
 {% endblock %}
 
+{% block jscript %}
+    <script type="text/javascript">
+        function refreshFilter(){
+            var releaseid = $("#releaseid").val();
+            var sprint = $("#cboSprints").val();
+            document.location = '?releaseid=' + releaseid + '&sprint=' + sprint;
+        }
+    </script>
+{% endblock %}
+
 {% block content %}
 
     <div id="content" class="colMS">
 
         <div id="content-main">
-            <div class="module ObjectsList">
-                <table>
-                    <caption>
-                        <span><a href="" class="section">Stories</a></span>
-                        <span class="sectionActions">{% if rally_refresh %}<a onclick="alert('This can take a long time depending on how many Sprints / Stories you have.');" href="/stories?refresh=true">Refresh</a>{% endif %}</span>
-                    </caption>
-                        <tr>
-                            <th scope="row">Rally ID</th>
-                            <th>Sprint</th>
-                            <th>Name</th>
-                            <th colspan="2" align="center">Actions</th>
-                        </tr>
-                    {% for story in stories %}
-                        <tr>
-                            <td scope="row" nowrap>
-                                <a href="/instory/{{ story.id }}">{{ story.rally_id }}</a>
-                            </td>
-                            <td>
-                                {{ story.sprint }}
-                            </td>
-                            <td>
-                                {{ story.name }}
-                            </td>
-                            <td>
-                                <a href="https://rally1.rallydev.com/slm/rally.sp#/search?keywords={{ story.rally_id }}" target="_blank">Details</a>
-                            </td>
-                            <td align="center">
-                                <a href="/stories?delete={{ story.id }}">Delete</a>
-                            </td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td scope="row" colspan="5">
-                                <strong>No Stories added to release yet.</strong>
-                            </td>
-                        </tr>
+            <div>
+                <strong>Filter By Sprint:</strong>
+                <select name="cboSprints" id="cboSprints" onchange="refreshFilter();">
+                    <option value="">-- All Sprints --</option>
+                    {% for sprintName in sprintList %}
+                        <option value="{{ sprintName }}" {% if sprintName == sprint %}selected{% endif %}>{{sprintName}}</option>
                     {% endfor %}
-                </table>
+                </select>
+            </div>
+            <br/>
+            <div class="module ObjectsList">
+                <form id="storyForm" method="post">{% csrf_token %}
+                    <input type="hidden" id="releaseid" name="releaseid" value="{{ releaseid }}"/>
+                    <table>
+                        <caption>
+                            <span><a href="" class="section">Stories</a></span>
+                            <span class="sectionActions">
+                                {% if releaseid %}<a href="#" onclick="document.getElementById('storyForm').submit(); return false;">Syncronize Selected Stories to Release</a>{% endif %}
+                                {% if not releaseid and rally_refresh %}<a onclick="alert('This can take a long time depending on how many Sprints / Stories you have.');" href="/stories?refresh=true">Refresh</a>{% endif %}
+                            </span>
+                        </caption>
+                            <tr>
+                                <th scope="row" class="align_center">Select</th>
+                                <th>Rally ID</th>
+                                <th>Sprint</th>
+                                <th>Name</th>
+                                {% if not releaseid %}<th colspan="2" align="center">Actions</th>{% endif %}
+                            </tr>
+                        {% for story in stories %}
+                            <tr>
+                                <td scope="row" class="align_center">
+                                    <input type="checkbox" name="storyId" id="chkStory{{story.id}}" value="{{story.id}}" {% if story.id in in_release %}checked{% endif %}/>
+                                </td>
+                                <td nowrap>
+                                    <a href="/instory/{{ story.id }}">{{ story.rally_id }}</a>
+                                </td>
+                                <td>
+                                    {{ story.sprint }}
+                                </td>
+                                <td>
+                                    {{ story.name }}
+                                </td>
+                                {% if not releaseid %}
+                                <td>
+                                    <a href="https://rally1.rallydev.com/slm/rally.sp#/search?keywords={{ story.rally_id }}" target="_blank">Details</a>
+                                </td>
+                                <td align="center">
+                                    <a href="/stories?delete={{ story.id }}">Delete</a>
+                                </td>
+                                {% endif %}
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td scope="row" colspan="5">
+                                    <strong>No Stories found.</strong>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </form>
             </div>
         </div>
         <br class="clear" />

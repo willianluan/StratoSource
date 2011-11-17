@@ -125,8 +125,6 @@ def release(request, release_id):
         release.release_notes = request.POST['releaseNotes']
         release.save()  
 
-    stories = Story.objects.all().order_by('rally_id', 'name')
-
     data = {'release': release, 'avail_stories': stories, 'branches': branches}
     return render_to_response('release.html', data, context_instance=RequestContext(request))
 
@@ -227,6 +225,18 @@ def object(request, object_id):
     return render_to_response('object.html', data, context_instance=RequestContext(request))
 
 def stories(request):
+    if request.method == u'POST' and request.POST.__contains__('releaseid'):
+        release = Release.objects.get(id=request.POST['releaseid'])
+        release.stories.clear()
+        if request.POST.__contains__('storyId'):
+            ids = request.POST.getlist('storyId')
+            stories = Story.objects.filter(id__in=ids)
+            for s in stories.all():
+                if s not in release.stories.all():
+                    release.stories.add(s)
+        release.save()
+        return redirect('/release/' + str(release.id))
+
     if request.method == u'GET' and request.GET.__contains__('delete'):
         story = Story.objects.get(id=request.GET['delete'])
         objects = DeployableObject.objects.filter(pending_stories=story)
@@ -238,9 +248,31 @@ def stories(request):
     if request.method == u'GET' and request.GET.__contains__('refresh'):
         rallyintegration.refresh()
         
-    stories = Story.objects.all().order_by('sprint', 'rally_id', 'name')
+    releaseid = ''
+    in_release = {}
+    if request.method == u'GET' and request.GET.__contains__('releaseid'):
+        releaseid = request.GET['releaseid']
+        release = Release.objects.get(id=request.GET['releaseid'])
+        for story in release.stories.all():
+            in_release[story.id] = True
+
+    sprint = ''
+    if request.method == u'GET' and request.GET.__contains__('sprint'):
+        sprint = request.GET['sprint']
+
+    sprintList = []
+    sprints = Story.objects.values('sprint').filter(sprint__isnull=False).order_by('sprint').distinct()
+
+    for sprintName in sprints:
+        if len(sprintName['sprint']) > 0 and not sprintList.__contains__(sprintName['sprint']):
+            sprintList.append(sprintName['sprint'])
+        
+    stories = Story.objects.all()
+    if len(sprint) > 0:
+        stories = stories.filter(sprint=sprint)
+    stories = stories.order_by('sprint', 'rally_id', 'name')
     stories.select_related()
-    data = {'stories': stories, 'rally_refresh' : ConfigCache.get_config_value('rally.enabled') == '1'}
+    data = {'stories': stories, 'rally_refresh' : ConfigCache.get_config_value('rally.enabled') == '1', 'releaseid': releaseid, 'in_release': in_release, 'sprintList': sprintList, 'sprint': sprint}
     return render_to_response('stories.html', data, context_instance=RequestContext(request))
 
 def instory(request, story_id):

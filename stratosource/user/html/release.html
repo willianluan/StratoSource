@@ -73,10 +73,10 @@
                     <caption>
                         <span class="section">Stories in {{ release.name }}</span>
                         <span class="sectionActions">
-                            <a href="#" onclick="promptAddStories();">Add Stories</a>
                             {% if not release.released %}
-                                 | <a href="#" onclick="markReleased('{{ release.id }}', '{{ release.name|addslashes }}', '{{ branch|addslashes }}', true);">Mark All Released</a>
+                                <a href="#" onclick="markReleased('{{ release.id }}', '{{ release.name|addslashes }}', '{{ branch|addslashes }}', true);">Mark All Released</a> | 
                             {% endif %}
+                            <a href="/stories?releaseid={{release.id}}">Add / Remove Stories</a>
                         </span>
                     </caption>
                     <tr>
@@ -104,27 +104,4 @@
         </div>
         <br class="clear" />
     </div>
-    <div style="display:none;">
-        <div id="storyList" title="Story List" style="text-align: center;">
-            <div>Please select the stories for adding:</div>
-            <div>&nbsp;</div>
-            <table align="center">
-                <tr>
-                    <td class="label">Stories:</td>
-                    <td>&nbsp;&nbsp;</td>
-                    <td>
-                        <input id="release" name="release" type="hidden" value="{{ release.id }}"/>
-                        <select name="storyId" id="storyId" size="10" multiple style="width:450px;">
-                        {% for story in avail_stories %}
-                            <option value="{{ story.id }}">{{ story.rally_id }} - {{ story.name }}</option>
-                        {% endfor %}
-                        </select>
-                        <br/>
-                        * Hold control key down to select multiple.
-                    </td>
-                </tr>
-            </table>
-        </div>
-    </div>
-
 {% endblock %}

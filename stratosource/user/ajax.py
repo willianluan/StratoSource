@@ -205,24 +205,6 @@ def ignoreselected(request):
     json = simplejson.dumps(results)
     return HttpResponse(json, mimetype='application/json')
 
-def addstoriestorelease(request):
-    results = {'success':False}
-    try:
-        ids = request.GET['storyId'].split(',')
-        release = Release.objects.get(id=request.GET['releaseid'])
-        stories = Story.objects.filter(id__in=ids)
-        for s in stories.all():
-            if s not in release.stories.all():
-                release.stories.add(s)
-        release.save()
-        
-        results = {'success':True}
-    except Exception as ex:
-        results = {'success':False, 'error':ex.message}
-
-    json = simplejson.dumps(results)
-    return HttpResponse(json, mimetype='application/json')
-
 def getstories(request):
     results = {'success':False}
     try:
