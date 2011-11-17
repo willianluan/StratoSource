@@ -253,11 +253,11 @@ def getsprints(request):
     results = {'success':False}
     try:
         sprintList = ['None','All']
-        stories = Story.objects.filter(sprint__isnull=False).order_by('sprint')
+        stories = Story.objects.values('sprint').filter(sprint__isnull=False).order_by('sprint').distinct()
 
         for story in stories:
-            if len(story.sprint) > 0 and not sprintList.__contains__(story.sprint):
-                sprintList.append(story.sprint)
+            if len(story['sprint']) > 0 and not sprintList.__contains__(story['sprint']):
+                sprintList.append(story['sprint'])
         
         results = {'success':True, 'sprints': sprintList, 'numSprints': len(sprintList)}
     except Exception as ex:

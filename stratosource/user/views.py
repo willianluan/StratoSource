@@ -22,7 +22,7 @@ from django.utils.encoding import smart_str
 import re
 from django.template import RequestContext
 from django.shortcuts import render_to_response, redirect
-from stratosource.admin.models import Story, Release, ReleaseTask, DeployableObject, DeployableTranslation, Delta, Branch, ConfigSetting
+from stratosource.admin.models import Story, Release, ReleaseTask, DeployableObject, DeployableTranslation, Delta, Branch, ConfigSetting, UserChange
 from stratosource.user import rallyintegration
 from stratosource.admin.management import ConfigCache
 import logging
@@ -123,7 +123,7 @@ def release(request, release_id):
         
     if request.method == u'POST' and request.POST.__contains__('releaseNotes'):
         release.release_notes = request.POST['releaseNotes']
-        release.save()
+        release.save()  
 
     stories = Story.objects.all().order_by('rally_id', 'name')
 
@@ -140,33 +140,84 @@ def unreleased(request, repo_name, branch_name):
             delta.object.release_status = 'r'
             delta.object.save()
 
+    go = ''
+    search = ''
+    username = ''
     endDate = date.today()
-    startDate = endDate + timedelta(days=-42)
-    if request.method == u'GET' and request.GET.__contains__('startDate'):
-        startDate =  datetime.strptime(request.GET['startDate'],"%m/%d/%Y")
-    if request.method == u'GET' and request.GET.__contains__('endDate'):
-        endDate = datetime.strptime(request.GET['endDate'],"%m/%d/%Y")
+    startDate = endDate + timedelta(days=-60)
+
+    if request.method == u'GET':
+        if request.GET.__contains__('go'):
+            go = 'true'
+        if request.GET.__contains__('search'):
+            search = request.GET['search']
+        if request.GET.__contains__('username'):
+            username = request.GET['username']
+        if request.GET.__contains__('startDate'):
+            startDate =  datetime.strptime(request.GET['startDate'],"%m/%d/%Y")
+        if request.GET.__contains__('endDate'):
+            endDate = datetime.strptime(request.GET['endDate'],"%m/%d/%Y")
         
     endDate = endDate + timedelta(days=1)
 
-    deltas = Delta.objects.exclude(object__release_status='r').filter(object__branch=branch).filter(commit__date_added__gte = startDate).filter(commit__date_added__lte = endDate).order_by('object__type','object__filename','object__el_type','object__el_subtype','object__el_name','commit__date_added')
-    deltas.select_related()
+    deltas = []
     objects = []
     deltaMap = {}
-    for delta in deltas.all():
-        changelog = deltaMap.get(delta.object)
-        if changelog:
-            tmpChangelog = changelog.replace('&#x21B7;','')
-            if not tmpChangelog.endswith(delta.getDeltaType()):
-                changelog += ', ' + delta.getDeltaType();
-            else:
-                changelog += '&#x21B7;'
-            deltaMap[delta.object] = changelog
-        else:
-            objects.append(delta.object)
-            deltaMap[delta.object] = delta.getDeltaType()
+    user = ''
 
-    data = {'branch_name': branch_name, 'repo_name': branch.repo.name, 'objects': objects, 'startDate': startDate, 'endDate': endDate, 'deltaMap': deltaMap, 'namestl': namestl }
+    if request.GET.__contains__('go'):
+        deltas = Delta.objects.filter(object__branch=branch).filter(commit__date_added__gte = startDate).filter(commit__date_added__lte = endDate)
+    
+        if len(username) > 0:
+            deltas = deltas.filter(user_change__user_name__exact = username)
+    
+        if len(search) > 0:
+            deltas = deltas.extra(where=['(filename LIKE \'%%' + search + '%%\' or type LIKE \'%%' + search + '%%\' or el_type LIKE \'%%' + search + '%%\' or el_subtype LIKE \'%%' + search + '%%\' or el_name LIKE \'%%' + search + '%%\')'])
+            
+            
+        deltas = deltas.order_by('object__type','object__filename','object__el_type','object__el_subtype','object__el_name','commit__date_added')
+
+        logger.debug('Deltas SQL ' + str(deltas.query))
+        deltas.select_related()
+       
+        for delta in deltas.all():
+            changelog = deltaMap.get(delta.object)
+            if delta.user_change and delta.user_change.user_name != '':
+                user = ' (' + delta.user_change.user_name + ')'
+            else:
+                user = ''
+    
+            if changelog:
+                tmpChangelog = changelog.replace('&#x21B7;','').replace(' ' + user,'').replace('<br/>','')
+                if not tmpChangelog.endswith(delta.getDeltaType()):
+                    changelog += '<br/>' + delta.getDeltaType() + user
+                else:
+                    if not changelog.endswith(user):
+                        changelog += '&#x21B7;' + user
+    
+                deltaMap[delta.object] = changelog
+            else:
+                objects.append(delta.object)
+                deltaMap[delta.object] = delta.getDeltaType() + user
+
+    userList = UserChange.objects.values('user_name').filter(branch=branch).filter(user_name__isnull=False).order_by('user_name').distinct()
+    users = []
+    for u in userList:
+        users.append(u['user_name'])
+
+    data = {
+        'branch_name': branch_name,
+        'repo_name': branch.repo.name,
+        'objects': objects,
+        'startDate': startDate,
+        'endDate': endDate,
+        'deltaMap': deltaMap,
+        'namestl': namestl,
+        'users': users,
+        'search': search,
+        'username': username,
+        'go': go
+    }    
     return render_to_response('unreleased.html', data, context_instance=RequestContext(request))
 
 def object(request, object_id):

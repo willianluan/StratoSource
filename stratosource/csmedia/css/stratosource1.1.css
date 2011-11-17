@@ -130,6 +130,11 @@ td, th {
     white-space: nowrap;
 }
 
+.biggesttext {
+    font-size: 12pt;
+    line-height: 15pt;
+}
+
 .biggertext {
     font-size: 10pt;
     line-height: 15pt;
@@ -193,6 +198,15 @@ td, th {
 }
 
 .sectionHeaderActions input{
+    margin-top: -1px;
+}
+
+.actionBar {
+    margin: 5px;
+    padding-top: 4px;
+}
+
+.actionBar input{
     margin-top: -2px;
 }
 

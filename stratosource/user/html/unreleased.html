@@ -24,14 +24,36 @@
        
         <div id="content-main">            
             <div class="sectionBase">
-                <span class="section">Changed Objects in {{repo_name|upper}} - {{branch_name|upper}}</span>
+                <span class="section">Find Changed Objects in {{repo_name|upper}} - {{branch_name|upper}}</span>
                 <span class="sectionActions">
-                    <span id="markAllReleased"><a href="?releaseAll=true" onclick="return confirm('This cannot be reversed and should only be done after an environment has been refreshed. All tracking will start from scratch. Are you VERY VERY sure?');">Mark ALL Released</a></span> |
+                    <!-- <span id="markAllReleased"><a href="?releaseAll=true" onclick="return confirm('This cannot be reversed and should only be done after an environment has been refreshed. All tracking will start from scratch. Are you VERY VERY sure?');">Mark ALL Released</a></span> |-->
                     <span id="ignoreSelected"><a href="#" onclick="if (confirm('Are you sure?')) {ignoreSelected();} return false;">Ignore Selected Objects</a></span> |
                     <a href="#" onclick="promptStoryAdd(); return false;">Associate Selected Objects to a Story</a>
                 </span>
             </div>
-            <div style="text-align: right; margin: 5px;">Objects changed between <input name="startDate" type="text" id="startDate" value="{{ startDate|date:"m/d/Y" }}"> and <input name="endDate" type="text" id="endDate" value="{{ endDate|date:"m/d/Y" }}"> <a onclick="refreshDateFiltered(); return false;" href="#">GO</a>&nbsp;|&nbsp;Select Matching Filter: <input type="text" id="filter" name="filter"> <a onclick="selectFiltered(); return false;" href="#">GO</a> <strong>&nbsp;|&nbsp;</strong> Select All: <input type="checkbox" id="chkAll" onchange="flagAll(this.checked);"/></div>
+            <div class="actionBar">
+                <span style="text-align: left;">
+                    <strong>Filter Objects by: </strong>
+                    Date: <input name="startDate" type="text" id="startDate" value="{{ startDate|date:"m/d/Y" }}" style="width: 60px;"> to <input name="endDate" type="text" id="endDate" value="{{ endDate|date:"m/d/Y" }}" style="width: 60px;"> <strong>&nbsp;|&nbsp;</strong>
+                    <!-- Include Released: <input type="checkbox" id="showAll" onchange="includeReleased(this.checked);"/> <strong>&nbsp;|&nbsp;</strong> -->
+                    Text: <input type="text" id="txtSearch" id="txtSearch" value="{{ search }}"/> <strong>&nbsp;|&nbsp;</strong>
+                    <span>
+                        Modified by:
+                        <select name="cboUserName" id="cboUserName">
+                            <option value="">-- Anyone --</option>
+                            {% for user in users %}
+                            <option value="{{ user }}" {% if user == username %}selected{% endif %}>{{ user }}</option>
+                            {% endfor %}
+                        </select>
+                    </span> 
+                    <input type="button" onclick="refreshFilters();" value="Search!">
+                </span>
+                <span style="text-align: right; float: right;">
+                    <strong>Select: </strong>
+                    Matching <a href="http://www.javascriptkit.com/javatutors/redev2.shtml" target="_blank">REGEX:</a> <input type="text" id="filter" name="filter"> <input type="button" onclick="selectFiltered();" value="GO"/> <strong>&nbsp;|&nbsp;</strong>
+                    All: <input type="checkbox" id="chkAll" onchange="flagAll(this.checked);"/>
+                </span>
+            </div>
             <div class="module ObjectsList">
                 {% for object in objects %}
                 {% ifchanged object.type %}
@@ -87,7 +109,9 @@
                             {% endfor %}
                         </td>
                         <td align="center" style="white-space: nowrap;">
-                            <a href="#" onclick="ignoreItem('{{ object.id }}',false); return false;">Ignore</a>
+                            {% if not object.pending_stories.all %}
+                                <a href="#" onclick="ignoreItem('{{ object.id }}',false); return false;">Ignore</a>
+                            {% endif %}
                         </td>
                         <td>
                             {% if object.release_status = 'e' %}
@@ -111,18 +135,19 @@
             <div>
                 <table>
                     <tr>
-                        <td scope="row" colspan="6">
-                            <strong>No objects pending.</strong>
+                        <td scope="row" colspan="6" style="height:50px; text-align: center;">
+                            <strong><span class="biggesttext">
+                            {% if go %}
+                                No objects found matching search filters.
+                            {% else %}
+                                Click "Search!" above to find object to tag.
+                            {% endif %}
+                            </span></strong>
                         </td>
                     </tr>
                 </table>
             </div>
             {% endfor %}
-            <div align="right">
-                <span id="ignoreSelectedBottom"><a href="#" onclick="if (confirm('Are you sure?')) {ignoreSelected();} return false;">Ignore Selected Objects</a></span> |
-                <a href="#" onclick="promptStoryAdd(); return false;">Associate Selected Objects to a Story</a> |
-                Check All: <input type="checkbox" id="chkAll" onchange="flagAll(this.checked);"/>
-           </div>
         </div>
         <br class="clear" />
     </div>

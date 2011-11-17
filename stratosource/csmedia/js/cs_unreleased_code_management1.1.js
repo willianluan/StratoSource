@@ -200,10 +200,12 @@ function selectFiltered(){
     selectMatching(filter, false, true);
 }
 
-function refreshDateFiltered(){
+function refreshFilters(){
+    var search = $("#txtSearch").val();
+    var username = $("#cboUserName").val();
     var endDate = $("#endDate").val();
     var startDate = $("#startDate").val();
-    document.location = '?startDate=' + startDate + '&endDate=' + endDate;
+    document.location = '?go=true&search=' + escape(search) + '&username=' + escape(username) + '&startDate=' + startDate + '&endDate=' + endDate + document.location.hash;
 }
 
 function selectMatching(filter, uncheckNonMatch, isSelect){
