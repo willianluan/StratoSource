@@ -155,14 +155,18 @@ class DeployableObject(models.Model):
         if not self.el_name is None: s = s + " - " + self.el_name
         return s
 
+class SalesforceUser(models.Model):
+    user_id     = models.CharField(max_length=20, blank=False, null=False)
+    name        = models.CharField(max_length=100, blank=False, null=False, db_index=True)
+    email       = models.CharField(max_length=100, blank=False, null=False)
+
 
 class UserChange(models.Model):
-    branch =  models.ForeignKey(Branch)
+    branch =    models.ForeignKey(Branch, db_index=True)
     apex_id   = models.CharField(max_length=20, blank=False, null=False, unique=False, db_index=True)
     apex_name = models.CharField(max_length=200, blank=False, null=False, unique=False)
-    user_id   = models.CharField(max_length=20, blank=False, null=False, unique=False, db_index=True)
+    sfuser =    models.ForeignKey(SalesforceUser, db_index=True)
     batch_time = models.DateTimeField()
-    user_name = models.CharField(max_length=100)
     last_update = models.DateTimeField()
 
 class Delta(models.Model):
