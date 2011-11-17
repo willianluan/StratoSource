@@ -234,4 +234,16 @@ $(window).load(function() {
         loadStories();
     })
     .trigger('change');
+    
+    $('#filter').bind('keypress', function(e) {
+        if(e.keyCode==13){
+            selectFiltered();
+    }
+    
+    $('#txtSearch').bind('keypress', function(e) {
+        if(e.keyCode==13){
+            refreshFilters();
+    }
+})
+})
 });
