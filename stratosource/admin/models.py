@@ -153,13 +153,12 @@ class DeployableObject(models.Model):
         s = self.branch.name + " - " + self.type + " - " + self.filename + " - " + self.status
         if not self.el_type is None: s = s + " - " + self.el_type
         if not self.el_name is None: s = s + " - " + self.el_name
-        return s
+        return s 
 
 class SalesforceUser(models.Model):
     user_id     = models.CharField(max_length=20, blank=False, null=False)
     name        = models.CharField(max_length=100, blank=False, null=False, db_index=True)
     email       = models.CharField(max_length=100, blank=False, null=False)
-
 
 class UserChange(models.Model):
     branch =    models.ForeignKey(Branch, db_index=True)

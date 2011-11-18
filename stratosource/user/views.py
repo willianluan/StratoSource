@@ -22,7 +22,7 @@ from django.utils.encoding import smart_str
 import re
 from django.template import RequestContext
 from django.shortcuts import render_to_response, redirect
-from stratosource.admin.models import Story, Release, ReleaseTask, DeployableObject, DeployableTranslation, Delta, Branch, ConfigSetting, UserChange
+from stratosource.admin.models import Story, Release, ReleaseTask, DeployableObject, DeployableTranslation, Delta, Branch, ConfigSetting, UserChange, SalesforceUser
 from stratosource.user import rallyintegration
 from stratosource.admin.management import ConfigCache
 import logging
@@ -167,7 +167,7 @@ def unreleased(request, repo_name, branch_name):
         deltas = Delta.objects.filter(object__branch=branch).filter(commit__date_added__gte = startDate).filter(commit__date_added__lte = endDate)
     
         if len(username) > 0:
-            deltas = deltas.filter(user_change__user_name__exact = username)
+            deltas = deltas.filter(user_change__sfuser__name = username)
     
         if len(search) > 0:
             deltas = deltas.extra(where=['(filename LIKE \'%%' + search + '%%\' or type LIKE \'%%' + search + '%%\' or el_type LIKE \'%%' + search + '%%\' or el_subtype LIKE \'%%' + search + '%%\' or el_name LIKE \'%%' + search + '%%\')'])
@@ -180,28 +180,24 @@ def unreleased(request, repo_name, branch_name):
        
         for delta in deltas.all():
             changelog = deltaMap.get(delta.object)
-            if delta.user_change and delta.user_change.user_name != '':
-                user = ' (' + delta.user_change.user_name + ')'
+            if delta.user_change and delta.user_change.sfuser.name != '':
+                user = ' (' + delta.user_change.sfuser.name + ')'
             else:
                 user = ''
     
             if changelog:
-                tmpChangelog = changelog.replace('&#x21B7;','').replace(' ' + user,'').replace('<br/>','')
-                if not tmpChangelog.endswith(delta.getDeltaType()):
+                if not changelog.endswith(delta.getDeltaType() + user):
                     changelog += '<br/>' + delta.getDeltaType() + user
-                else:
-                    if not changelog.endswith(user):
-                        changelog += '&#x21B7;' + user
     
                 deltaMap[delta.object] = changelog
             else:
                 objects.append(delta.object)
                 deltaMap[delta.object] = delta.getDeltaType() + user
 
-    userList = UserChange.objects.values('user_name').filter(branch=branch).filter(user_name__isnull=False).order_by('user_name').distinct()
+    userList = SalesforceUser.objects.values('name').order_by('name').distinct()
     users = []
     for u in userList:
-        users.append(u['user_name'])
+        users.append(u['name'])
 
     data = {
         'branch_name': branch_name,
