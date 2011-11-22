@@ -23,11 +23,14 @@ import subprocess
 from datetime import datetime
 from django.db import transaction
 from lxml import etree
+from django.db.models import Max
+from admin.management.SalesforceAgent import SalesforceAgent
 from stratosource.admin.models import Branch, Commit, Repo, Delta, DeployableTranslation, TranslationDelta, DeployableObject, AdminMessage, UserChange
 
 
 __author__="masmith"
 __date__ ="$Jul 26, 2010 2:23:44 PM$"
+
 
 SF_NAMESPACE='{http://soap.sforce.com/2006/04/metadata}'
 CODE_BASE = 'unpackaged'
@@ -275,7 +278,7 @@ def insertDeltas(commit, objectName, type, items, delta_type, el_type, el_subtyp
     for item in items:
         deployable = getDeployable(commit.branch, objectName, type, el_type, item, el_subtype)
         delta = Delta()
-        delta.user_change = getLastChange(objectName)
+        delta.user_change = getLastChange(objectName, el_type, item)
         delta.object = deployable
         delta.commit = commit
         delta.delta_type = delta_type
@@ -284,12 +287,24 @@ def insertDeltas(commit, objectName, type, items, delta_type, el_type, el_subtyp
 #        if not el_type is None: xtra += ' el_type=' + el_type
 #        print 'DELTA: object=' + deployable.filename + 'item=' + item + ', delta_type=' + delta_type + xtra
 
-def getLastChange(objectName):
-    recents = list(UserChange.objects.filter(apex_name__exact=objectName, branch=working_branch).order_by('last_update').reverse()[:1])
+def getLastChange(objectName, el_type, el_name):
+    fullName = objectName
+    if el_type == 'fields': el_type = 'object'
+    print 'objectName=%s  el_name=%s' % (objectName, el_name)
 
-    if len(recents) == 0:
-        return None
-    return recents[0]
+    parts = objectName.split('.')
+    if len(parts) > 1 and not el_type is None:
+        parts[0] = el_type + ':' + parts[0]
+        if el_name: parts[0] += '.' + el_name
+        fullName = parts[0]  # '.'.join(parts)
+#    if el_name: fullName += '.' + el_name
+    print ' fullName=%s' % fullName
+
+    lastchangelist = list(UserChange.objects.filter(branch=working_branch, apex_name=fullName).order_by('-last_update'))
+    if len(lastchangelist) > 0:
+        return lastchangelist[0]
+    print '** Audit record not found for %s' % fullName
+    return None
 
 def getDeployableTranslation(branch, label, locale):
     try:
@@ -321,7 +336,6 @@ def analyzeObjectChanges(list, lFileCache, rFileCache, elementname, commit):
     changesFound = False
     for objectName in list:
         try:
-            print'  object name is', objectName, 'element name is', elementname
             inserts, updates, deletes = getAllObjectChanges(objectName, lFileCache, rFileCache, elementname, objectChangeResolver)
             if (inserts and len(inserts)) or (updates and len(updates)) or (deletes and len(deletes)):
                 if inserts: insertDeltas(commit, objectName, 'objects', inserts.keys(), 'a', elementname)
@@ -526,11 +540,13 @@ def analyzeCommit(branch, commit):
     global documentCache
     global mapCache
     global working_branch
+    global change_batch
 
     working_branch = branch
 
     documentCache = {}  # do not want to accumulate this stuff over multiple iterations
     mapCache = {}
+    change_batch = None
 
     # clean up deltas in case we are rerunning
     Delta.objects.filter(commit=commit).delete()
@@ -598,7 +614,11 @@ def analyzeCommit(branch, commit):
                 delta = Delta()
                 delta.object = getDeployable(branch, listitem, otype, None, None, None)
                 delta.commit = commit
-                delta.user_change = getLastChange(listitem)
+                delta.user_change = getLastChange(listitem, None, None)
+                if delta.user_change is None:
+                    print '** Audit record not found for %s' % listitem
+                else:
+                    print 'audit record found!'
                 delta.delta_type = delta_type
                 delta.save()
 

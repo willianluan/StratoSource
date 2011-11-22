@@ -156,17 +156,18 @@ class DeployableObject(models.Model):
         return s 
 
 class SalesforceUser(models.Model):
-    user_id     = models.CharField(max_length=20, blank=False, null=False)
+    userid      = models.CharField(max_length=20, blank=False, null=False)
     name        = models.CharField(max_length=100, blank=False, null=False, db_index=True)
     email       = models.CharField(max_length=100, blank=False, null=False)
 
 class UserChange(models.Model):
     branch =    models.ForeignKey(Branch, db_index=True)
-    apex_id   = models.CharField(max_length=20, blank=False, null=False, unique=False, db_index=True)
-    apex_name = models.CharField(max_length=200, blank=False, null=False, unique=False)
+    apex_id   = models.CharField(max_length=20, blank=True, null=True, unique=False)
+    apex_name = models.CharField(max_length=200, blank=False, null=False, unique=False, db_index=True)
     sfuser =    models.ForeignKey(SalesforceUser, db_index=True)
     batch_time = models.DateTimeField()
     last_update = models.DateTimeField()
+    object_type = models.CharField(max_length=20, blank=False, null=False)
 
 class Delta(models.Model):
     DELTA_TYPES = (('a','Add'),('d','Delete'),('u','Update'))

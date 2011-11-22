@@ -35,7 +35,6 @@ _METADATA_POLL_SLEEP=10
 _DEPLOY_TIMEOUT=60 * 10
 _DEPLOY_POLL_SLEEP=10
 
-
 class LoginError(Exception):
     def __init__(self, value):
         self.value = value
@@ -105,6 +104,26 @@ class SalesforceAgent:
         ptm.members = [prop.fullName for prop in props]
         return ptm
 
+    def retrieve_objectchanges(self):
+        query = self.meta.factory.create('ListMetadataQuery')
+        query.type = 'CustomObject'
+        props = self.meta.service.listMetadata([query], _API_VERSION)
+        return props
+
+    def retrieve_changesaudit(self, types):
+        supportedtypelist = ['ApexClass','ApexPage','ApexTrigger','CustomObject','Workflow']
+
+        # get intersection of requested types and those we support
+        typelist = list(set(supportedtypelist) & set(types))
+        for atype in typelist:
+            if atype == 'CustomObject': typelist.append('CustomField')
+        results = {}
+        query = self.meta.factory.create('ListMetadataQuery')
+        for aType in typelist:
+            query.type = aType
+            results[aType] = self.meta.service.listMetadata([query], _API_VERSION)
+        return results
+
     def retrieve_userchanges(self, pod):
         classes = {}
         triggers = {}
@@ -124,9 +143,9 @@ class SalesforceAgent:
 
     def _getChangesMap(self, rest_conn, sfobject, withstatus=True):
         if withstatus:
-            params = urllib.urlencode({'q': "select Id, Name, LastModifiedById, LastModifiedBy.Name, LastModifiedDate from %s where Status = 'Active' and NamespacePrefix = '' order by name" % sfobject})
+            params = urllib.urlencode({'q': "select Id, Name, LastModifiedById, LastModifiedBy.Name, LastModifiedBy.Email, LastModifiedDate from %s where Status = 'Active' and NamespacePrefix = '' order by name" % sfobject})
         else:
-            params = urllib.urlencode({'q': "select Id, Name, LastModifiedById, LastModifiedBy.Name, LastModifiedDate from %s where NamespacePrefix = '' order by name" % sfobject})
+            params = urllib.urlencode({'q': "select Id, Name, LastModifiedById, LastModifiedBy.Name, LastModifiedBy.Email, LastModifiedDate from %s where NamespacePrefix = '' order by name" % sfobject})
         data = self._invokeGetREST(rest_conn, "query/?%s" % params)
         if not data == None:
             return data['records']

@@ -23,12 +23,28 @@ import popen2
 import datetime
 import string
 from django.db import transaction
-from admin.models import Branch, UserChange
+from django.db.models import Max
+from admin.models import Branch, UserChange, SalesforceUser
 
 __author__="mark"
 __date__ ="$Oct 6, 2010 8:41:36 PM$"
 
-def perform_checkin(repodir, zipfile, branch, userchanges=None):
+
+SFAPIAssetMap = {
+    'CustomLabels': 'label:',
+    'CustomObject': 'object:',
+    'CustomField': 'object:',
+    'CustomSite': 'site:',
+    'CustomTab': 'tab:',
+    'ApexPage': '.page',
+    'ApexClass': '.cls',
+    'ApexTrigger': '.trigger',
+    'Workflow': 'workflow:'
+}
+
+
+
+def perform_checkin(repodir, zipfile, branch):
 
     LOG = repodir + '/../checkin.log'
 
@@ -38,7 +54,7 @@ def perform_checkin(repodir, zipfile, branch, userchanges=None):
     log = logging.getLogger('checkin')
     log.setLevel(logging.DEBUG)
 
-    print 'Starting checking...'
+    print 'Starting checkin...'
     log.info("Starting checkin")
     log.info("repodir " + repodir)
     log.info("zipfile " + zipfile)
@@ -85,20 +101,93 @@ def perform_checkin(repodir, zipfile, branch, userchanges=None):
 def save_userchanges(branch, classes, triggers, pages):
     allchanges = classes + triggers + pages
     batch_time = datetime.datetime.now()
+    userdict = dict([(user.user_id, user) for user in SalesforceUser.objects.all()])
+
     for change in allchanges:
+        lastModId = change['LastModifiedById']
+        if userdict.has_key(lastModId):
+            theUser = userdict[lastModId]
+        else:
+            theUser = SalesforceUser()
+            theUser.user_id = lastModId
+            theUser.name = change['LastModifiedBy']['Name']
+            theUser.email = change['LastModifiedBy']['Email']
+            theUser.save()
+
         recents = list(UserChange.objects.filter(apex_id__exact=change['Id'], branch=branch).order_by('last_update').reverse()[:1])
         if len(recents) == 0:
             recent = UserChange()
-        else:
-            recent = recents[0]
-        if recent.user_id != change['LastModifiedById']:
             recent.branch = branch
             recent.apex_id = change['Id']
             recent.apex_name = change['Name']
-            recent.user_id = change['LastModifiedById']
-            recent.user_name = change['LastModifiedBy']['Name']
+            recent.sfuser = theUser
+            lu = change['LastModifiedDate'][0:-9]
+            recent.last_update = datetime.datetime.strptime(lu, '%Y-%m-%dT%H:%M:%S')
+            recent.batch_time = batch_time
+        else:
+            recent = recents[0]
+
+        if recent.sfuser == None or recent.sfuser.user_id != change['LastModifiedById']:
             lu = change['LastModifiedDate'][0:-9]
             recent.last_update = datetime.datetime.strptime(lu, '%Y-%m-%dT%H:%M:%S')
             recent.batch_time = batch_time
             recent.save()
+    return batch_time
  
+@transaction.commit_on_success
+def save_objectchanges(branch, batch_time, chgmap):
+    userdict = dict([(user.userid, user) for user in SalesforceUser.objects.all()])
+
+    inserted = 0
+    #f = open('/tmp/' + branch.name + '_changes.txt', 'w')
+    for aType in chgmap.keys():
+        for change in chgmap[aType]:
+            #f.write("type:%s name:%s user:%s date:%s\n" % (aType, change.fullName, change.lastModifiedByName, change.lastModifiedDate))
+            if userdict.has_key(change.lastModifiedById[0:15]):
+                theUser = userdict[change.lastModifiedById[0:15]]
+            else:
+                theUser = SalesforceUser()
+                theUser.userid = change.lastModifiedById[0:15]
+                theUser.name = change.lastModifiedByName
+                theUser.save()
+                userdict[theUser.userid] = theUser
+
+            fullName = change.fullName
+            if SFAPIAssetMap.has_key(aType):
+                fix = SFAPIAssetMap[aType]
+                if fix.endswith(':'):
+                    fullName = fix + fullName
+                else:
+                    fullName += fix
+
+            lastchangelist = list(UserChange.objects.filter(branch=branch, apex_name=fullName).order_by('-last_update'))
+            if len(lastchangelist) > 0:
+                recent = lastchangelist[0]
+            else:
+                recent = UserChange()
+                recent.branch = branch
+                recent.apex_id = change.id
+                recent.sfuser = theUser
+                recent.apex_name = fullName
+                recent.last_update = change.lastModifiedDate
+                recent.batch_time = batch_time
+                recent.object_type = aType
+                recent.save()
+                inserted += 1
+
+            if recent.sfuser.userid != theUser.userid or recent.last_update != change.lastModifiedDate:
+                recent = UserChange()
+                recent.branch = branch
+                recent.apex_id = change.id
+                recent.sfuser = theUser
+                recent.apex_name = fullName
+                recent.last_update = change.lastModifiedDate
+                recent.batch_time = batch_time
+                recent.object_type = aType
+                recent.save()
+                inserted += 1
+    #f.close()
+
+    print 'audited objects inserted: %d' % inserted
+
+
