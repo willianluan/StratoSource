@@ -248,9 +248,10 @@ def stories(request):
     in_release = {}
     if request.method == u'GET' and request.GET.__contains__('releaseid'):
         releaseid = request.GET['releaseid']
-        release = Release.objects.get(id=request.GET['releaseid'])
-        for story in release.stories.all():
-            in_release[story.id] = True
+        if len(releaseid) > 0:
+            release = Release.objects.get(id=request.GET['releaseid'])
+            for story in release.stories.all():
+                in_release[story.id] = True
 
     sprint = ''
     if request.method == u'GET' and request.GET.__contains__('sprint'):
