@@ -1,6 +1,8 @@
-drop TABLE `admin_userchange`;
+ALTER TABLE `admin_delta` DROP FOREIGN KEY `user_change_id_refs_id_84225281`;
 
 update `stratosource`.`admin_delta` set user_change_id = NULL;
+
+drop TABLE `admin_userchange`;
 
 CREATE TABLE `admin_salesforceuser` (
     `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
