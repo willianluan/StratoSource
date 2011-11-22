@@ -156,6 +156,7 @@ def unreleased(request, repo_name, branch_name):
         if request.GET.__contains__('endDate'):
             endDate = datetime.strptime(request.GET['endDate'],"%m/%d/%Y")
         
+    uiEndDate = endDate
     endDate = endDate + timedelta(days=1)
 
     deltas = []
@@ -204,7 +205,7 @@ def unreleased(request, repo_name, branch_name):
         'repo_name': branch.repo.name,
         'objects': objects,
         'startDate': startDate,
-        'endDate': endDate,
+        'endDate': uiEndDate,
         'deltaMap': deltaMap,
         'namestl': namestl,
         'users': users,
