@@ -226,15 +226,16 @@ class SalesforceAgent:
         zipfile.close()
         zip64 = binascii.b2a_base64(zip)
         deploy_options = self.meta.factory.create('DeployOptions')
-        deploy_options.allowMissingFiles = False
-        deploy_options.autoUpdatePackage = True
-        deploy_options.checkOnly = False
-        deploy_options.ignoreWarnings = False
-        deploy_options.performRetrieve = False
-        deploy_options.rollbackOnError = True
-        deploy_options.runAllTests = False
-        deploy_options.singlePackage = True
-
+        deploy_options.allowMissingFiles = 'false'
+        deploy_options.autoUpdatePackage = 'true'
+        deploy_options.checkOnly = 'false'
+        deploy_options.ignoreWarnings = 'false'
+        deploy_options.performRetrieve = 'false'
+        deploy_options.purgeOnDelete = 'false'
+        deploy_options.rollbackOnError = 'true'
+        deploy_options.runAllTests = 'false'
+        deploy_options.singlePackage = 'true'
+        
         result = self.meta.service.deploy(zip64, deploy_options)
         countdown = _DEPLOY_TIMEOUT
         while not result.done:
@@ -242,8 +243,9 @@ class SalesforceAgent:
             time.sleep(_DEPLOY_POLL_SLEEP)
             countdown -= _DEPLOY_POLL_SLEEP
             if countdown <= 0: raise Exception('Deployment timed out')
-            result = self.meta.service.checkStatus([result.id])
-            print "Status is: " + result.state
+            result = self.meta.service.checkStatus([result.id])[0]
+            print result
+            print "Status is: %s" % result.state
         if result.state != 'Completed':
             raise Exception(result.message)
         deployResult = self.meta.service.checkDeployStatus(result.id)

@@ -18,6 +18,7 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.core.exceptions import ObjectDoesNotExist
 from stratosource.admin.models import Story, Branch, DeployableObject
+from admin.management import Utils
 import subprocess
 import os
 from zipfile import ZipFile
@@ -32,7 +33,7 @@ typeMap = {'fields': 'CustomField','validationRules': 'ValidationRule',
            'searchLayouts': 'SearchLayout','recordTypes': 'RecordType',
            'objects': 'CustomObject'}
 SF_NAMESPACE='{http://soap.sforce.com/2006/04/metadata}'
-_API_VERSION = "19.0"
+_API_VERSION = "23.0"
 
 
 def createFileCache(map):
@@ -139,7 +140,7 @@ def getMetaForFile(filename):
         return f.read()
 
     
-def generatePackage(objectList):
+def generatePackage(objectList, from_branch, to_branch):
     typemap = { 'classes' : 'ApexClass', 'labels' : 'CustomLabel',
                 'objects': 'CustomObject', 'triggers': 'ApexTrigger',
                 'pages': 'ApexPage', 'weblinks': 'CustomPageWebLink',
@@ -152,7 +153,8 @@ def generatePackage(objectList):
     destructive = etree.Element('Package', nsmap=defaultNS)
     etree.SubElement(destructive, 'version').text = "{0}".format(_API_VERSION)
 
-    myzip = ZipFile('/tmp/deploy.zip', 'w')
+    output_name = '/tmp/deploy_%s_%s.zip' % (from_branch.name, to_branch.name)
+    myzip = ZipFile(output_name, 'w')
 
     # create map and group by type
     map = {}
@@ -197,7 +199,10 @@ def generatePackage(objectList):
             typesEl = etree.SubElement(doc, 'types')
             destructiveList = []
             for member in itemlist:
-                object_name = member.filename[:-(len(member.el_type) + 1)]
+                print 'member filename=%s, el_type=%s' % (member.filename, member.el_type)
+                if member.filename.find('.') > 0:
+                    object_name = member.filename[0:member.filename.find('.')]
+#                object_name = member.filename[:-(len(member.el_type) + 1)]
                 ## !! assumes the right-side branch is still current in git !!
                 if os.path.isfile(os.path.join('unpackaged',type,member.filename)):
                     myzip.writestr(type+'/'+member.filename, cache.get(member.filename))
@@ -210,50 +215,53 @@ def generatePackage(objectList):
             if len(destructiveList):
                 destructiveTypesEl = etree.SubElement(destructive, 'types')
                 for member in destructiveList:
-                    object_name = member.filename[:-(len(member.el_type) + 1)]
+                    if member.filename.find('.') > 0:
+                        object_name = member.filename[0:member.filename.find('.')]
+#                    object_name = member.filename[:-(len(member.el_type) + 1)]
                     etree.SubElement(destructiveTypesEl, 'members').text = object_name;
                 etree.SubElement(destructiveTypesEl, 'name').text = typemap[type]
 
-    myzip.close()
-
     xml = etree.tostring(doc, xml_declaration=True, encoding='UTF-8', pretty_print=True)
-    pkg = file('/tmp/package.xml', 'w')
-    pkg.write(xml)
-    pkg.close()
+    myzip.writestr('package.xml', xml)
 
     xml = etree.tostring(destructive, xml_declaration=True, encoding='UTF-8', pretty_print=True)
-    pkg = file('/tmp/destructiveChanges.xml', 'w')
-    pkg.write(xml)
-    pkg.close()
+    myzip.writestr('destructiveChanges.xml', xml)
+    myzip.close()
+    return output_name
 
 
 class Command(BaseCommand):
 
-    def deploy(self, objectList):
+    def deploy(self, objectList, from_branch, to_branch):
         for object in objectList:
             print object.status, object.filename, object.type, object.el_name, object.el_subtype
-        generatePackage(objectList)
+        output_name = generatePackage(objectList, from_branch, to_branch)
+        agent = Utils.getAgentForBranch(to_branch);
+        agent.deploy(output_name)
 
-    def deploy_story(self, story, branch):
+    def deploy_story(self, story, from_branch, to_branch):
         # get all release objects associated with our story
         rolist = DeployableObject.objects.filter(pending_stories=story)
-        resetLocalRepo(branch.name)
-        self.deploy(set(rolist))
+        resetLocalRepo(from_branch.name)
+        self.deploy(set(rolist), from_branch, to_branch)
 
     def handle(self, *args, **options):
 
-        if len(args) < 3: raise CommandError('usage: deploy story <rallyid> <branch>')
+        if len(args) < 6: raise CommandError('usage: deploy <source repo> <source branch> <dest repo> <dest branch> story <storyid>')
 
-        if args[0] == 'story':
-            story = Story.objects.get(rally_id=args[1])
+        if args[4] == 'story':
+            story = Story.objects.get(rally_id=args[5])
             if not story: raise CommandException("invalid story")
-            branch = Branch.objects.get(name=args[2])
-            if not branch: raise CommandException("invalid branch")
-            os.chdir(branch.repo.location)
-            self.deploy_story(story, branch)
+            from_branch = Branch.objects.get(repo__name__exact=args[0], name__exact=args[1])
+            if not from_branch: raise CommandException("invalid source branch")
+            to_branch = Branch.objects.get(repo__name__exact=args[2], name__exact=args[3])
+            if not to_branch: raise CommandException("invalid destination branch")
+            os.chdir(from_branch.repo.location)
+            self.deploy_story(story, from_branch, to_branch)
 
 
 
 def resetLocalRepo(branch_name):
     subprocess.check_call(["git","checkout",branch_name])
-    subprocess.check_call(["git","reset","--hard","origin/{0}".format(branch_name)])
+#    subprocess.check_call(["git","reset","--hard","{0}".format(branch_name)])
+

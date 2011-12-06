@@ -53,8 +53,6 @@ class Command(BaseCommand):
         print 'retrieving %s:%s' % (br.repo.name, br.name)
         print 'types: ' + br.api_assets
         agent.retrieve_meta(types, filename)
-        #classes, triggers, pages = agent.retrieve_userchanges(br.api_pod)
-        #objectChanges = agent.retrieve_objectchanges()
         self.logger.debug('fetching audit data')
         print 'fetching audit trail data...'
         chgmap = agent.retrieve_changesaudit(types)
@@ -64,7 +62,6 @@ class Command(BaseCommand):
         if not downloadOnly:
             from admin.management.checkin import perform_checkin, save_objectchanges
             perform_checkin(br.repo.location, filename, br)
-            #batch_time = save_userchanges(br, classes,triggers,pages)
             batch_time = datetime.datetime.now()
             print 'saving audit...'
             save_objectchanges(br, batch_time, chgmap)
