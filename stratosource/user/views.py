@@ -163,6 +163,7 @@ def unreleased(request, repo_name, branch_name):
     objects = []
     deltaMap = {}
     user = ''
+    changeDate = ''
 
     if request.GET.__contains__('go'):
         deltas = Delta.objects.filter(object__branch=branch).filter(commit__date_added__gte = startDate).filter(commit__date_added__lte = endDate)
@@ -182,18 +183,20 @@ def unreleased(request, repo_name, branch_name):
         for delta in deltas.all():
             changelog = deltaMap.get(delta.object)
             if delta.user_change and delta.user_change.sfuser.name != '':
-                user = ' (' + delta.user_change.sfuser.name + ')'
+                user = ' by <i>' + delta.user_change.sfuser.name + '</i>'
+                changeDate = ' at <i>' + str(delta.user_change.last_update)[:16] + '</i>'
             else:
                 user = ''
+                changeDate = ''
     
             if changelog:
-                if not changelog.endswith(delta.getDeltaType() + user):
-                    changelog += '<br/>' + delta.getDeltaType() + user
+                if not changelog.endswith(delta.getDeltaType() + user + changeDate):
+                    changelog += '<br/>' + delta.getDeltaType() + user + changeDate
     
                 deltaMap[delta.object] = changelog
             else:
                 objects.append(delta.object)
-                deltaMap[delta.object] = delta.getDeltaType() + user
+                deltaMap[delta.object] = delta.getDeltaType() + user + changeDate
 
     userList = SalesforceUser.objects.values('name').order_by('name').distinct()
     users = []
