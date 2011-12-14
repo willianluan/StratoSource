@@ -6,6 +6,17 @@
 Manifest for {{release.branch.name|upper}}
 {% endblock %}
 
+{% block jscript %}
+    <script type="text/javascript">
+        release_id = '{{ release.id }}';
+        $(document).ready(function() {
+            loadTaskListReadOnly();        
+        });
+    </script>
+    <script src="/csmedia/js/cs_release_management1.0.js" type="text/javascript"></script>
+    <script src="/csmedia/js/cs_releases1.0.js" type="text/javascript"></script>
+{% endblock %}
+
 {% block content %}
 
     <div id="content" class="colMS">
@@ -17,6 +28,23 @@ Manifest for {{release.branch.name|upper}}
                     {{ release.release_notes }}
                 {% endautoescape %}
             </div>            
+            <div class="section">
+                    <span class="section">Release Tasks</span>
+            </div>
+            <div class="module" style="padding:15px;">
+                <table style="min-width:500px;" id="sortable">
+                    <thead>
+                        <tr>
+                            <th style="width:100%;" scope="row">Task</th>
+                            {% for branch in branches %}
+                            <th class="align_center">Done on:<br/>{{ branch.name|upper }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody id="taskList">
+                    </tbody>
+                </table>
+            </div>
             <div class="section">Manifest of Changed Objects in {{release.branch.name|upper}} for {{release.name}}</div>
             <div class="module ObjectsList">
                 {% for object in manifest %}

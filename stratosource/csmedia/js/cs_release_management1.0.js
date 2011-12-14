@@ -13,6 +13,10 @@ function refreshTasks(){
     }
 }
 
+function loadTaskListReadOnly(){
+    jQuery('#taskList').load('/ajax/releasetasks/' + release_id + '?readonly=true');
+}
+
 function addTask(){
     task = jQuery('#taskName').val();
     if (task != null && task != ''){

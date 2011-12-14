@@ -327,7 +327,7 @@ def get_release_tasks(request, release_id):
     for branch in branches:
         branch.tid = str(branch.id)
     
-    data = {'success':True, 'tasks': tasks, 'branches': branches}
+    data = {'success':True, 'tasks': tasks, 'branches': branches, 'readonly' : request.GET.__contains__('readonly')}
 
     return render_to_response('release_tasks_ajax.html', data, context_instance=RequestContext(request))
     

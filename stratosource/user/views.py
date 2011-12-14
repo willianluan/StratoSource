@@ -102,7 +102,9 @@ def manifest(request, release_id):
         manifest += list(dep_objects)
 
     manifest.sort(key=lambda object: object.type+object.filename)
-    data = {'release': release, 'manifest': manifest}
+    branches = Branch.objects.all()
+    
+    data = {'release': release, 'manifest': manifest, 'branches': branches}
     return render_to_response('release_manifest.html', data, context_instance=RequestContext(request))
 
 
