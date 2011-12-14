@@ -334,7 +334,7 @@ def instory(request, story_id):
             dep_branches.append(trans.branch)
 
     data = {'story': story, 'objects': objects, 'dep_objects': dep_objects, 'translations': translations, 'dep_translations': dep_translations, 'branches': branches, 'dep_branches': dep_branches}
-    if request.method == u'GET' and request.GET.__contains__('branch_name'):
+    if request.method == u'GET' and request.GET.__contains__('branch_name') and request.GET.__contains__('repo_name'):
         data['branch_name'] = request.GET['branch_name']
         data['repo_name'] = request.GET['repo_name']
 
