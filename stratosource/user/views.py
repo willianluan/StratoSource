@@ -352,7 +352,7 @@ def rally_projects(request):
          ConfigCache.store_config_value('rally.pickedprojects', projectConfValue)
          return redirect('/configs/')
 
-    projects = get_projects(True)
+    projects = rallyintegration.get_projects(True)
 
     data = {'projects': projects}
     return render_to_response('rally_projects.html', data, context_instance=RequestContext(request))
