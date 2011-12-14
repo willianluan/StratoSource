@@ -1,6 +1,6 @@
                             {% for task in tasks %}
                                 <tr id="{{ task.id }}">
-                                    <td style="white-space:normal;" id="{{ task.id }}Name" onclick="editTask('{{ task.id }}'); return false;">{{ task.name }}</td>
+                                    <td style="white-space:normal;" id="{{ task.id }}Name" {% if not readonly %}onclick="editTask('{{ task.id }}');{% endif %} return false;">{{ task.name }}</td>
                                     {% for branch in branches %}
                                     <td class="align_center">
                                         <input type="checkbox" onchange="flagTask('{{ release.id }}', '{{ task.id }}', this.checked, '{{ branch.id }}')" name="{{ task.id }}" {% if branch.tid in task.done_in_branch_list %}checked{% endif %}></td>
