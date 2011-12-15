@@ -216,7 +216,11 @@ def getAllFullNames(doc, elementName, tagname='fullName'):
     fqfullname = SF_NAMESPACE + tagname
     nodes = doc.findall(SF_NAMESPACE + elementName)
     if nodes:
-        allnames = [node.find(fqfullname).text for node in nodes]
+        allnames = []
+        for node in nodes:
+            el = node.find(fqfullname)
+            if el: allnames.append(el.text)
+#        allnames = [node.find(fqfullname).text for node in nodes]
         return allnames
     else:
         logger.debug('No nodes found for %s' % elementName)
@@ -378,10 +382,12 @@ def analyzeObjectTranslationChanges(list, lFileCache, rFileCache, elementname, c
         except NewObjectException:
             doc = documentCache['r' + objectName]
             insertDeltas(commit, objectName, 'objectTranslations', getAllFullNames(doc, elementname), 'a', elementname)
+            return
 
         except DeletedObjectException:
             doc = documentCache['l' + objectName]
             insertDeltas(commit, objectName, 'objectTranslations', getAllFullNames(doc, elementname), 'd', elementname)
+            return
 
     if not changesFound:
         pass
