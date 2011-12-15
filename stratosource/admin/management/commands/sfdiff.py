@@ -82,12 +82,12 @@ def verifyGitRepo():
     proc = subprocess.Popen(['git','status'], shell=False, stderr=subprocess.PIPE)
     input,error = proc.communicate()
     if error.find('Not a git repository') > 0:
-        print 'Error: Not a git repository'
+        logger.error('Error: Not a git repository')
         sys.exit(1)
 
 
 def getDiffNames(left, right):
-    print 'git diff --name-only %s %s' % (left, right)
+    logger.info('git diff --name-only %s %s' % (left, right))
     proc = subprocess.Popen(['git','diff','--name-only',left,right], shell=False, stdout=subprocess.PIPE)
     input,error = proc.communicate()
     changedList = []
@@ -216,12 +216,10 @@ def getAllFullNames(doc, elementName, tagname='fullName'):
     fqfullname = SF_NAMESPACE + tagname
     nodes = doc.findall(SF_NAMESPACE + elementName)
     if nodes:
-        print 'NODES FOUND for %s' % elementName
         allnames = [node.find(fqfullname).text for node in nodes]
-        print 'allnames=%d' % len(allnames)
         return allnames
     else:
-        print 'NO NODES FOUND for %s' % elementName
+        logger.debug('No nodes found for %s' % elementName)
     return []
 
 
@@ -236,7 +234,7 @@ def getAllObjectChanges(objectName, lFileCache, rFileCache, elementname, resolve
 ##
 
 def createFileCache(hash, map, branch_name):
-    print 'cwd=' + os.getcwd()
+    logger.debug('cwd=' + os.getcwd())
     tmpbranch = branch_name + '_sfdiff'
     subprocess.check_call(["git","checkout",branch_name])
     if branchExists(tmpbranch):
@@ -264,16 +262,13 @@ def createFileCache(hash, map, branch_name):
 
 def getDeployable(branch, objectName, objectType, el_type, el_name, el_subtype = None):
     try:
-        print('objectName=%s, el_type=%s, el_name=%s' % (objectName, el_type, el_name))
         if el_type and el_name:
             deployable = DeployableObject.objects.get(branch=branch, type__exact=objectType,filename__exact=objectName,
                                 el_type__exact=el_type,el_name__exact=el_name,el_subtype__exact=el_subtype,
                                 status__exact='a')
         else:
             deployable = DeployableObject.objects.get(branch=branch,type__exact=objectType,filename__exact=objectName,status__exact='a')
-        print('found deployable with id %s' % str(deployable.id))
     except ObjectDoesNotExist:
-        print('getDeployable - not found for %s, %s' % (objectName, el_name))
         deployable = DeployableObject()
         deployable.type = objectType
         deployable.filename = objectName
@@ -286,7 +281,6 @@ def getDeployable(branch, objectName, objectType, el_type, el_name, el_subtype =
 
 
 def insertDeltas(commit, objectName, type, items, delta_type, el_type, el_subtype = None):
-    print('insertDeltas: items=%s' % ','.join(items))
     for item in items:
         deployable = getDeployable(commit.branch, objectName, type, el_type, item, el_subtype)
         delta = Delta()
@@ -295,27 +289,22 @@ def insertDeltas(commit, objectName, type, items, delta_type, el_type, el_subtyp
         delta.commit = commit
         delta.delta_type = delta_type
         delta.save()
-#        xtra = ''
-#        if not el_type is None: xtra += ' el_type=' + el_type
-#        print 'DELTA: object=' + deployable.filename + 'item=' + item + ', delta_type=' + delta_type + xtra
 
 def getLastChange(objectName, el_type, el_name):
     fullName = objectName
     if el_type == 'fields': el_type = 'object'
-    print 'objectName=%s  el_name=%s' % (objectName, el_name)
 
     parts = objectName.split('.')
     if len(parts) > 1 and not el_type is None:
         parts[0] = el_type + ':' + parts[0]
         if el_name: parts[0] += '.' + el_name
         fullName = parts[0]  # '.'.join(parts)
-#    if el_name: fullName += '.' + el_name
-    print ' fullName=%s' % fullName
+#    print ' fullName=%s' % fullName
 
     lastchangelist = list(UserChange.objects.filter(branch=working_branch, apex_name=fullName).order_by('-last_update'))
     if len(lastchangelist) > 0:
         return lastchangelist[0]
-    print '** Audit record not found for %s' % fullName
+    logger.debug('** Audit record not found for %s' % fullName)
     return None
 
 def getDeployableTranslation(branch, label, locale):
@@ -379,7 +368,6 @@ def analyzeObjectTranslationChanges(list, lFileCache, rFileCache, elementname, c
     changesFound = False
     for objectName in list:
         try:
-            #print 'OBJECT NAME ' + objectName
             inserts, updates, deletes = getAllObjectChanges(objectName, lFileCache, rFileCache, elementname, objectTranslationChangeResolver)
             if (inserts and len(inserts)) or (updates and len(updates)) or (deletes and len(deletes)):
                 if inserts: insertDeltas(commit, objectName, 'objectTranslations', inserts.keys(), 'a', elementname)

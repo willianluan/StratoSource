@@ -145,11 +145,9 @@ def save_objectchanges(branch, batch_time, chgmap):
     userdict = dict([(user.name, user) for user in SalesforceUser.objects.all()])
 
     inserted = 0
-    #f = open('/tmp/' + branch.name + '_changes.txt', 'w')
     for aType in chgmap.keys():
         logger.debug('Type: %s' % aType)
         for change in chgmap[aType]:
-            #f.write("type:%s name:%s user:%s date:%s\n" % (aType, change.fullName, change.lastModifiedByName, change.lastModifiedDate))
             if userdict.has_key(change.lastModifiedByName):
                 theUser = userdict[change.lastModifiedByName]
             else:
@@ -157,7 +155,7 @@ def save_objectchanges(branch, batch_time, chgmap):
                 theUser.userid = change.lastModifiedById[0:15]
                 theUser.name = change.lastModifiedByName
                 theUser.save()
-                userdict[theUser.lastModifiedByName] = theUser
+                userdict[theUser.name] = theUser
 
             fullName = change.fullName
             if SFAPIAssetMap.has_key(aType):
@@ -196,8 +194,6 @@ def save_objectchanges(branch, batch_time, chgmap):
                 recent.save()
                 inserted += 1
                 logger.debug('Changed, inserting %s' % fullName)
-
-    #f.close()
 
     logger.info('Audited objects inserted: %d' % inserted)
 
