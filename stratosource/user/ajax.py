@@ -24,6 +24,7 @@ from django.template import RequestContext
 from django.utils import simplejson
 from django.db import transaction
 import logging
+import traceback
 
 logger = logging.getLogger('console')
 
@@ -256,9 +257,11 @@ def addtostory(request):
     results = {'success':False}
 
     if request.method == u'GET':
-        story = None;
+        story = None
         try:
             storyId = request.GET['storyId']
+            if (storyId == 'null'):
+                storyId = ''
             storyName = request.GET['storyName']
             storyRallyId = request.GET['storyRallyId']
             storyURL = request.GET['storyURL']
@@ -310,7 +313,8 @@ def addtostory(request):
 
             results = {'success':True}
         except Exception as ex:
-            results = {'success':False, 'error':'ERROR: ' + ex.message}
+            tb = traceback.format_exc()
+            results = {'success':False, 'error':'ERROR: ' + tb}
 
     json = simplejson.dumps(results)
     return HttpResponse(json, mimetype='application/json')
