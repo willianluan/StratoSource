@@ -20,10 +20,12 @@ from django.core.exceptions import ObjectDoesNotExist
 import os
 import sys
 import subprocess
+import logging
 from datetime import datetime
 from django.db import transaction
 from lxml import etree
 from django.db.models import Max
+import admin.management.CSBase # used to initialize logging
 from admin.management.SalesforceAgent import SalesforceAgent
 from stratosource.admin.models import Branch, Commit, Repo, Delta, DeployableTranslation, TranslationDelta, DeployableObject, AdminMessage, UserChange
 
@@ -212,9 +214,15 @@ def translationChangeResolver(ldoc, rdoc, rmap, lmap, elementName):
 
 def getAllFullNames(doc, elementName, tagname='fullName'):
     fqfullname = SF_NAMESPACE + tagname
-    nodes = doc.findall(SF_NAMESPACE + tagname)
-    all = [node.find(fqfullname).text for node in nodes]
-    return all
+    nodes = doc.findall(SF_NAMESPACE + elementName)
+    if nodes:
+        print 'NODES FOUND for %s' % elementName
+        allnames = [node.find(fqfullname).text for node in nodes]
+        print 'allnames=%d' % len(allnames)
+        return allnames
+    else:
+        print 'NO NODES FOUND for %s' % elementName
+    return []
 
 
 def getAllObjectChanges(objectName, lFileCache, rFileCache, elementname, resolver):
@@ -256,13 +264,16 @@ def createFileCache(hash, map, branch_name):
 
 def getDeployable(branch, objectName, objectType, el_type, el_name, el_subtype = None):
     try:
+        print('objectName=%s, el_type=%s, el_name=%s' % (objectName, el_type, el_name))
         if el_type and el_name:
             deployable = DeployableObject.objects.get(branch=branch, type__exact=objectType,filename__exact=objectName,
                                 el_type__exact=el_type,el_name__exact=el_name,el_subtype__exact=el_subtype,
                                 status__exact='a')
         else:
             deployable = DeployableObject.objects.get(branch=branch,type__exact=objectType,filename__exact=objectName,status__exact='a')
+        print('found deployable with id %s' % str(deployable.id))
     except ObjectDoesNotExist:
+        print('getDeployable - not found for %s, %s' % (objectName, el_name))
         deployable = DeployableObject()
         deployable.type = objectType
         deployable.filename = objectName
@@ -275,6 +286,7 @@ def getDeployable(branch, objectName, objectType, el_type, el_name, el_subtype =
 
 
 def insertDeltas(commit, objectName, type, items, delta_type, el_type, el_subtype = None):
+    print('insertDeltas: items=%s' % ','.join(items))
     for item in items:
         deployable = getDeployable(commit.branch, objectName, type, el_type, item, el_subtype)
         delta = Delta()
@@ -335,6 +347,7 @@ def analyzeObjectChanges(list, lFileCache, rFileCache, elementname, commit):
 
     changesFound = False
     for objectName in list:
+        logger.debug('analyzing %s' % objectName)
         try:
             inserts, updates, deletes = getAllObjectChanges(objectName, lFileCache, rFileCache, elementname, objectChangeResolver)
             if (inserts and len(inserts)) or (updates and len(updates)) or (deletes and len(deletes)):
@@ -344,12 +357,15 @@ def analyzeObjectChanges(list, lFileCache, rFileCache, elementname, commit):
                 changesFound = True
 
         except NewObjectException:
+            logger.debug('New object %s' % objectName)
             doc = documentCache['r' + objectName]
             insertDeltas(commit, objectName, 'objects', getAllFullNames(doc, elementname), 'a', elementname)
+            return
 
         except DeletedObjectException:
             doc = documentCache['l' + objectName]
             insertDeltas(commit, objectName, 'objects', getAllFullNames(doc, elementname), 'd', elementname)
+            return
 
     if not changesFound:
         pass
@@ -544,6 +560,8 @@ def analyzeCommit(branch, commit):
 
     working_branch = branch
 
+    logger.info("Analyzing commit %s" % commit.hash)
+
     documentCache = {}  # do not want to accumulate this stuff over multiple iterations
     mapCache = {}
     change_batch = None
@@ -554,8 +572,6 @@ def analyzeCommit(branch, commit):
 
     lhash = commit.prev_hash
     rhash = commit.hash
-
-    print 'analyzing ' + rhash
 
     ##
     # call "git diff" to get a list of changed files
@@ -569,7 +585,7 @@ def analyzeCommit(branch, commit):
     rFileCache = createFileCache(rhash, omap, branch.name)
 
     for otype,olist in omap.items():
-        #print type
+        logger.debug("Type: %s" % otype)
         if otype == 'objects':
             analyzeObjectChanges(olist, lFileCache, rFileCache, 'fields', commit)
             analyzeObjectChanges(olist, lFileCache, rFileCache, 'validationRules', commit)
@@ -648,11 +664,13 @@ def generateAnalysis(branch, start_date):
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        global documentCache
+        global documentCache, logger
 
         if len(args) < 2: raise CommandError('usage: sfdiff <repo alias> <branch> {start date mm-dd-yyyy}')
         repo = Repo.objects.get(name__exact=args[0])
         branch = Branch.objects.get(repo=repo, name__exact=args[1])
+
+        logger = logging.getLogger('sfdiff')
 
         if len(args) == 3:
             start_date = datetime.strptime(args[2], '%m-%d-%Y')

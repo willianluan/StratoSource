@@ -24,6 +24,7 @@ import datetime
 import string
 from django.db import transaction
 from django.db.models import Max
+import admin.management.CSBase # used to initialize logging
 from admin.models import Branch, UserChange, SalesforceUser
 
 __author__="mark"
@@ -40,6 +41,7 @@ SFAPIAssetMap = {
     'ApexClass': '.cls',
     'ApexTrigger': '.trigger',
     'Workflow': 'workflow:'
+
 }
 
 
@@ -97,6 +99,7 @@ def perform_checkin(repodir, zipfile, branch):
 
     log.info("Completed checkin")
 
+##### DEFUNCT #####
 @transaction.commit_on_success
 def save_userchanges(branch, classes, triggers, pages):
     allchanges = classes + triggers + pages
@@ -127,6 +130,7 @@ def save_userchanges(branch, classes, triggers, pages):
         else:
             recent = recents[0]
 
+
         if recent.sfuser == None or recent.sfuser.user_id != change['LastModifiedById']:
             lu = change['LastModifiedDate'][0:-9]
             recent.last_update = datetime.datetime.strptime(lu, '%Y-%m-%dT%H:%M:%S')
@@ -136,21 +140,24 @@ def save_userchanges(branch, classes, triggers, pages):
  
 @transaction.commit_on_success
 def save_objectchanges(branch, batch_time, chgmap):
-    userdict = dict([(user.userid, user) for user in SalesforceUser.objects.all()])
+    logger = logging.getLogger('download')
+    logger.info('Saving object change audit trail')
+    userdict = dict([(user.name, user) for user in SalesforceUser.objects.all()])
 
     inserted = 0
     #f = open('/tmp/' + branch.name + '_changes.txt', 'w')
     for aType in chgmap.keys():
+        logger.debug('Type: %s' % aType)
         for change in chgmap[aType]:
             #f.write("type:%s name:%s user:%s date:%s\n" % (aType, change.fullName, change.lastModifiedByName, change.lastModifiedDate))
-            if userdict.has_key(change.lastModifiedById[0:15]):
-                theUser = userdict[change.lastModifiedById[0:15]]
+            if userdict.has_key(change.lastModifiedByName):
+                theUser = userdict[change.lastModifiedByName]
             else:
                 theUser = SalesforceUser()
                 theUser.userid = change.lastModifiedById[0:15]
                 theUser.name = change.lastModifiedByName
                 theUser.save()
-                userdict[theUser.userid] = theUser
+                userdict[theUser.lastModifiedByName] = theUser
 
             fullName = change.fullName
             if SFAPIAssetMap.has_key(aType):
@@ -174,8 +181,10 @@ def save_objectchanges(branch, batch_time, chgmap):
                 recent.object_type = aType
                 recent.save()
                 inserted += 1
+                logger.debug('Not found, inserting %s' % fullName)
 
-            if recent.sfuser.userid != theUser.userid or recent.last_update != change.lastModifiedDate:
+            if recent.last_update < change.lastModifiedDate:
+                logger.debug('changed: userid=%s userid=%s  last_update=%s lastModified=%s' % (recent.sfuser.userid, theUser.userid, recent.last_update, change.lastModifiedDate))
                 recent = UserChange()
                 recent.branch = branch
                 recent.apex_id = change.id
@@ -186,8 +195,10 @@ def save_objectchanges(branch, batch_time, chgmap):
                 recent.object_type = aType
                 recent.save()
                 inserted += 1
+                logger.debug('Changed, inserting %s' % fullName)
+
     #f.close()
 
-    print 'audited objects inserted: %d' % inserted
+    logger.info('Audited objects inserted: %d' % inserted)
 
 

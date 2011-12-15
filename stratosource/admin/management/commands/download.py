@@ -29,7 +29,6 @@ __date__ ="$Sep 7, 2010 9:02:55 PM$"
 
 
 class Command(BaseCommand):
-    logger = logging.getLogger('download')
     args = ''
     help = 'download assets from Salesforce'
 
@@ -37,33 +36,35 @@ class Command(BaseCommand):
 
         if len(args) < 2: raise CommandError('usage: <repo name> <branch>')
 
+        self.logger = logging.getLogger('download')
+
         br = Branch.objects.get(repo__name__exact=args[0], name__exact=args[1])
         if not br: raise CommandException("invalid repo/branch")
 
         downloadOnly = False
         if len(args) > 2 and args[2] == '--download-only': downloadOnly = True
 
-        agent = Utils.getAgentForBranch(br)
+        agent = Utils.getAgentForBranch(br, logger=self.logger)
 
         path = br.api_store
         types = [aType.strip() for aType in br.api_assets.split(',')]
 
         stamp = str(int(time.time()))
         filename = os.path.join(path, 'retrieve_{0}.zip'.format(stamp))
-        print 'retrieving %s:%s' % (br.repo.name, br.name)
-        print 'types: ' + br.api_assets
-        agent.retrieve_meta(types, filename)
-        self.logger.debug('fetching audit data')
-        print 'fetching audit trail data...'
-        chgmap = agent.retrieve_changesaudit(types)
+
+        self.logger.info('fetching audit data..')
+        chgmap = agent.retrieve_changesaudit(types, br.api_pod)
+
+        self.logger.info('retrieving from %s:%s for %s' % (br.repo.name, br.name, br.api_assets))
+        agent.retrieve_meta(types, br.api_pod, filename)
         agent.close()
-        self.logger.debug('finished download')
+        self.logger.info('finished download')
 
         if not downloadOnly:
             from admin.management.checkin import perform_checkin, save_objectchanges
             perform_checkin(br.repo.location, filename, br)
             batch_time = datetime.datetime.now()
-            print 'saving audit...'
+            self.logger.debug('saving audit...')
             save_objectchanges(br, batch_time, chgmap)
             os.remove(filename)
 

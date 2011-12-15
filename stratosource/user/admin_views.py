@@ -73,6 +73,7 @@ class BranchForm(forms.ModelForm):
         ('CustomSite', 'Sites'),
         ('CustomTab', 'Tabs'),
         ('DataCategoryGroup', 'Category groups'),
+        ('EmailTemplate', 'Email templates'),
         ('HomePageLayout', 'Home page layout'),
         ('Layout', 'Layouts'),
         ('Portal', 'Portal'),

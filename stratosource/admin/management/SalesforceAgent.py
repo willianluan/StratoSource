@@ -19,6 +19,7 @@
 from suds.client import Client
 import suds
 import binascii
+import datetime
 import time
 import logging
 import httplib, urllib
@@ -42,15 +43,20 @@ class LoginError(Exception):
     def __str__(self):
         return repr(self.value)
 
+class Bag:
+    def __str__(self):
+        return repr(self.__dict__)
 
 
 class SalesforceAgent:
 
-    def __init__(self, partner_wsdl_url, metadata_wsdl_url = None):
-        logging.basicConfig(level=logging.INFO)
-        #logging.getLogger('suds.client').setLevel(logging.INFO)
-        self.logname = _DEFAULT_LOGNAME
-        self.logger = logging.getLogger(__file__)
+    def __init__(self, partner_wsdl_url, metadata_wsdl_url = None, clientLogger = None):
+        if clientLogger is None:
+            logging.basicConfig(level=logging.DEBUG)
+            self.logname = _DEFAULT_LOGNAME
+            self.logger = logging.getLogger(__file__)
+        else:
+            self.logger = clientLogger
         self.login_result = None
         if metadata_wsdl_url:
             self.meta = Client(metadata_wsdl_url)
@@ -93,12 +99,36 @@ class SalesforceAgent:
 #        self.partner.service.logout()
         self.login_result = None
 
+    def _buildEmailTemplatesPackage(self, pod):
+        rest_conn = self.setupForRest(pod)
+        params = urllib.urlencode({'q': "select Id, Name from Folder where Type = 'Email'"})
+        data = self._invokeGetREST(rest_conn, "query/?%s" % params)
+
+        if not data == None:
+            records = data['records']
+            folders = [record['Name'] for record in records]
+        else:
+            folders = []
+        query = self.meta.factory.create('ListMetadataQuery')
+        query.type = 'EmailTemplate'
+        emailpaths = []
+        for folder in folders:
+            query.folder = folder
+            self.logger.debug('listing contents of email folder %s' % folder)
+            props = self.meta.service.listMetadata([query], _API_VERSION)
+            for prop in props:
+                emailpaths.append(prop.fullName)
+        ptm = self.meta.factory.create('PackageTypeMembers')
+        ptm.name = 'EmailTemplate'
+        ptm.members = [emailpath for emailpath in emailpaths]
+        return ptm
+
     def _buildCustomObjectsPackage(self):
-        self.logger.debug('loading Salesforce catalog for custom field discovery')
+        self.logger.info('loading Salesforce catalog for custom field discovery')
         query = self.meta.factory.create('ListMetadataQuery')
         query.type = 'CustomObject'
         props = self.meta.service.listMetadata([query], _API_VERSION)
-        self.logger.debug('catalog contains %d objects' % len(props))
+        self.logger.info('catalog contains %d objects' % len(props))
         ptm = self.meta.factory.create('PackageTypeMembers')
         ptm.name = 'CustomObject'
         ptm.members = [prop.fullName for prop in props]
@@ -110,8 +140,9 @@ class SalesforceAgent:
         props = self.meta.service.listMetadata([query], _API_VERSION)
         return props
 
-    def retrieve_changesaudit(self, types):
+    def retrieve_changesaudit(self, types, pod):
         supportedtypelist = ['ApexClass','ApexPage','ApexTrigger','CustomObject','Workflow']
+        self.logger.info('loading changes for %s' % ','.join(supportedtypelist))
 
         # get intersection of requested types and those we support
         typelist = list(set(supportedtypelist) & set(types))
@@ -122,30 +153,63 @@ class SalesforceAgent:
         for aType in typelist:
             query.type = aType
             results[aType] = self.meta.service.listMetadata([query], _API_VERSION)
+            self.logger.debug('Loaded %d records for type %s' % (len(results[aType]), aType))
+        
+        #
+        # now do the types that diverge from the norm
+        #
+        rest_conn = self.setupForRest(pod)
+        self.logger.info('loading changes for EmailTemplate')
+        tmpemails = self._getEmailChangesMap(rest_conn)
+        etemplates = []
+        for tmpemail in tmpemails:
+            template = Bag()
+            template.__dict__['fullName'] = tmpemail['DeveloperName'] + '.email'
+            template.__dict__['lastModifiedById'] = tmpemail['LastModifiedById']
+            template.__dict__['lastModifiedByName'] = tmpemail['LastModifiedBy']['Name']
+            template.__dict__['id'] = tmpemail['Id']
+            lmd = tmpemail['LastModifiedDate'][0:-9]
+            template.__dict__['lastModifiedDate'] = datetime.datetime.strptime(lmd, '%Y-%m-%dT%H:%M:%S')
+            etemplates.append(template)
+        results['EmailTemplate'] = etemplates
+        self.logger.debug('Loaded %d EmailTemplate records' % len(etemplates))
         return results
 
+    def setupForRest(self, pod):
+        self.rest_headers = {"Authorization": "OAuth %s" % self.getSessionId(), "Content-Type": "application/json" }
+        serverloc = pod + '.salesforce.com'
+        self.logger.info('connecting to REST endpoint at %s' % serverloc)
+        return httplib.HTTPSConnection(serverloc)
+
+    #### DEFUNCT (I think) ####
     def retrieve_userchanges(self, pod):
         classes = {}
         triggers = {}
         pages = {}
-        self.rest_headers = {"Authorization": "OAuth %s" % self.getSessionId(), "Content-Type": "application/json" }
-        serverloc = pod + '.salesforce.com'
-
-        rest_conn = httplib.HTTPSConnection(serverloc)
+        self.setupForRest(pod)
         classes = self._getChangesMap(rest_conn, 'ApexClass')
         for clazz in classes: clazz['Name'] += '.cls'
         triggers = self._getChangesMap(rest_conn, 'ApexTrigger')
         for trigger in triggers: trigger['Name'] += '.trigger'
         pages = self._getChangesMap(rest_conn, 'ApexPage', withstatus=False)
         for page in pages: page['Name'] += '.page'
-        rest_conn.close()
-        return (classes, triggers, pages)
+        emails = self._getEmailChangesMap(rest_conn, withstatus=False)
+        for email in emails: email['Name'] = email['DeveloperName'] + '.email'
+#        rest_conn.close()
+        return (classes, triggers, pages, email)
 
     def _getChangesMap(self, rest_conn, sfobject, withstatus=True):
         if withstatus:
             params = urllib.urlencode({'q': "select Id, Name, LastModifiedById, LastModifiedBy.Name, LastModifiedBy.Email, LastModifiedDate from %s where Status = 'Active' and NamespacePrefix = '' order by name" % sfobject})
         else:
             params = urllib.urlencode({'q': "select Id, Name, LastModifiedById, LastModifiedBy.Name, LastModifiedBy.Email, LastModifiedDate from %s where NamespacePrefix = '' order by name" % sfobject})
+        data = self._invokeGetREST(rest_conn, "query/?%s" % params)
+        if not data == None:
+            return data['records']
+        return None
+
+    def _getEmailChangesMap(self, rest_conn):
+        params = urllib.urlencode({'q': "select Id, Name, DeveloperName, LastModifiedById, LastModifiedBy.Name, LastModifiedBy.Email, LastModifiedDate from EmailTemplate where NamespacePrefix = '' order by name"})
         data = self._invokeGetREST(rest_conn, "query/?%s" % params)
         if not data == None:
             return data['records']
@@ -162,6 +226,7 @@ class SalesforceAgent:
         return data
 
     def _invokeGetREST(self,rest_conn,  url):
+        self.logger.debug('invoking /services/data/v%s/%s' % (_API_VERSION, url))
         rest_conn.request("GET", '/services/data/v%s/%s' % (_API_VERSION, url), headers=self.rest_headers)
         response = rest_conn.getresponse()
         resultPayload = response.read()
@@ -172,7 +237,7 @@ class SalesforceAgent:
         data = json.loads(resultPayload)
         return data
 
-    def retrieve_meta(self, types, outputname='/tmp/retrieve.zip'):
+    def retrieve_meta(self, types, pod, outputname='/tmp/retrieve.zip'):
         if not self.login_result:
             raise Exception('Initialization error: not logged in')
         if not self.meta:
@@ -187,6 +252,8 @@ class SalesforceAgent:
         for type in types:
             if type == 'CustomObject':
                 pkgtypes.append(self._buildCustomObjectsPackage())
+            elif type == 'EmailTemplate':
+                pkgtypes.append(self._buildEmailTemplatesPackage(pod))
             else:
                 pkgtype = self.meta.factory.create('PackageTypeMembers')
                 pkgtype.members = ['*']
@@ -199,7 +266,7 @@ class SalesforceAgent:
         countdown = _METADATA_TIMEOUT
         asyncResult = self.meta.service.retrieve(request)
         while not asyncResult.done:
-            print 'polling..', str(countdown)
+            self.logger.info('polling.. %s' % str(countdown))
             time.sleep(_METADATA_POLL_SLEEP)
             countdown -= _METADATA_POLL_SLEEP
             if countdown <= 0: break
@@ -239,7 +306,7 @@ class SalesforceAgent:
         result = self.meta.service.deploy(zip64, deploy_options)
         countdown = _DEPLOY_TIMEOUT
         while not result.done:
-            print 'polling..', str(countdown)
+            self.logger.info('polling..%s' % str(countdown))
             time.sleep(_DEPLOY_POLL_SLEEP)
             countdown -= _DEPLOY_POLL_SLEEP
             if countdown <= 0: raise Exception('Deployment timed out')
