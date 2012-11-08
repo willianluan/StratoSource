@@ -24,8 +24,8 @@ import httplib, urllib
 import json
 import time
 import datetime
-from admin.management import CSBase
-from admin.management import Utils
+from stratosource.admin.management import CSBase
+from stratosource.admin.management import Utils
 from stratosource.user import rallyintegration
 
 

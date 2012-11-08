@@ -18,12 +18,12 @@
 import logging
 import logging.config
 from stratosource.admin.models import Story, Branch, DeployableObject
-from admin.management import Utils
+from stratosource.admin.management import Utils
 import subprocess
 import os
 from zipfile import ZipFile
 from lxml import etree
-import admin.management.CSBase # used to initialize logging
+import stratosource.admin.management.CSBase # used to initialize logging
 
 
 __author__="masmith"

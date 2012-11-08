@@ -25,7 +25,7 @@ import logging
 import httplib, urllib
 import json
 from urlparse import urlparse
-import admin.management.CSBase # used to initialize logging
+import stratosource.admin.management.CSBase # used to initialize logging
 
 
 __author__="mark"

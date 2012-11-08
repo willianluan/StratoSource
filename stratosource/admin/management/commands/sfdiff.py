@@ -25,8 +25,8 @@ from datetime import datetime
 from django.db import transaction
 from lxml import etree
 from django.db.models import Max
-import admin.management.CSBase # used to initialize logging
-from admin.management.SalesforceAgent import SalesforceAgent
+import stratosource.admin.management.CSBase # used to initialize logging
+from stratosource.admin.management.SalesforceAgent import SalesforceAgent
 from stratosource.admin.models import Branch, Commit, Repo, Delta, DeployableTranslation, TranslationDelta, DeployableObject, AdminMessage, UserChange
 
 

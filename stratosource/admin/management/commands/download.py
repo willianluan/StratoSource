@@ -20,9 +20,9 @@ import logging
 import time
 import datetime
 import os
-from admin.models import Branch
-import admin.management.CSBase # used to initialize logging
-from admin.management import Utils
+from stratosource.admin.models import Branch
+import stratosource.admin.management.CSBase # used to initialize logging
+from stratosource.admin.management import Utils
 
 __author__="mark"
 __date__ ="$Sep 7, 2010 9:02:55 PM$"
@@ -61,7 +61,7 @@ class Command(BaseCommand):
         self.logger.info('finished download')
 
         if not downloadOnly:
-            from admin.management.checkin import perform_checkin, save_objectchanges
+            from stratosource.admin.management.checkin import perform_checkin, save_objectchanges
             perform_checkin(br.repo.location, filename, br)
             batch_time = datetime.datetime.now()
             self.logger.debug('saving audit...')

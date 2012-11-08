@@ -24,9 +24,9 @@ import httplib, urllib
 import json
 import time
 import datetime
-from admin.management import CSBase
-from admin.management import Utils
-from admin.models import Branch, Repo, UnitTestBatch, UnitTestRun, UnitTestRunResult
+from stratosource.admin.management import CSBase
+from stratosource.admin.management import Utils
+from stratosource.admin.models import Branch, Repo, UnitTestBatch, UnitTestRun, UnitTestRunResult
 from stratosource.admin.management import UnitTestRunUtil
 
 

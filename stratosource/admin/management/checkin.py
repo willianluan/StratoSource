@@ -24,8 +24,8 @@ import datetime
 import string
 from django.db import transaction
 from django.db.models import Max
-import admin.management.CSBase # used to initialize logging
-from admin.models import Branch, UserChange, SalesforceUser
+import stratosource.admin.management.CSBase # used to initialize logging
+from stratosource.admin.models import Branch, UserChange, SalesforceUser
 
 __author__="mark"
 __date__ ="$Oct 6, 2010 8:41:36 PM$"
