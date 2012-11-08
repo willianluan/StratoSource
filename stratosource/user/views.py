@@ -202,6 +202,26 @@ def export_labels_form(request):
     return response
 
 
+    return render_to_response('release_push_status.html', data, context_instance=RequestContext(request))
+
+def export_labels(request, release_id):
+    data = {'repos': Repo.objects.all() }
+    data['release_id'] = release_id
+    return render_to_response('export_labels_form.html', data, context_instance=RequestContext(request))
+
+def export_labels_form(request):
+    release_id = request.POST.get('release_id')
+    repo_idlist = request.POST.getlist('repocb')
+    if repo_idlist == None or len(repo_idlist) == 0:
+        return release(request, release_id)
+
+    repo = Repo.objects.get(id=repo_idlist[0])
+    ssfile = labels.generateLabelSpreadsheet(repo, release_id)
+    response = HttpResponse(ssfile, mimetype='application/xls')
+    response['Content-Disposition'] = 'attachment; filename="labels.xls"'
+    return response
+
+
 def manifest(request, release_id):
     release = Release.objects.get(id=release_id)
     release.release_notes = release.release_notes.replace('\n','<br/>');
