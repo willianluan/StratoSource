@@ -27,7 +27,6 @@ import json
 from urlparse import urlparse
 import stratosource.admin.management.CSBase # used to initialize logging
 
-
 __author__="mark"
 __date__ ="$Aug 15, 2010 9:48:38 PM$"
 
