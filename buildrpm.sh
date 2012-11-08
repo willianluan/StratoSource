@@ -1,8 +1,8 @@
 ##
 # Update version numbers here only
 ##
-MAJOR=3
-MINOR=0
+MAJOR=2
+MINOR=7
 PATCH=0
 REL=0
 VERSION=$MAJOR.$MINOR.$PATCH
