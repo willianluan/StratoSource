@@ -1,8 +1,8 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:           stratosource
-Version: 2.6.2
-Release: 2
+Version: 3.0.0
+Release: 0
 Summary:        Process git repo dumps of salesforce assets and provide web UI for the results
 
 Group:          Applications/Internet
@@ -13,20 +13,20 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 
 Requires:       python >= 2.6.4
 Requires:       python-suds >= 0.3.9
-Requires:	python-requests >= 0.13.1
-Requires:       memcached >= 1.4.5
-Requires:       python-memcached >= 1.47
-Requires:       python-lxml >= 2.2.7
+Requires:       python-requests >= 0.11
+Requires:       memcached >= 1.4.4
+Requires:       python-memcached >= 1.43
+Requires:       python-lxml >= 2.2.3
 Requires:	Django >= 1.3
 Requires:       mysql >= 5.1.51
 Requires:       mysql-server >= 5.1.51
-Requires:       httpd >= 2.2.16
+Requires:       httpd >= 2.2.15
 Requires:       mod_wsgi >= 3.1
 Requires:       mod_auth_kerb >= 5.4
 Requires:       MySQL-python >= 1.2.3
 Requires:	wget >= 1.12
 #Requires:       subversion >= 1.6.9
-Requires:       git >= 1.7.3
+Requires:       git >= 1.7.1
 Requires:	cgit >= 0.9
 
 BuildArch:      noarch
