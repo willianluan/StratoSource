@@ -1,0 +1,42 @@
+{% extends 'layout.html' %}
+
+
+{% block breadcrumbs %}
+<a href="/">Home</a> -> Admin Menu
+{% endblock %}
+
+{% block content %}
+
+<br />
+
+<div style="width:50%; margin-left:5px">
+    <h3 class="sectionHeader">Select a reference repository</h3>
+    <div>
+        <form name="exportLabelsForm" action="/export_labels_form" method="post">{% csrf_token %}
+        <table>
+            <tr >
+                <th scope="row" style="width: 15%;">Name/Alias</th>
+                <th style="width: 85%;">Location</th>
+            </tr>
+            {% for repo in repos %}
+                <tr>
+                    <td><input type="checkbox" name="repocb" value="{{ repo.id }}"/> &nbsp; <a href="/editrepo/{{ repo.id }}">{{ repo.name }}</a></td>
+                    <td>{{ repo.location }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <input name="release_id" type="hidden" value="{{ release_id }}"/>
+        <input name="selectRepoButton" type="submit" value="Select"/>
+        <input name="cancelButton" type="submit" value="Cancel" />
+        </form>
+    </div>
+
+    <br />
+
+</div>
+
+
+
+{% endblock %}
+
+

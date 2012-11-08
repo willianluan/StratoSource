@@ -22,9 +22,10 @@ from django.utils.encoding import smart_str
 import re
 from django.template import RequestContext
 from django.shortcuts import render_to_response, redirect
-from stratosource.admin.models import DeploymentPushStatus, DeploymentPackage, Story, Release, ReleaseTask, DeployableObject, DeployableTranslation, Delta, Branch, ConfigSetting, UserChange, SalesforceUser
+from django.http import HttpResponse
+from stratosource.admin.models import DeploymentPushStatus, DeploymentPackage, Story, Release, ReleaseTask, DeployableObject, DeployableTranslation, Delta, Branch, ConfigSetting, UserChange, SalesforceUser, Repo
 from stratosource.user import rallyintegration
-from stratosource.admin.management import ConfigCache, Deployment
+from stratosource.admin.management import ConfigCache, Deployment, labels
 import logging
 import subprocess
 
@@ -178,7 +179,25 @@ def release_push_status(request, release_package_push_id):
     data = {'push_package':push_package}
 
     return render_to_response('release_push_status.html', data, context_instance=RequestContext(request))
-    
+
+def export_labels(request, release_id):
+    data = {'repos': Repo.objects.all() }
+    data['release_id'] = release_id
+    return render_to_response('export_labels_form.html', data, context_instance=RequestContext(request))
+
+def export_labels_form(request):
+    release_id = request.POST.get('release_id')
+    repo_idlist = request.POST.getlist('repocb')
+    if repo_idlist == None or len(repo_idlist) == 0:
+        return release(request, release_id)
+
+    repo = Repo.objects.get(id=repo_idlist[0])
+    ssfile = labels.generateLabelSpreadsheet(repo, release_id)
+    response = HttpResponse(ssfile, mimetype='application/xls')
+    response['Content-Disposition'] = 'attachment; filename="labels.xls"'
+    return response
+
+
 def manifest(request, release_id):
     release = Release.objects.get(id=release_id)
     release.release_notes = release.release_notes.replace('\n','<br/>');
