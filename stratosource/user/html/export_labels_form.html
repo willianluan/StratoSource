@@ -2,10 +2,18 @@
 
 
 {% block breadcrumbs %}
-<a href="/">Home</a> -> Admin Menu
+<a href="/">Home</a> -> <a href="/releases">Manage Releases</a> -> <a href="/release/{{release.id}}">{{ release.name }}</a> -> Export Labels
 {% endblock %}
 
 {% block content %}
+
+<script type="text/javascript">
+
+    if ("{{ repoSelectionError }}" == "True") {
+        alert('Please select a source repo for the label export');
+    }
+
+</script>
 
 <br />
 

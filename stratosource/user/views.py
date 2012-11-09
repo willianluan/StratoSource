@@ -180,21 +180,25 @@ def release_push_status(request, release_package_push_id):
 
     return render_to_response('release_push_status.html', data, context_instance=RequestContext(request))
 
-def export_labels(request, release_id):
+def export_labels(request, release_id, selectionError = False):
     data = {'repos': Repo.objects.all() }
+    data['release'] = Release.objects.get(id=release_id)
     data['release_id'] = release_id
+    data['repoSelectionError'] = selectionError
     return render_to_response('export_labels_form.html', data, context_instance=RequestContext(request))
 
 def export_labels_form(request):
     release_id = request.POST.get('release_id')
-    repo_idlist = request.POST.getlist('repocb')
-    if repo_idlist == None or len(repo_idlist) == 0:
+    if request.POST.get('cancelButton') == 'Cancel':
         return release(request, release_id)
+    repo_idlist = request.POST.getlist('repocb')
+    if repo_idlist == None or len(repo_idlist) != 1:
+        return export_labels(request, release_id, selectionError = True)
 
     repo = Repo.objects.get(id=repo_idlist[0])
     ssfile = labels.generateLabelSpreadsheet(repo, release_id)
     response = HttpResponse(ssfile, mimetype='application/xls')
-    response['Content-Disposition'] = 'attachment; filename="labels.xls"'
+    response['Content-Disposition'] = 'attachment; filename="%s_labels.xls"' % repo.name
     return response
 
 
