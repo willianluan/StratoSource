@@ -78,7 +78,7 @@ def load_projects(session, name, projectList):
         
     if len(projectList) > 0:
         for project in projectList:
-            projectDetail = json.loads(session.get(project['_ref']))
+            projectDetail = json.loads(session.get(project['_ref']).text)
 
             proj = RallyProject(name + projectDetail['Project']['_refObjectName'], projectDetail['Project']['_ref'], load_projects(session, name + projectDetail['Project']['_refObjectName'], projectDetail['Project']['Children']), projectDetail['Project']['Iterations'])
             if len(proj.children) > 0 or len(proj.sprints) > 0:
@@ -112,14 +112,14 @@ def get_projects(leaves):
 
     # Get workspace:
     projects = []
-    workspaces = json.loads(session.get('https://' + settings.RALLY_SERVER + '/slm/webservice/' + settings.RALLY_REST_VERSION + '/workspace.js'))
+    workspaces = json.loads(session.get('https://' + settings.RALLY_SERVER + '/slm/webservice/' + settings.RALLY_REST_VERSION + '/workspace.js').text)
 
     logger.debug('Workspaces returned: ' + str(workspaces['QueryResult']['TotalResultCount']))
 
     if workspaces['QueryResult']['TotalResultCount'] > 0:
         for ws in workspaces['QueryResult']['Results']:
             logger.debug('Workspace: ' + ws['_refObjectName'] + ' url "' + ws['_ref'] + '"')
-            wsDetails = json.loads(session.get(ws['_ref']))
+            wsDetails = json.loads(session.get(ws['_ref']).text)
             projects.extend(load_projects(session, ws['_refObjectName'], wsDetails['Workspace']['Projects']))
 
     print_proj_tree(projects)
@@ -148,7 +148,7 @@ def get_stories(projectIds):
         url = 'https://' + settings.RALLY_SERVER + '/slm/webservice/' + settings.RALLY_REST_VERSION + '/hierarchicalrequirement.js?query=' + urllib.quote(querystring) + '&fetch=true&start=' + str(start) + '&pagesize=' + str(pagesize)
 
         print 'Fetching url ' + url
-        queryresult = json.loads(session.get(url))
+        queryresult = json.loads(session.get(url).text)
 
         for result in queryresult['QueryResult']['Results']:
             story = Story()
