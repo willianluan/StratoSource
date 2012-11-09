@@ -2,7 +2,7 @@
 
 Name:           stratosource
 Version: 2.7.0
-Release: 0
+Release: 1
 Summary:        Process git repo dumps of salesforce assets and provide web UI for the results
 
 Group:          Applications/Internet
@@ -14,20 +14,21 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 Requires:       python >= 2.6.4
 Requires:       python-suds >= 0.3.9
 Requires:       python-requests >= 0.11
+Requires:       python-pip >= 0.8
 Requires:       memcached >= 1.4.4
 Requires:       python-memcached >= 1.43
 Requires:       python-lxml >= 2.2.3
-Requires:	Django >= 1.3
+Requires:       Django >= 1.3
 Requires:       mysql >= 5.1.51
 Requires:       mysql-server >= 5.1.51
 Requires:       httpd >= 2.2.15
 Requires:       mod_wsgi >= 3.1
 Requires:       mod_auth_kerb >= 5.4
 Requires:       MySQL-python >= 1.2.3
-Requires:	wget >= 1.12
+Requires:       wget >= 1.12
 #Requires:       subversion >= 1.6.9
 Requires:       git >= 1.7.1
-Requires:	cgit >= 0.9
+Requires:       cgit >= 0.9
 
 BuildArch:      noarch
 
@@ -73,6 +74,9 @@ if [ ! -f /usr/django/cgitrepo ]; then
   cp /usr/django/resources/cgitrepo /usr/django
   chmod 777 /usr/django/cgitrepo
 fi
+
+echo 'installing pyexcelerator'
+pip-python install pyexcelerator
 
 # stratosource configuration requirements
 
