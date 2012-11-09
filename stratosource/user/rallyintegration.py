@@ -15,6 +15,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with StratoSource.  If not, see <http://www.gnu.org/licenses/>.
 #    
+import json
 import urllib
 import requests
 from stratosource.admin.management import ConfigCache
@@ -77,7 +78,7 @@ def load_projects(session, name, projectList):
         
     if len(projectList) > 0:
         for project in projectList:
-            projectDetail = session.get(project['_ref']).json
+            projectDetail = json.loads(session.get(project['_ref']))
 
             proj = RallyProject(name + projectDetail['Project']['_refObjectName'], projectDetail['Project']['_ref'], load_projects(session, name + projectDetail['Project']['_refObjectName'], projectDetail['Project']['Children']), projectDetail['Project']['Iterations'])
             if len(proj.children) > 0 or len(proj.sprints) > 0:
@@ -111,14 +112,14 @@ def get_projects(leaves):
 
     # Get workspace:
     projects = []
-    workspaces = session.get('https://' + settings.RALLY_SERVER + '/slm/webservice/' + settings.RALLY_REST_VERSION + '/workspace.js').json
+    workspaces = json.loads(session.get('https://' + settings.RALLY_SERVER + '/slm/webservice/' + settings.RALLY_REST_VERSION + '/workspace.js'))
 
     logger.debug('Workspaces returned: ' + str(workspaces['QueryResult']['TotalResultCount']))
 
     if workspaces['QueryResult']['TotalResultCount'] > 0:
         for ws in workspaces['QueryResult']['Results']:
             logger.debug('Workspace: ' + ws['_refObjectName'] + ' url "' + ws['_ref'] + '"')
-            wsDetails = session.get(ws['_ref']).json
+            wsDetails = json.loads(session.get(ws['_ref']))
             projects.extend(load_projects(session, ws['_refObjectName'], wsDetails['Workspace']['Projects']))
 
     print_proj_tree(projects)
@@ -147,7 +148,7 @@ def get_stories(projectIds):
         url = 'https://' + settings.RALLY_SERVER + '/slm/webservice/' + settings.RALLY_REST_VERSION + '/hierarchicalrequirement.js?query=' + urllib.quote(querystring) + '&fetch=true&start=' + str(start) + '&pagesize=' + str(pagesize)
 
         print 'Fetching url ' + url
-        queryresult = session.get(url).json
+        queryresult = json.loads(session.get(url))
 
         for result in queryresult['QueryResult']['Results']:
             story = Story()
