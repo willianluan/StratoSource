@@ -20,10 +20,10 @@ import logging.config
 from django.core.management.base import BaseCommand, CommandError
 from django.core.exceptions import ObjectDoesNotExist
 from stratosource.admin.models import Release, Repo, DeployableObject
-from admin.management import Utils, labels
+from stratosource.admin.management import Utils, labels
 import os
 from lxml import etree
-import admin.management.CSBase # used to initialize logging
+import stratosource.admin.management.CSBase # used to initialize logging
 from pyExcelerator.Workbook import *
 
 
