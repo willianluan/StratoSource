@@ -185,6 +185,7 @@ def editbranch(request, branch_id):
 #            row.api_ver = cleaned_data.get('api_ver')
             row.api_pod = cleaned_data.get('api_pod')
             row.api_assets = ','.join(cleaned_data.get('api_assets'))
+            row.enabled = cleaned_data.get('enabled')
             row.cron_enabled = cleaned_data.get('cron_enabled')
             row.cron_type = cleaned_data.get('cron_type')
             row.cron_interval = cleaned_data.get('cron_interval')

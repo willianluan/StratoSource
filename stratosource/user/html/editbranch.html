@@ -171,6 +171,19 @@
 
                         <tr>
                             <td align="right">
+                                <label for="id_enabled">Branch Enabled:</label>
+                                {{ form.enabled.errors }}
+                            </td>
+                            <td>
+                                {{ form.enabled }}
+                            </td>
+                            <td>
+                                Whether or not this branch is active.
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td align="right">
                                 <label for="id_cron_type">cron Enabled:</label>
                                 {{ form.cron_enabled.errors }}
                             </td>

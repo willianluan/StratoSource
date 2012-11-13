@@ -320,7 +320,7 @@ def addtostory(request):
 
 def get_release_tasks(request, release_id):
     release = Release.objects.get(id=release_id)
-    branches = Branch.objects.all()
+    branches = Branch.objects.filter(enabled__exact = True)
 
     tasks = ReleaseTask.objects.filter(release=release).order_by('order')
     
