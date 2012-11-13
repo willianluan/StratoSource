@@ -16,7 +16,7 @@
 #    along with StratoSource.  If not, see <http://www.gnu.org/licenses/>.
 #    
 from datetime import datetime
-from stratosource.admin.models import Release, Story, Branch, DeployableObject, DeployableTranslation, ReleaseTask
+from stratosource.admin.models import Release, Story, Branch, DeployableObject, DeployableTranslation, ReleaseTask, SalesforceUser
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
@@ -321,6 +321,7 @@ def addtostory(request):
 def get_release_tasks(request, release_id):
     release = Release.objects.get(id=release_id)
     branches = Branch.objects.filter(enabled__exact = True)
+    users = SalesforceUser.objects.all().order_by('name')
 
     tasks = ReleaseTask.objects.filter(release=release).order_by('order')
     
@@ -330,7 +331,7 @@ def get_release_tasks(request, release_id):
     for branch in branches:
         branch.tid = str(branch.id)
     
-    data = {'success':True, 'tasks': tasks, 'branches': branches, 'readonly' : request.GET.__contains__('readonly')}
+    data = {'success':True, 'tasks': tasks, 'branches': branches, 'readonly' : request.GET.__contains__('readonly'), 'users' : users}
 
     return render_to_response('release_tasks_ajax.html', data, context_instance=RequestContext(request))
     
@@ -363,6 +364,11 @@ def edit_release_task(request):
         newVal = request.GET['newVal']
         task.name = newVal
 
+    if request.GET.__contains__('user_id'):
+        user_id = request.GET['user_id']
+        task.user = SalesforceUser.objects.get(id=user_id)
+
+        
     if request.GET.__contains__('done'):
         is_done = request.GET['done'] == 'true'
         task.done_in_branch_list = task.done_in_branch.split(',')

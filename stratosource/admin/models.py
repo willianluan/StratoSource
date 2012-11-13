@@ -100,7 +100,7 @@ class Story(models.Model):
 
     def __unicode__(self):
         return self.name + " " + self.rally_id
-
+        
 class Commit(models.Model):
     STATUS_TYPES = (('p','Pending Analysis'),('c','Complete'))
 
@@ -127,12 +127,6 @@ class Release(models.Model):
     def __unicode__(self):
         return self.name
     
-class ReleaseTask(models.Model):
-    name =           models.CharField(max_length=1000)
-    done_in_branch = models.CharField(max_length=100)
-    order =          models.IntegerField(default=0)
-    release =        models.ForeignKey(Release, db_index=True)  
-
 class DeployableObject(models.Model):
     STATUS_TYPES = (('a','Active'),('d','Deleted'))
     RELEASE_STATUS = (('r','Released'),('c','Changed'),('p','Pending Release'),('e','Conflicting'))
@@ -180,6 +174,14 @@ class SalesforceUser(models.Model):
     name        = models.CharField(max_length=100, blank=False, null=False, db_index=True)
     email       = models.CharField(max_length=100, blank=False, null=False)
 
+class ReleaseTask(models.Model):
+    name =           models.CharField(max_length=1000)
+    done_in_branch = models.CharField(max_length=100)
+    order =          models.IntegerField(default=0)
+    user =           models.ForeignKey(SalesforceUser, blank=True, null=True, db_index=True)  
+    release =        models.ForeignKey(Release, blank=True, null=True, db_index=True)
+    story =          models.ForeignKey(Story, blank=True, null=True, db_index=True)
+    
 class UserChange(models.Model):
     branch =    models.ForeignKey(Branch, db_index=True)
     apex_id   = models.CharField(max_length=20, blank=True, null=True, unique=False)

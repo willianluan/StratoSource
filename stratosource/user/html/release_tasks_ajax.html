@@ -1,9 +1,22 @@
                             {% for task in tasks %}
                                 <tr id="{{ task.id }}">
                                     <td style="white-space:normal;" id="{{ task.id }}Name" {% if not readonly %}onclick="editTask('{{ task.id }}');{% endif %} return false;">{{ task.name }}</td>
+                                    <td class="align_left">
+                                        {% if not readonly %}
+                                        <select name='cboUser' onchange="updateTaskUser('{{ release.id }}', '{{ task.id }}', this.options[this.selectedIndex].value, '{{ branch.id }}', '{{ task.id }}')">
+                                            <option value="">-- Anyone --</option>
+                                            {% for u in users %}
+                                            <option value="{{ u.id }}" {% if task.user.id == u.id %}selected{% endif %}>{{ u.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        {% else %}
+                                            {{ task.user.name }}
+                                        {% endif %}
+                                    </td>
                                     {% for branch in branches %}
                                     <td class="align_center">
-                                        <input type="checkbox" onchange="flagTask('{{ release.id }}', '{{ task.id }}', this.checked, '{{ branch.id }}')" name="{{ task.id }}" {% if branch.tid in task.done_in_branch_list %}checked{% endif %}></td>
+                                        <input type="checkbox" onchange="flagTask('{{ release.id }}', '{{ task.id }}', this.checked, '{{ branch.id }}')" name="{{ task.id }}" {% if branch.tid in task.done_in_branch_list %}checked{% endif %}>
+                                    </td>
                                     {% endfor %}
                                     {% if not readonly %}
                                     <td class="align_center" style="white-space:nowrap;">

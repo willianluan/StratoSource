@@ -106,6 +106,15 @@ function saveTask(id, branch_id){
     });    
 }
 
+function updateTaskUser(release_id, id, user_id, branch_id){
+    jQuery.ajax({
+      url: "/ajax/editreleasetask/?rel_id=" + release_id + "&task_id=" + id + '&branch_id=' + branch_id + '&user_id=' + user_id,
+      success: function(){
+      }
+    });
+    
+}
+
 // Return a helper with preserved width of cells
 var fixHelper = function(e, ui) {
     ui.children().each(function() {
