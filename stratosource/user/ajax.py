@@ -23,6 +23,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.utils import simplejson
 from django.db import transaction
+from stratosource.user import calendar
 import logging
 import traceback
 
@@ -38,8 +39,13 @@ def createrelease(request):
             release.est_release_date = request.GET['estRelDate']
             release.save()
             results = {'success':True}
+
+            reldate = datetime.strptime(release.est_release_date + 'T09:09:09', '%Y-%m-%dT%H:%M:%S')
+            calendar.addCalendarReleaseEvent(release.id, release.name, reldate)
+
         except Exception as ex:
             results = {'success':False, 'error':ex}
+
 
     json = simplejson.dumps(results)
     return HttpResponse(json, mimetype='application/json')
@@ -54,7 +60,11 @@ def updatereleasedate(request):
 
             release.est_release_date = date
             release.save()
-            results = {'success':True}
+            results = {'success':True,'date':date}
+            
+            reldate = datetime.strptime(date + 'T09:09:09', '%Y-%m-%dT%H:%M:%S')
+            calendar.updateCalendarReleaseEvent(release.id, reldate)
+
         except Exception as ex:
             results = {'success':False, 'error':ex}
 
@@ -66,6 +76,8 @@ def deleterelease(request):
 
     if request.method == u'GET':
         try:
+            calendar.removeCalendarReleaseEvent(request.GET['id'])
+
             release = Release.objects.get(id=request.GET['id'])
             release.delete()
             results = {'success':True}
