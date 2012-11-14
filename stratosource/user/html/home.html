@@ -9,77 +9,74 @@ Home
 
     <div id="content" class="colMS">
         <div id="content-main">
-            <table>
-                <tr style="background-color: transparent;">
-                    <td style="vertical-align: top;">
-                        <div class="module">
-                            <table style="width: 100%;">
-                                <caption><a href="" class="section">Environments</a></caption>
-                    {% for branch in branches %}
-                                <tr>
-                                    <td scope="row" class="biggertext" colspan="5">
-                                        <strong><a href="/unreleased/{{branch.repo.name}}/{{branch.name}}">{{ branch.repo.name|upper }} - {{ branch.name|upper }}</a></strong>
-                                    </td>
-                                </tr>
-                    {% endfor %}
-                            </table>
-                        </div>
-                        <br/>
-                        <div class="module">
-                            <table style="width: 100%;">
-                                <caption><a href="" class="section">System Monitoring</a></caption>
-                                <tr>
-                                    <td class="biggertext">
-                                        <strong><a href="/unit_testing_results/">Unit Testing Results</a></strong>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="biggertext">
-                                        <strong><a href="/unit_testing_admin/">Configure Unit Testing Schedule</a></strong>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </td>
-                    <td style="vertical-align: top;">
-                        <div class="module">
-                            <table style="width: 100%;">
-                                <caption><a href="" class="section">General Administration</a></caption>
-                                <tr>
-                                    <td class="biggertext">
-                                        <strong><a href="/stories">Manage Stories</a></strong>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="biggertext">
-                                        <strong><a href="/releases">Manage Releases</a></strong>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="biggertext">
-                                        <strong><a href="/configs/">Manage Configuration</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="biggertext">
-                                        <strong><a href="/admin/">Manage Repositories & Branches</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="biggertext">
-                                        <strong><a href="/cgit/">Browse GIT Repositories</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="biggertext">
-                                        <strong><a href="/repos/">Browse Raw Respository Data</a>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </td>
-                </tr>
-            </table>
+            <div class="module">
+                <table style="width: 100%;">
+                    <caption><a href="" class="section">Environments</a></caption>
+        {% for branch in branches %}
+                    <tr>
+                        <td scope="row" class="biggertext" colspan="5">
+                            <strong><a href="/unreleased/{{branch.repo.name}}/{{branch.name}}">{{ branch.repo.name|upper }} - {{ branch.name|upper }}</a></strong>
+                        </td>
+                    </tr>
+        {% endfor %}
+                </table>
+            </div>
+            <br/>
+            <div class="module">
+                <table style="width: 100%;">
+                    <caption><a href="" class="section">System Monitoring</a></caption>
+                    <tr>
+                        <td class="biggertext">
+                            <strong><a href="/unit_testing_results/">Unit Testing Results</a></strong>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="biggertext">
+                            <strong><a href="/unit_testing_admin/">Configure Unit Testing Schedule</a></strong>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <br/>
+            <div class="module">
+                <table style="width: 100%;">
+                    <caption><a href="" class="section">General Administration</a></caption>
+                    <tr>
+                        <td class="biggertext">
+                            <strong><a target="_blank" href="/wdcalendar/cal.php?returl=/">Calendar</a></strong>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="biggertext">
+                            <strong><a href="/stories">Manage Stories</a></strong>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="biggertext">
+                            <strong><a href="/releases">Manage Releases</a></strong>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="biggertext">
+                            <strong><a href="/configs/">Manage Configuration</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="biggertext">
+                            <strong><a href="/admin/">Manage Repositories & Branches</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="biggertext">
+                            <strong><a href="/cgit/">Browse GIT Repositories</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="biggertext">
+                            <strong><a href="/repos/">Browse Raw Respository Data</a>
+                        </td>
+                    </tr>
+                </table>
         </div>
     </div>
 
