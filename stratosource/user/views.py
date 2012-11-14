@@ -228,9 +228,9 @@ def manifest(request, release_id):
     manifest = []
     branch = Branch()
     
-    if request.method == u'POST' and request.POST.get('cboFromBranch') != 'none':
+    if request.GET.__contains__('branch'):
         
-        branch = Branch.objects.get(id=request.POST.get('cboFromBranch'))
+        branch = Branch.objects.get(id=request.GET.get('branch'))
         for story in release.stories.all():
             deployables = DeployableObject.objects.filter(pending_stories=story, branch=branch)
             dep_objects = DeployableObject.objects.filter(released_stories=story, branch=branch)
