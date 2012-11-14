@@ -263,7 +263,7 @@ tfoot td {
     color: #666;
     padding: 2px 5px;
     font-size: 11px;
-    background: #e1e1e1 url(../img/nav-bg.gif) top left repeat-x;
+    background: #e1e1e1 url(../images/nav-bg.gif) top left repeat-x;
     border-left: 1px solid #ddd;
     border-bottom: 1px solid #ddd;
 }
@@ -334,7 +334,7 @@ table thead th .text a {
 }
 
 table thead th.sortable:hover {
-    background: white url(../img/nav-bg-reverse.gif) 0 -5px repeat-x;
+    background: white url(../images/nav-bg-reverse.gif) 0 -5px repeat-x;
 }
 
 thead th.sorted a.sortremove {
@@ -427,7 +427,7 @@ input[type=text], input[type=password], textarea, select, .vTextField {
 /* FORM BUTTONS */
 
 .button, input[type=submit], input[type=button], .submit-row input {
-    background: white url(../img/nav-bg.gif) bottom repeat-x;
+    background: white url(../images/nav-bg.gif) bottom repeat-x;
     padding: 3px 5px;
     color: black;
     border: 1px solid #bbb;
@@ -435,12 +435,12 @@ input[type=text], input[type=password], textarea, select, .vTextField {
 }
 
 .button:active, input[type=submit]:active, input[type=button]:active {
-    background-image: url(../img/nav-bg-reverse.gif);
+    background-image: url(../images/nav-bg-reverse.gif);
     background-position: top;
 }
 
 .button[disabled], input[type=submit][disabled], input[type=button][disabled] {
-	background-image: url(../img/nav-bg.gif);
+	background-image: url(../images/nav-bg.gif);
 	background-position: bottom;
 	opacity: 0.4;
 }
@@ -598,7 +598,7 @@ div.system-message p.system-message-title {
 /* BREADCRUMBS */
 
 div.breadcrumbs {
-    background: white url(../img/nav-bg-reverse.gif) 0 -10px repeat-x;
+    background: white url(../images/nav-bg-reverse.gif) 0 -10px repeat-x;
     padding: 2px 8px 3px 8px;
     font-size: 11px;
     color: #999;
@@ -829,7 +829,7 @@ table#change-history tbody th {
 }
 
 #content-related .module h2 {
-    background: #eee url(../img/nav-bg.gif) bottom left repeat-x;
+    background: #eee url(../images/nav-bg.gif) bottom left repeat-x;
     color: #666;
 }
 
