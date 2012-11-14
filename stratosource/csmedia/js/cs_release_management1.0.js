@@ -90,7 +90,7 @@ function cancelEdit(){
     if (editingTask == ''){
         return true;
     } else {
-        if (!confirm('Are you sure? You will loose changes on the current item you are editing.')){
+        if (!confirm('Are you sure? You will lose changes on the current item you are editing.')){
             return false;
         }
     }
