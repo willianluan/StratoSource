@@ -433,6 +433,7 @@ def instory(request, story_id):
     story = Story.objects.get(id=story_id)
     branches = []
     dep_branches = []
+    all_branches = Branch.objects.filter(enabled__exact = True)
     
     if request.method == u'GET' and request.GET.__contains__('remove'):
         obj = DeployableObject.objects.get(id=request.GET['assoc'])
@@ -483,8 +484,10 @@ def instory(request, story_id):
     for trans in dep_translations:
         if trans.branch not in dep_branches:
             dep_branches.append(trans.branch)
+            
+    releases = Release.objects.filter(released=False,stories__id=story.id)
 
-    data = {'story': story, 'objects': objects, 'dep_objects': dep_objects, 'translations': translations, 'dep_translations': dep_translations, 'branches': branches, 'dep_branches': dep_branches}
+    data = {'story': story, 'objects': objects, 'dep_objects': dep_objects, 'translations': translations, 'dep_translations': dep_translations, 'branches': branches, 'dep_branches': dep_branches, 'all_branches': all_branches, 'releases': releases}
     if request.method == u'GET' and request.GET.__contains__('branch_name') and request.GET.__contains__('repo_name'):
         data['branch_name'] = request.GET['branch_name']
         data['repo_name'] = request.GET['repo_name']

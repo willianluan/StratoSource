@@ -54,6 +54,7 @@
                             <thead>
                                 <tr>
                                     <th style="width:100%;" scope="row">Task</th>
+                                    <th class="align_center">From Story</th>
                                     <th class="align_center">Assigned To</th>
                                     {% for branch in branches %}
                                     <th class="align_center" style="padding-left: 5px;padding-right: 5px;">Done on:<br/>{{ branch.repo.name|upper }}-{{ branch.name|upper }}</th>

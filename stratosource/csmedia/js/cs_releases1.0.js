@@ -41,12 +41,16 @@ function createRelease(branch){
       url: "/ajax/createrelease",
       cache: false,
       data: "branch=" + encodeURI(branch) + "&name=" + encodeURI($( "#relName" + branch ).val()) + "&estRelDate=" +  $( "#estRelDate" + branch ).val(),
-      success: function(html){
-        refreshReleases(branch);
-        $("#createRelease" + branch).hide();
-        $("#createReleaseLink" + branch).show();
-        $( "#estRelDate" + branch ).val('');
-        $( "#relName" + branch ).val('');
+      success: function(data){
+          if (!data.success){
+               alert(data.error)
+          } else {
+               refreshReleases(branch);
+               $("#createRelease" + branch).hide();
+               $("#createReleaseLink" + branch).show();
+               $( "#estRelDate" + branch ).val('');
+               $( "#relName" + branch ).val('');
+          }
       }
     });
 }

@@ -11,6 +11,23 @@
 -> {{story.rally_id}}
 {% endblock %}
 
+{% block jscript %}
+    <script type="text/javascript">
+        release_id = null;
+        story_id = '{{story.id}}';
+        $(document).ready(function() {
+            refreshTasks();
+        
+            jQuery("#sortable tbody").sortable({
+                helper: fixHelper,
+                update: updateHelper
+            })
+        });
+    </script>
+    <script src="/csmedia/js/cs_release_management1.0.js" type="text/javascript"></script>
+    <script src="/csmedia/js/cs_releases1.0.js" type="text/javascript"></script>
+{% endblock %}
+
 {% block content %}
 
     <div id="content" class="colMS">
@@ -21,6 +38,52 @@
                 <br/><br/>{{story.name}}
                 <br/><br/>
             </div>
+            <br/>
+            <div class="module">
+                <div class="section">
+                        <span class="section">Release Tasks</span>
+                </div>
+                <div style="padding: 10px;">
+                    <table style="min-width:500px;" id="sortable">
+                        <thead>
+                            <tr>
+                                <th style="width:100%;" scope="row">Task</th>
+                                <th class="align_center">Assigned To</th>
+                                {% for branch in all_branches %}
+                                <th class="align_center" style="padding-left: 5px;padding-right: 5px;">Done on:<br/>{{ branch.repo.name|upper }}-{{ branch.name|upper }}</th>
+                                {% endfor %}
+                                <th class="align_center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="taskList">
+                        </tbody>
+                    </table>
+                    <table style="min-width:500px;">
+                        <tr>
+                            <td>
+                                <textarea id="taskName" name="taskName" cols="100" rows="2"></textarea>
+                                <input type="button" onclick="addTask();" value="Add"/>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <br/>
+            {% if releases|length > 0 %}
+            <div class="module">
+                <div class="section">
+                        <span class="section">In Releases</span>
+                </div>
+                <div style="padding: 10px;">
+                    <ul>
+                        {% for release in releases %}
+                        <li><a href="/release/{{release.id}}">{{release.name}} - Estimated Release Date: {{release.est_release_date}}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <br/>
+            {% endif %}
             <div class="module ObjectsList">
                 <table>
                     <caption><a href="" class="section">Objects Pending Deployment</a></caption>

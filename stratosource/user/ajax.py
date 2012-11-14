@@ -23,6 +23,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.utils import simplejson
 from django.db import transaction
+from django.db.models import Q
 import logging
 import traceback
 
@@ -318,12 +319,17 @@ def addtostory(request):
     json = simplejson.dumps(results)
     return HttpResponse(json, mimetype='application/json')
 
-def get_release_tasks(request, release_id):
-    release = Release.objects.get(id=release_id)
+def get_release_tasks(request, type, id):
+    if type == 'r':
+        release = Release.objects.get(id=id)
+        tasks = ReleaseTask.objects.filter(Q(release=release) | Q(story__in=release.stories.all())).order_by('order')
+    else:
+        story = Story.objects.get(id=id)
+        tasks = ReleaseTask.objects.filter(story=story).order_by('order')
+    
     branches = Branch.objects.filter(enabled__exact = True)
     users = SalesforceUser.objects.all().order_by('name')
 
-    tasks = ReleaseTask.objects.filter(release=release).order_by('order')
     
     for task in tasks:
         task.done_in_branch_list = task.done_in_branch.split(',')
@@ -331,17 +337,21 @@ def get_release_tasks(request, release_id):
     for branch in branches:
         branch.tid = str(branch.id)
     
-    data = {'success':True, 'tasks': tasks, 'branches': branches, 'readonly' : request.GET.__contains__('readonly'), 'users' : users}
+    data = {'success':True, 'tasks': tasks, 'branches': branches, 'readonly' : request.GET.__contains__('readonly'), 'users' : users, 'type': type}
 
     return render_to_response('release_tasks_ajax.html', data, context_instance=RequestContext(request))
     
 def add_release_task(request):
     results = {'success':False}
     try:
-        release_id = request.GET['rel_id']
-        release = Release.objects.get(id=release_id)
         task = ReleaseTask()
-        task.release = release
+        if request.GET.__contains__('rel_id') and request.GET['rel_id'] != 'null':
+            release = Release.objects.get(id=request.GET['rel_id'])
+            task.release = release
+        if request.GET.__contains__('story_id') and request.GET['story_id'] != 'null':
+            story = Story.objects.get(id=request.GET['story_id'])
+            task.story = story
+            
         task.order = 999
         task.name = request.GET['task']
         task.save()

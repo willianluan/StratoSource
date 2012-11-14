@@ -1,6 +1,13 @@
                             {% for task in tasks %}
                                 <tr id="{{ task.id }}">
                                     <td style="white-space:normal;" id="{{ task.id }}Name" {% if not readonly %}onclick="editTask('{{ task.id }}');{% endif %} return false;">{{ task.name }}</td>
+                                    {% if type == 'r' %}
+                                    <td class="align_center">
+                                        {% if task.story %}
+                                            <a href="/instory/{{ task.story.id }}">{{task.story.rally_id}}</a>
+                                        {% endif %}
+                                    </td>
+                                    {% endif %}
                                     <td class="align_left">
                                         {% if not readonly %}
                                         <select name='cboUser' onchange="updateTaskUser('{{ release.id }}', '{{ task.id }}', this.options[this.selectedIndex].value, '{{ branch.id }}', '{{ task.id }}')">

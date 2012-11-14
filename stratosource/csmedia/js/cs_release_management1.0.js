@@ -6,8 +6,12 @@ editingTask = '';
 lastValue = '';
 
 function refreshTasks(){
+    id = 'r' + release_id;
+    if (release_id == null){
+        id = 's' + story_id;
+    }
     if (cancelEdit()){
-        jQuery('#taskList').load('/ajax/releasetasks/' + release_id);
+        jQuery('#taskList').load('/ajax/releasetasks/' + id);
         editingTask = '';
         lastValue = '';
     }
@@ -21,10 +25,14 @@ function addTask(){
     task = jQuery('#taskName').val();
     if (task != null && task != ''){
         jQuery.ajax({
-          url: "/ajax/addreleasetask/?rel_id=" + release_id + "&task=" + escape(task),
-          success: function(){
-            refreshTasks();
-            jQuery('#taskName').val('');
+          url: "/ajax/addreleasetask/?rel_id=" + release_id + '&story_id=' + story_id + "&task=" + escape(task),
+          success: function(data){
+            if (!data.success){
+                alert('ERROR: ' + data.error);
+            } else {
+                refreshTasks();
+                jQuery('#taskName').val('');
+            }
           }
         });
     }
@@ -33,9 +41,12 @@ function addTask(){
 
 function flagTask(release_id, id, is_checked, branch_id){
     jQuery.ajax({
-      url: "/ajax/editreleasetask/?rel_id=" + release_id + "&task_id=" + id + '&done=' + is_checked + '&branch_id=' + branch_id,
-      success: function(){
-      }
+        url: "/ajax/editreleasetask/?rel_id=" + release_id + "&task_id=" + id + '&done=' + is_checked + '&branch_id=' + branch_id,
+        success: function(data){
+            if (!data.success){
+                alert('ERROR: ' + data.error);
+            }
+        }
     });
     
 }
@@ -43,10 +54,14 @@ function flagTask(release_id, id, is_checked, branch_id){
 function deleteTask(id){
     if (confirm('Are you sure?')){
         jQuery.ajax({
-          url: "/ajax/delreleasetask/?rel_id=" + release_id + "&task_id=" + id,
-          success: function(){
-            refreshTasks();
-          }
+            url: "/ajax/delreleasetask/?rel_id=" + release_id + "&task_id=" + id,
+            success: function(data){
+                if (!data.success){
+                    alert('ERROR: ' + data.error);
+                } else {
+                    refreshTasks();
+                }
+            }
         });
     }            
 }
@@ -97,20 +112,27 @@ function cancelEdit(){
 function saveTask(id, branch_id){
     newVal = jQuery('#taskName' + id).val();
     jQuery.ajax({
-      url: "/ajax/editreleasetask/?rel_id=" + release_id + "&task_id=" + id + '&newVal=' + escape(newVal) + '&branch_id=' + branch_id,
-      success: function(){
-        editingTask = '';
-        lastValue = '';
-        refreshTasks();
-      }
+        url: "/ajax/editreleasetask/?rel_id=" + release_id + "&task_id=" + id + '&newVal=' + escape(newVal) + '&branch_id=' + branch_id,
+        success: function(data){
+            if (!data.success){
+                alert('ERROR: ' + data.error);
+            } else {
+                editingTask = '';
+                lastValue = '';
+                refreshTasks();
+            }
+        }
     });    
 }
 
 function updateTaskUser(release_id, id, user_id, branch_id){
     jQuery.ajax({
-      url: "/ajax/editreleasetask/?rel_id=" + release_id + "&task_id=" + id + '&branch_id=' + branch_id + '&user_id=' + user_id,
-      success: function(){
-      }
+        url: "/ajax/editreleasetask/?rel_id=" + release_id + "&task_id=" + id + '&branch_id=' + branch_id + '&user_id=' + user_id,
+        success: function(data){
+            if (!data.success){
+                alert('ERROR: ' + data.error);
+            }
+        }
     });
     
 }
@@ -126,9 +148,13 @@ var fixHelper = function(e, ui) {
 var updateHelper = function(e, ui) {
     orderList = jQuery("#sortable tbody").sortable( "toArray" );
     jQuery.ajax({
-      url: "/ajax/reorderreleasetasks/?order=" + orderList,
-      success: function(){
-        refreshTasks();
-      }
+        url: "/ajax/reorderreleasetasks/?order=" + orderList,
+        success: function(data){
+            if (!data.success){
+                alert('ERROR: ' + data.error);
+            } else {
+                refreshTasks();
+            }
+        }
     });
 };

@@ -75,7 +75,7 @@ urlpatterns = patterns('',
     (r'^ajax/editreleasetask', 'stratosource.user.ajax.edit_release_task'),
     (r'^ajax/delreleasetask', 'stratosource.user.ajax.delete_release_task'),
     (r'^ajax/reorderreleasetasks', 'stratosource.user.ajax.reorder_release_tasks'),
-    (r'^ajax/releasetasks/(\d+)$', 'stratosource.user.ajax.get_release_tasks'),
+    (r'^ajax/releasetasks/(.)(\d+)$', 'stratosource.user.ajax.get_release_tasks'),
 
     (r'^repos/', 'stratosource.admin.views.repos'),
     (r'^branches/(\d+)$', 'stratosource.admin.views.branches'),
