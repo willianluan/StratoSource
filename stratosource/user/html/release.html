@@ -8,6 +8,7 @@
 {% block jscript %}
     <script type="text/javascript">
         release_id = '{{ release.id }}';
+        story_id = null;
         $(document).ready(function() {
             refreshTasks();
         });
