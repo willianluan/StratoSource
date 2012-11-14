@@ -137,21 +137,6 @@ function updateTaskUser(release_id, id, user_id, branch_id){
     
 }
 
-function enableSorting(){
-    jQuery("#sortable tbody").sortable({
-        helper: fixHelper,
-        update: updateHelper
-    })
-    jQuery("#sortUnlockButton").show();
-    jQuery("#sortLockButton").hide();
-}
-
-function disableSorting(){
-    jQuery("#sortable tbody").sortable({ cancel: "tbody" })
-    jQuery("#sortUnlockButton").hide();
-    jQuery("#sortLockButton").show();
-}
-
 // Return a helper with preserved width of cells
 var fixHelper = function(e, ui) {
     ui.children().each(function() {
@@ -173,3 +158,19 @@ var updateHelper = function(e, ui) {
         }
     });
 };
+
+function enableSorting(){
+    jQuery("#sortable tbody").sortable({
+        helper: fixHelper,
+        update: updateHelper,
+        disabled: false
+    });
+    jQuery("#sortUnlockButton").hide();
+    jQuery("#sortLockButton").show();
+}
+
+function disableSorting(){
+    jQuery("#sortable tbody").sortable({ disabled: true });
+    jQuery("#sortUnlockButton").show();
+    jQuery("#sortLockButton").hide();
+}

@@ -10,11 +10,6 @@
         release_id = '{{ release.id }}';
         $(document).ready(function() {
             refreshTasks();
-        
-            jQuery("#sortable tbody").sortable({
-                helper: fixHelper,
-                update: updateHelper
-            })
         });
     </script>
     <script src="/csmedia/js/cs_release_management1.0.js" type="text/javascript"></script>
@@ -47,8 +42,13 @@
                 </div>
                 <div class="module">
                     <div class="section">
-                            <span class="section">Release Tasks</span>
+                        <span class="section">Release Tasks</span>
+                        <span class="sectionActions">
+                            <a id="sortUnlockButton" href="#" onclick="enableSorting(); return false;">Unlock Sorting</a>
+                            <a id="sortLockButton" href="#" onclick="disableSorting(); return false;" style="display:none;">Lock Sorting</a>
+                        </span>
                     </div>
+                    
                     <div style="padding: 10px;">
                         <table style="min-width:500px;" id="sortable">
                             <thead>
