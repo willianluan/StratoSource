@@ -332,15 +332,15 @@ def unreleased(request, repo_name, branch_name):
         for delta in deltas.all():
             changelog = deltaMap.get(delta.object)
             if delta.user_change and delta.user_change.sfuser.name != '':
-                user = ' by <i>' + delta.user_change.sfuser.name + '</i>'
-                changeDate = ' at <i>' + str(delta.user_change.last_update)[:16] + '</i>'
+                user = ' by ' + delta.user_change.sfuser.name
+                changeDate = ' at ' + str(delta.user_change.last_update)[:16]
             else:
                 user = ''
                 changeDate = ''
     
             if changelog:
                 if not changelog.endswith(delta.getDeltaType() + user + changeDate):
-                    changelog += '<br/>' + delta.getDeltaType() + user + changeDate
+                    changelog += '\n' + delta.getDeltaType() + user + changeDate
     
                 deltaMap[delta.object] = changelog
             else:

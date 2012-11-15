@@ -118,9 +118,7 @@
                             {% endif %}
                         </td>
                         <td>
-                            {% autoescape off %}
-                            {{deltaMap|lookup:object}}
-                            {% endautoescape %}
+                            <a href="#" onclick="return false;" title="{% autoescape off %}{{deltaMap|lookup:object}}{% endautoescape %}">See Changes</a>
                         </td>
                         <td>
                             {% for story in object.pending_stories.all %}
