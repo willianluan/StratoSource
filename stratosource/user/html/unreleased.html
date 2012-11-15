@@ -32,27 +32,47 @@
                 </span>
             </div>
             <div class="actionBar">
-                <span style="text-align: left;">
-                    <strong>Filter Objects by: </strong>
-                    Date: <input name="startDate" type="text" id="startDate" value="{{ startDate|date:"m/d/Y" }}" style="width: 60px;"> to <input name="endDate" type="text" id="endDate" value="{{ endDate|date:"m/d/Y" }}" style="width: 60px;"> <strong>&nbsp;|&nbsp;</strong>
-                    <!-- Include Released: <input type="checkbox" id="showAll" onchange="includeReleased(this.checked);"/> <strong>&nbsp;|&nbsp;</strong> -->
-                    Text: <input type="text" id="txtSearch" id="txtSearch" value="{{ search }}"/> <strong>&nbsp;|&nbsp;</strong>
-                    <span>
-                        Modified by:
-                        <select name="cboUserName" id="cboUserName">
-                            <option value="">-- Anyone --</option>
-                            {% for user in users %}
-                            <option value="{{ user }}" {% if user == username %}selected{% endif %}>{{ user }}</option>
-                            {% endfor %}
-                        </select>
-                    </span> 
-                    <input type="button" onclick="refreshFilters();" value="Search!">
-                </span>
-                <span style="text-align: right; float: right;">
-                    <strong>Select: </strong>
-                    Matching <a href="http://www.javascriptkit.com/javatutors/redev2.shtml" target="_blank">REGEX:</a> <input type="text" id="filter" name="filter"> <input type="button" onclick="selectFiltered();" value="GO"/> <strong>&nbsp;|&nbsp;</strong>
-                    All: <input type="checkbox" id="chkAll" onchange="flagAll(this.checked);"/>
-                </span>
+                <div>
+                    <div style="height:50px; display: inline-block;  text-align: center;">
+                        <span class="sectionHeader" style="padding: 5px; margin-bottom: 5px; width: 100%; text-align: center; display: inline-block;">
+                            <strong>Filter</strong>
+                        </span>
+                        <span style="text-align: left; display: inline-block;">
+                            Modified: <input name="startDate" type="text" id="startDate" value="{{ startDate|date:"m/d/Y" }}" style="width: 60px;"> to <input name="endDate" type="text" id="endDate" value="{{ endDate|date:"m/d/Y" }}" style="width: 60px;"> <strong>&nbsp;+&nbsp;</strong>
+                            Contains: <input type="text" id="txtSearch" id="txtSearch" value="{{ search }}"/> <strong>&nbsp;+&nbsp;</strong>
+                            <span>
+                                Type:
+                                <select name="cboType" id="cboType">
+                                    <option value="">-- All Types --</option>
+                                    {% for type in objectTypes %}
+                                    <option value="{{ type }}" {% if type == selectedType %}selected{% endif %}>{{ type|capfirst }}</option>
+                                    {% endfor %}
+                                </select>
+                            </span>  <strong>&nbsp;+&nbsp;</strong>
+                            <span>
+                                Modified by:
+                                <select name="cboUserName" id="cboUserName">
+                                    <option value="">-- Anyone --</option>
+                                    {% for user in users %}
+                                    <option value="{{ user }}" {% if user == username %}selected{% endif %}>{{ user }}</option>
+                                    {% endfor %}
+                                </select>
+                            </span> 
+                            <input type="button" onclick="refreshFilters();" value="Search!">
+                        </span>
+                    </div>
+                    {% if objects|length > 0 %}
+                    <div style="height:50px; display:inline-block; text-align: center; float:right;">
+                        <span class="sectionHeader" style="padding: 5px; margin-bottom: 5px; width: 100%; text-align: center; display: inline-block;">
+                            <strong>Select</strong>
+                        </span>
+                        <span style="display: inline-block;">
+                            Matching <a href="http://www.javascriptkit.com/javatutors/redev2.shtml" target="_blank">REGEX:</a> <input type="text" id="filter" name="filter"> <input type="button" onclick="selectFiltered();" value="GO"/> <strong>&nbsp;/&nbsp;</strong>
+                            All: <input type="checkbox" id="chkAll" onchange="flagAll(this.checked);"/>
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
             <div class="module ObjectsList">
                 {% for object in objects %}

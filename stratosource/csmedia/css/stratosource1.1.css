@@ -33,7 +33,6 @@ body {
 }
 
 .section {
-    background:url("/media/img/admin/default-bg.gif") repeat-x scroll left top #7CA0C7;
     color: white;
     font-size: 12pt;
     font-weight:bold;
@@ -44,8 +43,8 @@ body {
 }
 
 .sectionBase {
-    background:url("/media/img/admin/default-bg.gif") repeat-x scroll left top #7CA0C7;
-    padding:2px 5px 3px;
+    background: #07223F;
+    padding:0px 5px 0px;
     font-size:11px;
 }
 
@@ -98,6 +97,7 @@ td, th {
 .ObjectsList {
     vertical-align: middle;
     width: 100%;
+    padding: 4px;
 }
 
 .dashboard #content {
@@ -145,7 +145,7 @@ td, th {
 }
 
 .sectionHeader {
-    background: #274C91;
+    background: #4585C1;
     color:white;
     font-weight:bold;
     margin:0;
@@ -247,11 +247,15 @@ input, textarea, select, .form-row p {
 }
 
 .module caption, .section, .sectionBase{
-    background:url('http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/themes/dot-luv/images/ui-bg_dots-small_40_00498f_2x2.png');
+    background: #265889;
 }
 
 .align_center {
     text-align:center;
     vertical-align: middle;
     padding: 2px;
+}
+
+#ui-datepicker-div {
+    display:none;
 }

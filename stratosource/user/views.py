@@ -282,8 +282,13 @@ def unreleased(request, repo_name, branch_name):
     go = ''
     search = ''
     username = ''
+    type = ''
     endDate = date.today()
     startDate = endDate + timedelta(days=-60)
+    objectTypesData = DeployableObject.objects.values('type').order_by('type').distinct()
+    objectTypes = list()
+    for type in objectTypesData:
+        objectTypes.append(type['type'])
 
     if request.method == u'GET':
         if request.GET.__contains__('go'):
@@ -296,6 +301,9 @@ def unreleased(request, repo_name, branch_name):
             startDate =  datetime.strptime(request.GET['startDate'],"%m/%d/%Y")
         if request.GET.__contains__('endDate'):
             endDate = datetime.strptime(request.GET['endDate'],"%m/%d/%Y")
+        if request.GET.__contains__('type'):
+            type = request.GET['type']
+            
         
     uiEndDate = endDate
     endDate = endDate + timedelta(days=1)
@@ -315,6 +323,8 @@ def unreleased(request, repo_name, branch_name):
         if len(search) > 0:
             deltas = deltas.extra(where=['(filename LIKE \'%%' + search + '%%\' or type LIKE \'%%' + search + '%%\' or el_type LIKE \'%%' + search + '%%\' or el_subtype LIKE \'%%' + search + '%%\' or el_name LIKE \'%%' + search + '%%\')'])
             
+        if len(type) > 0:
+            deltas = deltas.extra(where=['type = \'' + type + '\''])
             
         deltas = deltas.order_by('object__type','object__filename','object__el_type','object__el_subtype','object__el_name','commit__date_added')
 
@@ -355,7 +365,9 @@ def unreleased(request, repo_name, branch_name):
         'users': users,
         'search': search,
         'username': username,
-        'go': go
+        'go': go,
+        'objectTypes': objectTypes,
+        'selectedType': type
     }    
     return render_to_response('unreleased.html', data, context_instance=RequestContext(request))
 

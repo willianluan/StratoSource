@@ -205,7 +205,8 @@ function refreshFilters(){
     var username = $("#cboUserName").val();
     var endDate = $("#endDate").val();
     var startDate = $("#startDate").val();
-    document.location = '?go=true&search=' + escape(search) + '&username=' + escape(username) + '&startDate=' + startDate + '&endDate=' + endDate + document.location.hash;
+    var type = $("#cboType").val();
+    document.location = '?go=true&search=' + escape(search) + '&username=' + escape(username) + '&startDate=' + startDate + '&endDate=' + endDate + '&type=' + type + document.location.hash;
 }
 
 function selectMatching(filter, uncheckNonMatch, isSelect){
