@@ -286,7 +286,8 @@ def unreleased(request, repo_name, branch_name):
     objectTypesData = DeployableObject.objects.values('type').order_by('type').distinct()
     objectTypes = list()
     for type in objectTypesData:
-        objectTypes.append(type['type'])
+        if type['type'] != '':
+            objectTypes.append(type['type'])
 
     if request.method == u'GET':
         if request.GET.__contains__('go'):
