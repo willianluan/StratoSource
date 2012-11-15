@@ -365,7 +365,7 @@ def unreleased(request, repo_name, branch_name):
         'username': username,
         'go': go,
         'objectTypes': objectTypes,
-        'selectedType': type
+        'selectedType': typeFilter
     }    
     return render_to_response('unreleased.html', data, context_instance=RequestContext(request))
 
