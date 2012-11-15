@@ -280,7 +280,7 @@ def unreleased(request, repo_name, branch_name):
     go = ''
     search = ''
     username = ''
-    type = ''
+    typeFilter = ''
     endDate = date.today()
     startDate = endDate + timedelta(days=-60)
     objectTypesData = DeployableObject.objects.values('type').order_by('type').distinct()
@@ -300,7 +300,7 @@ def unreleased(request, repo_name, branch_name):
         if request.GET.__contains__('endDate'):
             endDate = datetime.strptime(request.GET['endDate'],"%m/%d/%Y")
         if request.GET.__contains__('type'):
-            type = request.GET['type']
+            typeFilter = request.GET['type']
             
         
     uiEndDate = endDate
@@ -321,8 +321,8 @@ def unreleased(request, repo_name, branch_name):
         if len(search) > 0:
             deltas = deltas.extra(where=['(filename LIKE \'%%' + search + '%%\' or type LIKE \'%%' + search + '%%\' or el_type LIKE \'%%' + search + '%%\' or el_subtype LIKE \'%%' + search + '%%\' or el_name LIKE \'%%' + search + '%%\')'])
             
-        if len(type) > 0:
-            deltas = deltas.extra(where=['type = \'' + type + '\''])
+        if len(typeFilter) > 0:
+            deltas = deltas.extra(where=['type = \'' + typeFilter + '\''])
             
         deltas = deltas.order_by('object__type','object__filename','object__el_type','object__el_subtype','object__el_name','commit__date_added')
 
