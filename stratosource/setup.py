@@ -33,6 +33,9 @@ for name in STANDARDCHKSETTINGS.split(','):
 for name in STANDARDPASSWORDS.split(','):
   s = ConfigSetting(key=name, value='', allow_delete=False, masked=True)
   s.save()
+  
+s = ConfigSetting(key='calendar.host', value='localhost', allow_delete=False, masked=False)
+s.save()
 
 #try:
 #    unReleased = Release.objects.get(name='Unreleased')
