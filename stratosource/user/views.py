@@ -204,14 +204,9 @@ def export_labels_form(request):
 
     return render_to_response('release_push_status.html', data, context_instance=RequestContext(request))
 
-def export_labels(request, release_id):
-    data = {'repos': Repo.objects.all() }
-    data['release_id'] = release_id
-    return render_to_response('export_labels_form.html', data, context_instance=RequestContext(request))
-
 def export_labels_form(request):
-    release_id = request.POST.get('release_id')
-    repo_idlist = request.POST.getlist('repocb')
+    release_id = request.GET.get('release_id')
+    repo_idlist = request.GET.getlist('repocb')
     if repo_idlist == None or len(repo_idlist) == 0:
         return release(request, release_id)
 

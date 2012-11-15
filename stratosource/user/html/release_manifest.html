@@ -73,13 +73,16 @@ Manifest for "{{release.name|upper}}"
             <br/>
             <div class="section">
                 <span class="section">Manifest of Changed Objects in {{release.name}}</span>
-                <!-- Hiding until package deployment is ready
                 <span class="sectionActions">
+                    {% if null != branch.id %}
+                    <a href="/export_labels_form?release_id={{release.id}}&repocb={{branch.repo.id}}">Export Labels</a>
+                    {% endif %}
+                    <!-- Hiding until package deployment is ready
                     {% if null != branch.id %}
                     <a href="/release_create_package/{{release.id}}?sourceBranchId={{branch.id}}">Create Deployment Package</a>
                     {% endif %}
+                    -->
                 </span>
-                -->
             </div>
             <table style="font-weight:bold;">
                 <tr>
