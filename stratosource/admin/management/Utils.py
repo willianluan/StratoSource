@@ -19,6 +19,7 @@ from stratosource.admin.management import CSBase
 import os
 import logging
 from stratosource.admin.management.SalesforceAgent import SalesforceAgent
+from stratosource.admin.management import ConfigCache
 
 
 __author__="mark"
@@ -39,7 +40,14 @@ def getAgentForBranch(branch, logger = None):
 
     partner_wsdl = 'file://' + os.path.join(CSBase.CSCONF_DIR, 'partner.wsdl')
     meta_wsdl = 'file://' + os.path.join(CSBase.CSCONF_DIR, 'metadata.wsdl')
-    agent = SalesforceAgent(partner_wsdl, meta_wsdl, clientLogger=logger)
+
+    proxy_host = ConfigCache.get_config_value('proxy.host')
+    proxy_port = ConfigCache.get_config_value('proxy.port')
+
+    if len(proxy_host) > 0 and len(proxy_port) > 0:
+        agent = SalesforceAgent(partner_wsdl, meta_wsdl, clientLogger=logger, proxy_host=proxy_host, proxy_port=proxy_port)
+    else:
+        agent = SalesforceAgent(partner_wsdl, meta_wsdl, clientLogger=logger)
 
     agent.login(user, password+authkey,server_url=svcurl)
     return agent

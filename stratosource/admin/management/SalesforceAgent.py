@@ -22,6 +22,7 @@ import binascii
 import datetime
 import time
 import logging
+import os
 import httplib, urllib
 import json
 from urlparse import urlparse
@@ -51,7 +52,7 @@ class Bag:
 
 class SalesforceAgent:
 
-    def __init__(self, partner_wsdl_url, metadata_wsdl_url = None, clientLogger = None):
+    def __init__(self, partner_wsdl_url, metadata_wsdl_url = None, clientLogger = None, proxy_host=None, proxy_port=None):
         if clientLogger is None:
 #            logging.basicConfig(level=logging.DEBUG)
 #            self.logname = _DEFAULT_LOGNAME
@@ -59,11 +60,21 @@ class SalesforceAgent:
         else:
             self.logger = clientLogger
         self.login_result = None
+
+        proxyDict = dict()
+        if not proxy_host is None and not proxy_port is None and len(proxy_host) > 0 and len(proxy_port) > 0:
+            proxyDict['http'] = 'http://%s:%s' % (proxy_host, proxy_port)
+            proxyDict['https'] = 'https://%s:%s' % (proxy_host, proxy_port)
+            os.environ['http_proxy'] = proxyDict['https']
+            os.environ['https_proxy'] = proxyDict['https']
+
         if metadata_wsdl_url:
-            self.meta = Client(metadata_wsdl_url)
+            self.meta = Client(metadata_wsdl_url, proxy=proxyDict)
         else:
             self.meta = None
-        self.partner = Client(partner_wsdl_url)
+        self.partner = Client(partner_wsdl_url, proxy=proxyDict)
+        self.proxy_host = proxy_host
+        self.proxy_port = proxy_port
 
     def set_logname(self, name):
         self.logname = name
