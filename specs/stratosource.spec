@@ -1,8 +1,8 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:           stratosource
-Version: 2.9.0
-Release: 3
+Version: 2.10.1
+Release: 2
 Summary:        Process git repo dumps of salesforce assets and provide web UI for the results
 
 Group:          Applications/Internet
@@ -29,6 +29,11 @@ Requires:       wget >= 1.12
 #Requires:       subversion >= 1.6.9
 Requires:       git >= 1.7.1
 Requires:       cgit >= 0.9
+#
+# Support for PHP-based calendar
+#
+Requires:       php >= 5.3.3
+Requires:       php-mysql >= 5.3.3
 
 BuildArch:      noarch
 
@@ -59,6 +64,15 @@ if [ $? -eq 1 ]; then
   cat  < /usr/django/resources/httpd-append.conf >> /etc/httpd/conf/httpd.conf 
   sed -i "s|PYTHON_SITEPKG|$SITEPKG|" /etc/httpd/conf/httpd.conf
 fi
+
+#
+# Calendaring support
+#
+eval grep wdcalendar /etc/httpd/conf/httpd.conf
+if [ $? -eq 1 ]; then
+    echo "Alias /wdcalendar/ /var/www/html/wdcalendar/" >> /etc/httpd/conf/httpd.conf
+fi
+cp -R /usr/django/resources/wdcalendar /var/www/html
 
 echo 'configure mysql'
 # fix a bug in the mysql rpm installer that does not set correct permissions
