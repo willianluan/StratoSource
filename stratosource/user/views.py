@@ -91,6 +91,8 @@ def home(request):
     data = {'branches': Branch.objects.filter(enabled__exact = True)}
 
     data['calendar_host'] = ConfigCache.get_config_value('calendar.host')
+    if data['calendar_host'] == 'localhost':
+        data['calendar_host'] = request.get_host().split(':')[0]
 
     return render_to_response('home.html', data, context_instance=RequestContext(request))
 

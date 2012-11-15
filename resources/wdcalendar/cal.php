@@ -23,7 +23,7 @@
     
     <script type="text/javascript">
         $(document).ready(function() {     
-           var view="week";          
+           var view="month";          
            
             var DATA_FEED_URL = "php/datafeed.php";
             var op = {
