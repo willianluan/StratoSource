@@ -89,6 +89,9 @@ def configs(request):
 
 def home(request):
     data = {'branches': Branch.objects.filter(enabled__exact = True)}
+
+    data['calendar_host'] = ConfigCache.get_config_value('calendar.host')
+
     return render_to_response('home.html', data, context_instance=RequestContext(request))
 
 def create_release_package(request, release_id):
