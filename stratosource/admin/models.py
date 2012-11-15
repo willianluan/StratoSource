@@ -279,20 +279,6 @@ class UnitTestSchedule(models.Model):
     cron_interval = models.IntegerField(default=1)
     cron_start = models.CharField(max_length=5, default='0')
 
-class CalendarEvent(models.Model):
-    subject     = models.CharField(max_length=1000)
-    location    = models.CharField(max_length=200, blank=True, null=True)
-    description = models.CharField(max_length=255, blank=True, null=True)
-    startTime   = models.DateTimeField()
-    endTime     = models.DateTimeField()
-    isAllDayEvent = models.IntegerField(default=0)
-    color       = models.CharField(max_length=200, blank=True, null=True)
-    recurringRule = models.CharField(max_length=500, blank=True, null=True)
-    release_id     = models.IntegerField()
-
-    class Meta:
-        managed = False
-        db_table = 'jqcalendar'
 
 
 ###

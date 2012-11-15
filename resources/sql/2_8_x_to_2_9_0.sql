@@ -9,3 +9,6 @@ ALTER TABLE `admin_releasetask` ADD CONSTRAINT `story_id_refs_id_c249e70e` FOREI
 
 CREATE INDEX `admin_releasetask_fbfc09f1` ON `admin_releasetask` (`user_id`);
 CREATE INDEX `admin_releasetask_f5ae222e` ON `admin_releasetask` (`story_id`);
+
+INSERT INTO `admin_configsetting` (`key`, `value`, `type`, `allow_delete`, `masked`) VALUES ('calendar.host','localhost',0,0);
+
