@@ -188,7 +188,7 @@ function removeCalendar($id){
       $ret['Msg'] = mysql_error();
     }else{
       $ret['IsSuccess'] = true;
-      $ret['Msg'] = 'Succes';
+      $ret['Msg'] = 'Success';
     }
 	}catch(Exception $e){
      $ret['IsSuccess'] = false;
@@ -197,12 +197,13 @@ function removeCalendar($id){
   return $ret;
 }
 
-function updateRelease($id, $st, $et, $uuid){
+function updateRelease($id, $st, $et, $subject, $uuid){
   $ret = array();
   try{
     $db = new DBConnection();
     $db->getConnection();
     $sql = "update `jqcalendar` set"
+      . " `subject`='" . mysql_real_escape_string($subject) . "', "
       . " `starttime`='" . php2MySqlTime(js2PhpTime($st)) . "', "
       . " `endtime`='" . php2MySqlTime(js2PhpTime($et)) . "' "
       . "where `release_id`=" . $id
@@ -278,7 +279,7 @@ switch ($method) {
         $ret = addRelease($_POST['StartTime'], $_POST['EndTime'], $_POST['Subject'], isset($_POST["IsAllDayEvent"])?1:0, $_POST['ReleaseId'], $_POST['guid']);
         break;
     case "updaterelease":
-        $ret = updateRelease($_POST['ReleaseId'], $_POST["StartTime"], $_POST["EndTime"], $_POST['guid']);
+        $ret = updateRelease($_POST['ReleaseId'], $_POST["StartTime"], $_POST["EndTime"], $_POST['Subject'], $_POST['guid']);
         break;
     case "removerelease":
         $ret = removeRelease( $_POST["ReleaseId"], $_POST['guid']);

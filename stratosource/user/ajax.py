@@ -59,15 +59,19 @@ def updaterelease(request):
             release = Release.objects.get(id=request.GET['id'])
             date = ''
             name = ''
+            reldate = None
             if request.GET.__contains__('date'):
                 date = request.GET['date']
                 release.est_release_date = date
                 reldate = datetime.strptime(date + 'T09:09:09', '%Y-%m-%dT%H:%M:%S')
-                calendar.updateCalendarReleaseEvent(release.id, reldate)
             if request.GET.__contains__('name'):
                 name = request.GET['name']
                 release.name = name
-                
+                tmp = release.est_release_date.isoformat() + 'T09:09:09'
+                if reldate is None: reldate = datetime.strptime(tmp, '%Y-%m-%dT%H:%M:%S')
+
+            calendar.updateCalendarReleaseEvent(release.id, release.name, reldate)
+
             release.save()
             results = {'success':True}
             

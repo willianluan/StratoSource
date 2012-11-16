@@ -28,9 +28,9 @@ def addCalendarReleaseEvent(release_id, release_name, relDate):
 #    event.release_id = release_id
 #    event.save()
 
-def updateCalendarReleaseEvent(relid, relDate):
+def updateCalendarReleaseEvent(relid, release_name, relDate):
     datestr = relDate.strftime('%m/%d/%Y')
-    params = urllib.urlencode({'StartTime': datestr, 'EndTime': datestr, 'ReleaseId': relid, 'guid': ConfigCache.get_uuid()})
+    params = urllib.urlencode({'StartTime': datestr, 'EndTime': datestr, 'Subject': release_name, 'ReleaseId': relid, 'guid': ConfigCache.get_uuid()})
     submitCalendarREST('updaterelease', params)
 #    try:
 #        event = CalendarEvent.objects.get(release_id=relid)
