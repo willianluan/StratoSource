@@ -60,7 +60,11 @@ def updaterelease(request):
             date = ''
             name = ''
             reldate = None
-            reldate = datetime.strptime(request.GET['date'] + 'T09:09:09', '%b. %d, %YT%H:%M:%S')
+            try:
+                reldate = datetime.strptime(request.GET['date'] + 'T09:09:09', '%b. %d, %YT%H:%M:%S')
+            except Exception as ex:
+                reldate = datetime.strptime(request.GET['date'] + 'T09:09:09', '%B %d, %YT%H:%M:%S')
+                
             release.est_release_date = reldate
             name = request.GET['name']
             release.name = name
