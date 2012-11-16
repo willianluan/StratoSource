@@ -19,6 +19,7 @@ from stratosource.admin.models import ConfigSetting
 from django.contrib.sessions.backends.db import SessionStore
 from django.core.exceptions import ObjectDoesNotExist
 import logging
+import uuid
 
 logger = logging.getLogger('console')
 
@@ -34,6 +35,13 @@ def refresh():
         logger.debug('Adding ' + setting.key)
         settings[setting.key] = setting.value
     session['settings'] = settings;
+
+def get_uuid():
+    theid = get_config_value('uuid')
+    if len(theid) == 0:
+        theid = uuid.uuid1()
+        store_config_value('uuid', theid)
+    return theid
 
 def get_config_value(key):
     if not session.has_key('settings'):

@@ -18,7 +18,7 @@ def submitCalendarREST(method, params):
 
 def addCalendarReleaseEvent(release_id, release_name, relDate):
     datestr = relDate.strftime('%m/%d/%Y')
-    params = urllib.urlencode({'StartTime': datestr, 'EndTime': datestr, 'Subject': release_name, 'ReleaseId': release_id})
+    params = urllib.urlencode({'StartTime': datestr, 'EndTime': datestr, 'Subject': release_name, 'ReleaseId': release_id, 'guid': ConfigCache.get_uuid()})
     submitCalendarREST('addrelease', params)
 #    event = CalendarEvent()
 #    event.subject = release_name
@@ -30,7 +30,7 @@ def addCalendarReleaseEvent(release_id, release_name, relDate):
 
 def updateCalendarReleaseEvent(relid, relDate):
     datestr = relDate.strftime('%m/%d/%Y')
-    params = urllib.urlencode({'StartTime': datestr, 'EndTime': datestr, 'ReleaseId': relid})
+    params = urllib.urlencode({'StartTime': datestr, 'EndTime': datestr, 'ReleaseId': relid, 'guid': ConfigCache.get_uuid()})
     submitCalendarREST('updaterelease', params)
 #    try:
 #        event = CalendarEvent.objects.get(release_id=relid)
@@ -42,7 +42,7 @@ def updateCalendarReleaseEvent(relid, relDate):
 
 
 def removeCalendarReleaseEvent(release_id):
-    params = urllib.urlencode({'ReleaseId': release_id})
+    params = urllib.urlencode({'ReleaseId': release_id, 'guid': ConfigCache.get_uuid()})
     submitCalendarREST('removerelease', params)
 #    try:
 #        event = CalendarEvent.objects.get(release_id=release_id)

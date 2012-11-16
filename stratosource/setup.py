@@ -17,6 +17,7 @@
 #    
 from stratosource.admin.models import ConfigSetting
 from django.core.exceptions import ObjectDoesNotExist
+import uuid
 
 STANDARDCHKSETTINGS='rally.enabled'
 STANDARDTXTSETTINGS='rally.login,email.host,email.from'
@@ -35,6 +36,8 @@ for name in STANDARDPASSWORDS.split(','):
   s.save()
   
 s = ConfigSetting(key='calendar.host', value='localhost', allow_delete=False, masked=False)
+s.save()
+s = ConfigSettings(key='uuid',value=uuid.uuid1(), allow_delete=False, masked=False)
 s.save()
 
 #try:

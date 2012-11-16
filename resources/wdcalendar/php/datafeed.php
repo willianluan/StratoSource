@@ -197,7 +197,7 @@ function removeCalendar($id){
   return $ret;
 }
 
-function updateRelease($id, $st, $et){
+function updateRelease($id, $st, $et, $uuid){
   $ret = array();
   try{
     $db = new DBConnection();
@@ -205,7 +205,8 @@ function updateRelease($id, $st, $et){
     $sql = "update `jqcalendar` set"
       . " `starttime`='" . php2MySqlTime(js2PhpTime($st)) . "', "
       . " `endtime`='" . php2MySqlTime(js2PhpTime($et)) . "' "
-      . "where `release_id`=" . $id;
+      . "where `release_id`=" . $id
+      . " and `guid`='" . $uuid . "'";
     //echo $sql;
 		if(mysql_query($sql)==false){
       $ret['IsSuccess'] = false;
@@ -221,12 +222,12 @@ function updateRelease($id, $st, $et){
   return $ret;
 }
 
-function removeRelease($id){
+function removeRelease($id, $uuid){
   $ret = array();
   try{
     $db = new DBConnection();
     $db->getConnection();
-    $sql = "delete from `jqcalendar` where `release_id`=" . $id;
+    $sql = "delete from `jqcalendar` where `release_id`=" . $id . " and `guid`='" . $uuid . "'";
 	if(mysql_query($sql)==false){
       $ret['IsSuccess'] = false;
       $ret['Msg'] = mysql_error();
@@ -241,17 +242,18 @@ function removeRelease($id){
   return $ret;
 }
 
-function addRelease($st, $et, $sub, $ade, $relid){
+function addRelease($st, $et, $sub, $ade, $relid, $uuid){
   $ret = array();
   try{
     $db = new DBConnection();
     $db->getConnection();
-    $sql = "insert into `jqcalendar` (`subject`, `starttime`, `endtime`, `isalldayevent`, `release_id`) values ('"
+    $sql = "insert into `jqcalendar` (`subject`, `starttime`, `endtime`, `isalldayevent`, `release_id`, `guid`) values ('"
       .mysql_real_escape_string($sub)."', '"
       .php2MySqlTime(js2PhpTime($st))."', '"
       .php2MySqlTime(js2PhpTime($et))."', '"
       .mysql_real_escape_string($ade)."', '"
-      .mysql_real_escape_string($relid)."' )";
+      .mysql_real_escape_string($relid)."', '"
+      .mysql_real_escape_string($uuid)."' )";
 
 	if(mysql_query($sql)==false){
       $ret['IsSuccess'] = false;
@@ -273,13 +275,13 @@ header('Content-type:text/javascript;charset=UTF-8');
 $method = $_GET["method"];
 switch ($method) {
     case "addrelease":
-        $ret = addRelease($_POST['StartTime'], $_POST['EndTime'], $_POST['Subject'], isset($_POST["IsAllDayEvent"])?1:0, $_POST['ReleaseId']);
+        $ret = addRelease($_POST['StartTime'], $_POST['EndTime'], $_POST['Subject'], isset($_POST["IsAllDayEvent"])?1:0, $_POST['ReleaseId'], $_POST['guid']);
         break;
     case "updaterelease":
-        $ret = updateRelease($_POST['ReleaseId'], $_POST["StartTime"], $_POST["EndTime"]);
+        $ret = updateRelease($_POST['ReleaseId'], $_POST["StartTime"], $_POST["EndTime"], $_POST['guid']);
         break;
     case "removerelease":
-        $ret = removeRelease( $_POST["ReleaseId"]);
+        $ret = removeRelease( $_POST["ReleaseId"], $_POST['guid']);
         break;
     case "add":
         $ret = addCalendar($_POST["CalendarStartTime"], $_POST["CalendarEndTime"], $_POST["CalendarTitle"], $_POST["IsAllDayEvent"]);
