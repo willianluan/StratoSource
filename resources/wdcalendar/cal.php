@@ -28,7 +28,7 @@
             var DATA_FEED_URL = "php/datafeed.php";
             var op = {
                 view: view,
-                theme:3,
+                theme:1,
                 showday: new Date(),
                 EditCmdhandler:Edit,
                 DeleteCmdhandler:Delete,
