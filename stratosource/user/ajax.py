@@ -37,11 +37,11 @@ def createrelease(request):
         try:
             release = Release()
             release.name = request.GET['name']
-            release.est_release_date = request.GET['estRelDate']
+            reldate = datetime.strptime(request.GET['estRelDate'] + 'T09:09:09', '%b. %d, %YT%H:%M:%S')
+            release.est_release_date = reldate
             release.save()
             results = {'success':True}
 
-            reldate = datetime.strptime(release.est_release_date + 'T09:09:09', '%Y-%m-%dT%H:%M:%S')
             calendar.addCalendarReleaseEvent(release.id, release.name, reldate)
 
         except Exception as ex:
@@ -60,15 +60,10 @@ def updaterelease(request):
             date = ''
             name = ''
             reldate = None
-            if request.GET.__contains__('date'):
-                date = request.GET['date']
-                release.est_release_date = date
-                reldate = datetime.strptime(date + 'T09:09:09', '%Y-%m-%dT%H:%M:%S')
-            if request.GET.__contains__('name'):
-                name = request.GET['name']
-                release.name = name
-                tmp = release.est_release_date.isoformat() + 'T09:09:09'
-                if reldate is None: reldate = datetime.strptime(tmp, '%Y-%m-%dT%H:%M:%S')
+            reldate = datetime.strptime(request.GET['date'] + 'T09:09:09', '%b. %d, %YT%H:%M:%S')
+            release.est_release_date = reldate
+            name = request.GET['name']
+            release.name = name
 
             calendar.updateCalendarReleaseEvent(release.id, release.name, reldate)
 

@@ -49,7 +49,7 @@
             <br class="clear" />
             <script type="text/javascript">
                 $(function() {
-                        $( "#estRelDate{{ branch.name|upper }}" ).datepicker({ dateFormat: 'yy-mm-dd' });
+                        $( "#estRelDate{{ branch.name|upper }}" ).datepicker({ dateFormat: 'M. dd, yy' });
                 });
 
                 refreshReleases('{{ branch.name|upper }}');

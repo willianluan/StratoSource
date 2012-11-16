@@ -88,7 +88,7 @@ function markReleased(id, name, branch, refreshPage){
 
 function updateRelease(releaseId, date, name, branch){
      dataStr = "id=" + releaseId;
-     if (date != null && calChanged){
+     if (date != null){
           dataStr += "&date=" + encodeURI(date);
      }
      if (name != null){
