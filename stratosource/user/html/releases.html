@@ -30,19 +30,19 @@
                            <img src="/csmedia/images/loading_throbber.gif" alt="Loading..."/>
                         </td>
                     </tr>
-                    <tr id="createRelease" style="display:none;">
-                        <td scope="row"><input name="relName" id="relName" type="text"/></td>
-                        <td> - </td>
-                        <td><input name="estRelDate" type="text" id="estRelDate" readonly></td>
-                        <td> - </td>
-                        <td><input type="submit" value="Create" onclick="createRelease('');"> <input type="submit" value="Cancel" onclick="cancelCreate('');"></td>
-                    </tr>
                     <tr id="createReleaseLink">
                         <td scope="row" colspan="5">
                             <a href="#" onclick="newRelease(''); return false;">
                               Create New
                             </a>
                         </td>
+                    </tr>
+                    <tr id="createRelease" style="display:none;">
+                        <td scope="row"><input name="relName" id="relName" type="text"/></td>
+                        <td> - </td>
+                        <td><input name="estRelDate" type="text" id="estRelDate" readonly></td>
+                        <td> - </td>
+                        <td><input type="submit" value="Create" onclick="createRelease('');"> <input type="submit" value="Cancel" onclick="cancelCreate('');"></td>
                     </tr>
                 </table>
             </div>

@@ -10,19 +10,18 @@ function newRelease(branch) {
         $("#" + branch + "releasesListE").hide();
 }
 
-function refreshReleases(branch){
+function refreshReleases(){
     $.ajax({
       url: "/ajax/releases",
       cache: false,
-      data: "branch=" + branch,
       success: function(html){
          var rows = $("tr");
          for(var i = 0; i < rows.length; i++){
-            if (rows[i].id.match('^' + branch + 'releasesList')){
+            if (rows[i].id.match('^releasesList')){
                 $("#" + rows[i].id).remove();
             }
          }
-         $("#" + branch + "headers").after(html);
+         $("#headers").after(html);
       }
     });
 }
@@ -45,7 +44,7 @@ function createRelease(branch){
           if (!data.success){
                alert(data.error)
           } else {
-               refreshReleases(branch);
+               refreshReleases();
                $("#createRelease" + branch).hide();
                $("#createReleaseLink" + branch).show();
                $( "#estRelDate" + branch ).val('');
@@ -62,7 +61,7 @@ function deleteRelease(id, name, branch){
           cache: false,
           data: "id=" + id + "&branch=" + branch,
           success: function(html){
-            refreshReleases(branch);
+            refreshReleases();
           }
         });
         }
@@ -76,7 +75,7 @@ function markReleased(id, name, branch, refreshPage){
           data: "id=" + id,
           success: function(json){
             if (json.success && !refreshPage){
-                refreshReleases(branch);
+                refreshReleases();
             } if (json.success && refreshPage) {
                 location.reload();
             } else {
@@ -87,17 +86,56 @@ function markReleased(id, name, branch, refreshPage){
         }
 }
 
-function updateReleaseDate(releaseId, date, branch){
+function updateRelease(releaseId, date, name, branch){
+     dataStr = "id=" + releaseId;
+     if (date != null && calChanged){
+          dataStr += "&date=" + encodeURI(date);
+     }
+     if (name != null){
+          dataStr += "&name=" + escape(name);
+     }
     $.ajax({
-      url: "/ajax/updatereleasedate",
+      url: "/ajax/updaterelease",
       cache: false,
-      data: "id=" + releaseId + "&date=" + encodeURI(date),
+      data: dataStr,
       success: function(json){
           if(json.success){
-              refreshReleases(branch);
+              refreshReleases();
+               editingRel = '';
           } else {
               alert(json.error);
           }
       }
     });
 }
+
+function editReleaseStart(releaseId){
+     if (editingRel != ''){
+          alert('Please finish editing the other release first');
+          return;
+     }
+     editingRel = releaseId;
+     calChanged = false;
+     jQuery("#save" + releaseId).show();
+     jQuery("#cancel" + releaseId).show();
+     jQuery("#edit" + releaseId).hide();
+     jQuery("#relNameRO" + releaseId).hide();
+     jQuery("#relName" + releaseId).show()
+     jQuery("#relDateRO" + releaseId).hide();
+     jQuery("#relDate" + releaseId).show();
+}
+
+function cancelRelease(){
+     refreshReleases();
+     editingRel = '';
+}
+
+function saveRelease(releaseId, branch){
+     updateRelease(releaseId, jQuery('#estRelDate' + releaseId).val(), jQuery('#txtRelName' + releaseId).val(), branch);     
+}
+
+
+// Watching it see if the calendar was changed
+var calChanged = false;
+var editingRel = '';
+

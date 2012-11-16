@@ -51,20 +51,26 @@ def createrelease(request):
     json = simplejson.dumps(results)
     return HttpResponse(json, mimetype='application/json')
 
-def updatereleasedate(request):
+def updaterelease(request):
     results = {'success':False}
 
     if request.method == u'GET':
         try:
             release = Release.objects.get(id=request.GET['id'])
-            date = request.GET['date']
-
-            release.est_release_date = date
+            date = ''
+            name = ''
+            if request.GET.__contains__('date'):
+                date = request.GET['date']
+                release.est_release_date = date
+                reldate = datetime.strptime(date + 'T09:09:09', '%Y-%m-%dT%H:%M:%S')
+                calendar.updateCalendarReleaseEvent(release.id, reldate)
+            if request.GET.__contains__('name'):
+                name = request.GET['name']
+                release.name = name
+                
             release.save()
-            results = {'success':True,'date':date}
+            results = {'success':True}
             
-            reldate = datetime.strptime(date + 'T09:09:09', '%Y-%m-%dT%H:%M:%S')
-            calendar.updateCalendarReleaseEvent(release.id, reldate)
 
         except Exception as ex:
             results = {'success':False, 'error':ex}
