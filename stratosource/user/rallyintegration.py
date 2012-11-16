@@ -99,8 +99,19 @@ def connect():
     
     credentials = requests.auth.HTTPBasicAuth(rally_user, rally_pass)
 
+    proxy_host = ConfigCache.get_config_value('proxy.host')
+    proxy_port = ConfigCache.get_config_value('proxy.port')
+
+    if len(proxy_host) > 0 and len(proxy_port) > 0:
+        proxydict = {
+            "http": "%s:%s" % (proxy_host, proxy_port),
+            "https": "%s:%s" % (proxy_host, proxy_port),
+        }
+    else:
+        proxydict = {}
+
     session = requests.session(headers=RALLY_REST_HEADERS, auth=credentials,
-                                    timeout=45.0, proxies={}, config={})    
+                                    timeout=45.0, proxies=proxydict, config={})    
     
     logger.debug('Logging in with username ' + rally_user)
 

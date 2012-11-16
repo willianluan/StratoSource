@@ -24,6 +24,7 @@ CREATE TABLE `jqcalendar` (
   `IsAllDayEvent` smallint(6) NOT NULL,
   `Color` varchar(200) character set utf8 default NULL,
   `release_id` int(11),
+  `guid` varchar(45),
   `RecurringRule` varchar(500) character set utf8 default NULL,
   PRIMARY KEY  (`Id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=4 ;
