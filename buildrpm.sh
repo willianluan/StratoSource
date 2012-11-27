@@ -5,6 +5,7 @@ MAJOR=2
 MINOR=11
 PATCH=0
 REL=8
+>>>>>>> Rebuilt with rally error handling
 VERSION=$MAJOR.$MINOR.$PATCH
 NAME=stratosource-$VERSION
 
@@ -14,6 +15,7 @@ mkdir $NAME
 cp -R stratosource $NAME
 cp -R resources $NAME
 cp *cronjob.sh $NAME
+cp notify.py $NAME
 cp runmanage.sh $NAME
 
 SOURCEDIR="/tmp/stratosource"
