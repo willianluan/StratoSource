@@ -147,7 +147,11 @@ def get_stories(projectIds):
     for projId in projectIds:
         if len(querystring) > 1:
             querystring += ' or '
-        querystring += '(Project = https://' + settings.RALLY_SERVER + '/slm/webservice/' + settings.RALLY_REST_VERSION + '/project/' + projId + ')'
+        if len(projectIds) > 1:
+            querystring += '('
+        querystring += 'Project = https://' + settings.RALLY_SERVER + '/slm/webservice/' + settings.RALLY_REST_VERSION + '/project/' + projId
+        if len(projectIds) > 1:
+            querystring += ')'
     querystring += ')'
     
     print 'QueryString is ' + querystring
