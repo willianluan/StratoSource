@@ -123,7 +123,15 @@ def get_projects(leaves):
 
     # Get workspace:
     projects = []
-    workspaces = json.loads(session.get('https://' + settings.RALLY_SERVER + '/slm/webservice/' + settings.RALLY_REST_VERSION + '/workspace.js').text)
+
+    url = 'https://' + settings.RALLY_SERVER + '/slm/webservice/' + settings.RALLY_REST_VERSION + '/workspace.js'
+    print 'Fetching url ' + url
+    resp = session.get(url)
+    print 'Got response ' + str(resp.status_code)
+    if resp.status_code != 200:
+        raise Exception('Error returned from Rally: ' + resp.text)
+        
+    workspaces = json.loads(resp.text)
 
     logger.debug('Workspaces returned: ' + str(workspaces['QueryResult']['TotalResultCount']))
 
@@ -163,7 +171,12 @@ def get_stories(projectIds):
         url = 'https://' + settings.RALLY_SERVER + '/slm/webservice/' + settings.RALLY_REST_VERSION + '/hierarchicalrequirement.js?query=' + urllib.quote(querystring) + '&fetch=true&start=' + str(start) + '&pagesize=' + str(pagesize)
 
         print 'Fetching url ' + url
-        queryresult = json.loads(session.get(url).text)
+        resp = session.get(url)
+        print 'Got response ' + str(resp.status_code)
+        if resp.status_code != 200:
+            raise Exception('Error returned from Rally: ' + resp.text)
+            
+        queryresult = json.loads(resp.text)
 
         for result in queryresult['QueryResult']['Results']:
             story = Story()
