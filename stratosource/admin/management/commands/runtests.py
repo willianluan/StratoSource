@@ -74,7 +74,6 @@ class Command(BaseCommand):
                 if data != None and data['success'] == True:
                     self.testItemIdList[data['id']] = None
                 print 'data: %s' % data
-#                print response.status, response.reason
         print '** tests scheduled'
 
 
@@ -89,7 +88,10 @@ class Command(BaseCommand):
         return data
 
     def invokeGetREST(self, url):
-        self.rest_conn.request("GET", '/services/data/v%s/%s' % (CSBase.CS_SF_API_VERSION, url), headers=self.rest_headers)
+        return self._invokeGetREST('/services/data/v%s/%s' % (CSBase.CS_SF_API_VERSION, url))
+
+    def _invokeGetREST(self, url):
+        self.rest_conn.request("GET", url, headers=self.rest_headers)
         response = self.rest_conn.getresponse()
         resultPayload = response.read()
         if response.status != 200:
@@ -100,7 +102,7 @@ class Command(BaseCommand):
         return data
 
     def monitorTests(self):
-        timer = 7
+        timer = 5
 #        self.batch_time = datetime.datetime.now()
         self.completedTests = {}
         while timer > 0 and len(self.testItemIdList) > 0:
@@ -109,11 +111,20 @@ class Command(BaseCommand):
             data = self.invokeGetREST("query/?%s" % params)
             if not data == None:
                 records = data['records']
+                print 'fetched %d records' % len(records)
+                while data.has_key('nextRecordsUrl'):
+                    nextRecordsUrl = data['nextRecordsUrl']
+                    print 'nextRecordsUrl=%s' % nextRecordsUrl
+                    data = self._invokeGetREST(nextRecordsUrl)
+                    if data.has_key('records'):
+                        morerecords = data['records']
+                        records.extend(morerecords)
+                        print 'fetched %d more records' % len(morerecords)
                 for record in records:
                     if not self.isPendingTest(record): continue  # make sure only looking at OUR tests
-                    timer = 7
-                    print 'record:'
-                    print record
+                    timer = 5
+#                    print 'record:'
+#                    print record
                     if not self.completedTests.has_key(record['Id']):
                         self.processCompletedQueueItem(record)
             print '%d: sleeping...' % timer
@@ -148,7 +159,9 @@ class Command(BaseCommand):
                 utrr.end_time = datetime.datetime.strptime(dt, '%Y-%m-%dT%H:%M:%S')
                 utrr.method_name = record['MethodName']
                 utrr.outcome = record['Outcome']
-                utrr.message = record['Message']
+                message = record['Message']
+                if not message is None: message = message[0:254]
+                utrr.message = message
                 utrr.save()
                 if utrr.outcome != 'Pass': utr.failures += 1
             utr.save()
@@ -163,6 +176,17 @@ class Command(BaseCommand):
         params = urllib.urlencode({'q': "select id, name, body from ApexClass where Status = 'Active' and NamespacePrefix = '' order by name"})
         data = self.invokeGetREST("query/?%s" % params)
         if not data == None:
-            return data['records']
+            records = data['records']
+            while data.has_key('nextRecordsUrl'):
+                nextRecordsUrl = data['nextRecordsUrl']
+#                print 'nextRecordsUrl=%s' % nextRecordsUrl
+                data = self._invokeGetREST(nextRecordsUrl)
+                if not data is None and data.has_key('records'):
+                    nextrecords = data['records']
+                    records.extend(nextrecords)
+#                    print 'fetched %d more records' % len(nextrecords)
+                else:
+                    break
+            return records
         return None
 
