@@ -28,6 +28,11 @@ s.save()
 s = ConfigSetting(key='uuid',value=uuid.uuid1(), allow_delete=False, masked=False)
 s.save()
 
+s = ConfigSetting(key='calendar.host', value='localhost', allow_delete=False, masked=False)
+s.save()
+s = ConfigSetting(key='uuid',value=uuid.uuid1(), allow_delete=False, masked=False)
+s.save()
+
 for name in STANDARDTXTSETTINGS.split(','):
   s = ConfigSetting(key=name, value='', allow_delete=False, masked=False)
   s.save()
