@@ -153,8 +153,8 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'stratosource.admin',
     'stratosource.user',
-    'stratosource.sfdiff',
 )
+
 
 EMAIL_PORT = 25
 #EMAIL_HOST = ''

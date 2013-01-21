@@ -34,6 +34,10 @@ Requires:       cgit >= 0.9
 #
 Requires:       php >= 5.3.3
 Requires:       php-mysql >= 5.3.3
+#
+# Support for MQ
+#
+Requires:       pika >= 0.9
 
 BuildArch:      noarch
 

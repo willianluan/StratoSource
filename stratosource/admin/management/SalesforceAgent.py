@@ -27,6 +27,7 @@ import httplib, urllib
 import json
 from urlparse import urlparse
 import stratosource.admin.management.CSBase # used to initialize logging
+from mq import MQClient
 
 __author__="mark"
 __date__ ="$Aug 15, 2010 9:48:38 PM$"
@@ -92,6 +93,7 @@ class SalesforceAgent:
         try:
             self.login_result = self.partner.service.login(user, password)
         except suds.WebFault as sf:
+            MQClient().publish(str(sf), level='error').close()
             raise LoginError(str(sf))
         self.sid = self.partner.factory.create('SessionHeader')
         self.sid.sessionId = self.login_result.sessionId
@@ -247,6 +249,18 @@ class SalesforceAgent:
             print resultPayload
             return None
         data = json.loads(resultPayload)
+        recs = data['records']
+        while data.has_key('nextRecordsUrl'):
+            nextRecordsUrl = data['nextRecordsUrl']
+            if nextRecordsUrl:
+                rest_conn.request('GET', nextRecordsUrl, headers=self.rest_headers)
+                response = rest_conn.getresponse()
+                resultPayload = response.read()
+                data = json.loads(resultPayload)
+                recs.extend(data['records'])
+            else:
+              break
+        data['records'] = recs
         return data
 
     def retrieve_meta(self, types, pod, outputname='/tmp/retrieve.zip'):
@@ -286,6 +300,7 @@ class SalesforceAgent:
 
         if asyncResult.state != 'Completed':
             self.logger.error('Retrieving package: ' + asyncResult.message)
+            MQClient().publish('Metadata retrieval did not complete: %s' % (asyncResult.message,), level='error').close()
             raise Exception(asyncResult.message)
 
         result = self.meta.service.checkRetrieveStatus([asyncResult.id])

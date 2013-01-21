@@ -33,7 +33,7 @@ typeMap = {'fields': 'CustomField','validationRules': 'ValidationRule',
            'listViews': 'ListView','namedFilters': 'NamedFilter',
            'searchLayouts': 'SearchLayout','recordTypes': 'RecordType',
            'objects': 'CustomObject', 'classes' : 'ApexClass', 'labels' : 'CustomLabel',
-           'triggers': 'ApexTrigger',
+           'triggers': 'ApexTrigger', 'layouts': 'Layout',
             'pages': 'ApexPage', 'weblinks': 'CustomPageWebLink',
             'components': 'ApexComponent'}
 SF_NAMESPACE='{http://soap.sforce.com/2006/04/metadata}'
@@ -43,7 +43,7 @@ _API_VERSION = "23.0"
 def createFileCache(map):
     cache = {}
     for type,list in map.items():
-        if type == 'objects' or type == 'labels':
+        if type == 'objects' or type == 'labels' or type == 'layouts':
             for object in list:
                 try:
                     path = os.path.join('unpackaged',type,object.filename)
@@ -61,7 +61,7 @@ def createFileCache(map):
                 f.close()
     return cache
 
-def findXmlNode(doc, object):
+def findXmlNode(doc, object, subtype = None):
 
     if object.type == 'objectTranslation':
         nodeName = SF_NAMESPACE + 'fields'
@@ -77,6 +77,9 @@ def findXmlNode(doc, object):
         nameKey = SF_NAMESPACE + 'fullName'
     elif object.el_type == 'recordTypes':
         nodeName = SF_NAMESPACE + 'recordTypes'
+        nameKey = SF_NAMESPACE + 'fullName'
+    elif not subtype is None:
+        nodeName = SF_NAMESPACE + subtype
         nameKey = SF_NAMESPACE + 'fullName'
     else:
         nodeName = SF_NAMESPACE + 'fields'
@@ -123,11 +126,33 @@ def findXmlSubnode(doc, object):
         logging.getLogger('deploy').info('Unknown object type: ' + object.type)
     return None
 
+def generateObjectSubtypes(subtypelist):
+    # make a map by object filename
+    subtypemap = dict([(subtype.filename, subtype) for subtype in subtypelist])
+    # all changes are mapped by object filename, now group together
+    for filename, changes in subtypemap.items():
+        eltypemap = dict([(el.filename, el) for el in changes])
+        #
+        # process each element type
+        #
+        doc = etree.XML(cache[filename])
+        for eltype, elements in eltypemap.items():
+            if eltype == 'recordTypes':
+                generateRecordTypes(doc, elements)
+            else:
+                print 'Unhandled element type: %s' % (eltype,)
+
+
+def generateRecordTypes(doc, elements):
+    pass
+
 def generateObjectChanges(doc,  cache, object):
     if object.status == 'd': return None
     doc = etree.XML(cache[object.filename])
-#    print 'looking for %s' % object.el_name
-    if object.el_name.find(':') >= 0:
+    print 'looking for name=%s, type=%s' % (object.el_name, object.el_type)
+    if object.el_type == 'validationRules':
+        xml = findXmlNode(doc, object, subtype = object.el_type)
+    elif object.el_name.find(':') >= 0:
         # recordType node
         xml = findXmlSubnode(doc, object)
     else:
@@ -198,6 +223,11 @@ def generatePackage(objectList, from_branch, to_branch,  retain_package,  packag
         logger.info('PROCESSING TYPE %s', type)
 
         if type == 'objects':
+            # separate all the subtype elements where specific grouping is imperative
+            subtypes = [x for x in itemlist if obj.status != 'd' and not obj.el_subtype is None];
+            changes = generateObjectSubtypes(subtypes)
+
+            itemlist = set(itemlist).difference(set(subtypes))
             #
             # For objects we need to collect a list of all field/list/recordtype/et.al changes
             # then process them at the end
@@ -211,6 +241,7 @@ def generatePackage(objectList, from_branch, to_branch,  retain_package,  packag
                     changes = objectPkgMap[object.filename]
                     registerChange(doc, object, type)
                     if object.el_name is None:
+                        print 'el_name is None so skipping fragment extraction'
                         pass
                     else:
                         fragment = generateObjectChanges(doc, cache, object)
@@ -226,6 +257,8 @@ def generatePackage(objectList, from_branch, to_branch,  retain_package,  packag
                     writeLabelDefinitions(obj.filename, fragment, myzip)
         elif type in ['pages','classes','triggers']:
             writeFileDefinitions(doc, destructive, type, itemlist, cache, myzip)
+        elif type == 'layouts':
+            writeLayoutDefinitions(doc, destructive, type, itemlist, cache, myzip)
         else:
             logger.warn('Type not supported: %s' % type)
 
@@ -238,6 +271,7 @@ def generatePackage(objectList, from_branch, to_branch,  retain_package,  packag
     myzip.writestr('destructiveChanges.xml', xml)
     myzip.close()
     return output_name
+
 
 #
 # register an item to the package.xml or destructive.xml document
@@ -264,6 +298,20 @@ def registerChange(doc, member, filetype):
         etree.SubElement(el, 'members').text = object_name + '.' + el_name
         etree.SubElement(el, 'name').text = typeMap[filetype]
         logger.info('registering: %s - %s', object_name + '.' + el_name, typeMap[filetype])
+
+def writeLayoutDefinitions(packageDoc, destructiveDoc, filetype, filelist, cache, zipfile):
+    logger = logging.getLogger('deploy')
+    for member in filelist:
+        print 'member filename=%s, el_type=%s' % (member.filename, member.el_type)
+        if member.filename.find('.') > 0:
+            object_name = member.filename[0:member.filename.find('.')]
+        if os.path.isfile(os.path.join('unpackaged',filetype,member.filename)):
+            zipfile.writestr(filetype+'/'+member.filename, cache.get(member.filename))
+            registerChange(packageDoc, member, filetype)
+            logger.info('storing: %s', member.filename)
+        else:
+            logger.info('removing: %s', member.filename)
+            registerChange(destructiveDoc, member, filetype)
 
 def writeFileDefinitions(packageDoc, destructiveDoc, filetype, filelist, cache, zipfile):
     logger = logging.getLogger('deploy')
@@ -312,7 +360,7 @@ def writeObjectDefinitions(to_repo,  doc,  objectMap, filecache, zipfile):
             if elementList is not None:
                 objectxml = '<?xml version="1.0" encoding="UTF-8"?>'\
                                 '<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">'
-                objectxml += '\n'.join(elementList)
+                objectxml += '\n'.join(sorted(elementList))
                 objectxml += '</CustomObject>'
                 zipfile.writestr('objects/'+objdef, objectxml)
         
