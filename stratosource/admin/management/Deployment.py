@@ -56,9 +56,10 @@ def createFileCache(map):
         else:
             for object in list:
                 path = os.path.join('unpackaged',type,object.filename)
-                f = open(path)
-                cache[object.filename] = f.read()
-                f.close()
+                if os.path.exists(path):
+                    f = open(path)
+                    cache[object.filename] = f.read()
+                    f.close()
     return cache
 
 def findXmlNode(doc, object, subtype = None):
@@ -100,10 +101,10 @@ def findXmlNode(doc, object, subtype = None):
 def findXmlSubnode(doc, object):
     if object.type == 'objects':
         node_names = object.el_name.split(':')
-#        print '>>> node_names[0] = %s, node_names[1] = %s' % (node_names[0], node_names[1])
-#        print '>>> subtype=' + object.el_subtype
+        print '>>> node_names[0] = %s, node_names[1] = %s' % (node_names[0], node_names[1])
+        print '>>> subtype=' + object.el_subtype
         children = doc.findall(SF_NAMESPACE + object.el_type)
-#        print '>>> looking for ' + object.el_type
+        print '>>> looking for ' + object.el_type
         for child in children:
 #            print '>>> processing child'
             node = child.find(SF_NAMESPACE + 'fullName')
@@ -125,26 +126,6 @@ def findXmlSubnode(doc, object):
         
         logging.getLogger('deploy').info('Unknown object type: ' + object.type)
     return None
-
-def generateObjectSubtypes(subtypelist):
-    # make a map by object filename
-    subtypemap = dict([(subtype.filename, subtype) for subtype in subtypelist])
-    # all changes are mapped by object filename, now group together
-    for filename, changes in subtypemap.items():
-        eltypemap = dict([(el.filename, el) for el in changes])
-        #
-        # process each element type
-        #
-        doc = etree.XML(cache[filename])
-        for eltype, elements in eltypemap.items():
-            if eltype == 'recordTypes':
-                generateRecordTypes(doc, elements)
-            else:
-                print 'Unhandled element type: %s' % (eltype,)
-
-
-def generateRecordTypes(doc, elements):
-    pass
 
 def generateObjectChanges(doc,  cache, object):
     if object.status == 'd': return None
@@ -215,6 +196,7 @@ def generatePackage(objectList, from_branch, to_branch,  retain_package,  packag
     
     objectPkgMap = {}   # holds all nodes to be added/updated, keyed by object/file name
 
+    labelchanges = ''
     for type,itemlist in map.items():
         if not typeMap.has_key(type):
             logger.error('** Unhandled type {0} - skipped'.format(type))
@@ -223,11 +205,6 @@ def generatePackage(objectList, from_branch, to_branch,  retain_package,  packag
         logger.info('PROCESSING TYPE %s', type)
 
         if type == 'objects':
-            # separate all the subtype elements where specific grouping is imperative
-            subtypes = [x for x in itemlist if obj.status != 'd' and not obj.el_subtype is None];
-            changes = generateObjectSubtypes(subtypes)
-
-            itemlist = set(itemlist).difference(set(subtypes))
             #
             # For objects we need to collect a list of all field/list/recordtype/et.al changes
             # then process them at the end
@@ -254,13 +231,17 @@ def generatePackage(objectList, from_branch, to_branch,  retain_package,  packag
                 else:
                     registerChange(doc, obj, type)
                     fragment = generateObjectChanges(doc, cache, obj)
-                    writeLabelDefinitions(obj.filename, fragment, myzip)
+                    print('fragment:%s' % (fragment,))
+                    labelchanges += fragment
         elif type in ['pages','classes','triggers']:
             writeFileDefinitions(doc, destructive, type, itemlist, cache, myzip)
         elif type == 'layouts':
             writeLayoutDefinitions(doc, destructive, type, itemlist, cache, myzip)
         else:
             logger.warn('Type not supported: %s' % type)
+
+    if len(labelchanges) > 0:
+        writeLabelDefinitions(obj.filename, labelchanges, myzip)
 
     writeObjectDefinitions(to_branch.repo, doc,  objectPkgMap, cache, myzip)
 
@@ -271,7 +252,6 @@ def generatePackage(objectList, from_branch, to_branch,  retain_package,  packag
     myzip.writestr('destructiveChanges.xml', xml)
     myzip.close()
     return output_name
-
 
 #
 # register an item to the package.xml or destructive.xml document
@@ -295,7 +275,10 @@ def registerChange(doc, member, filetype):
                 filetype = 'recordTypes'
             else:
                 filetype = 'fields'
-        etree.SubElement(el, 'members').text = object_name + '.' + el_name
+        if filetype == 'labels':
+            etree.SubElement(el, 'members').text = el_name
+        else:
+            etree.SubElement(el, 'members').text = object_name + '.' + el_name
         etree.SubElement(el, 'name').text = typeMap[filetype]
         logger.info('registering: %s - %s', object_name + '.' + el_name, typeMap[filetype])
 
@@ -326,8 +309,9 @@ def writeFileDefinitions(packageDoc, destructiveDoc, filetype, filelist, cache, 
             zipfile.writestr(filetype+'/'+member.filename+'-meta.xml', getMetaForFile(os.path.join('unpackaged',filetype,member.filename)))
             registerChange(packageDoc, member, filetype)
             logger.info('storing: %s', member.filename)
-        else:
-            logger.info('removing: %s', member.filename)
+# need another solution - this fails if the file is already gone in SF
+#        else:
+#            logger.info('removing: %s', member.filename)
             registerChange(destructiveDoc, member, filetype)
 
 def writeLabelDefinitions(filename, element, zipfile):
