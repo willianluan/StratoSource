@@ -240,6 +240,10 @@ def getstories(request):
                 stories = Story.objects.filter(sprint=sprint).order_by('rally_id', 'name')
             else:
                 stories = Story.objects.all().order_by('rally_id', 'name')
+            # individual companies may need to customize this line if they want certain
+            # stories excluded from the list when selecting a story to associate changed
+            # objects with
+            stories = stories.exclude(phasename=u'Release Candidate / Production')
     
             for story in stories:
                 if len(story.rally_id) > 0:
