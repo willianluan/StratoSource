@@ -374,7 +374,7 @@ def unreleased(request, repo_name, branch_name):
 
 def object(request, object_id):
     object = DeployableObject.objects.get(id=object_id)
-    deltas = Delta.objects.filter(object__filename=object.filename).order_by('commit__branch__name','-commit__date_added')
+    deltas = Delta.objects.filter(object__filename=object.filename,object__branch__id=object.branch.id).order_by('commit__branch__name','-commit__date_added')
     data = {'object': object, 'deltas': deltas}
     return render_to_response('object.html', data, context_instance=RequestContext(request))
 
