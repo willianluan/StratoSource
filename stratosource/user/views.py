@@ -59,12 +59,14 @@ def configs(request):
                         logger.debug('Working on ' + setting.key + '!')
                         if setting.value != value:
                             if setting.masked:
-                                repValue = request.POST[param + '_2']
-                                logger.debug('Checking if the values match!')
-                                if repValue == value:
-                                    logger.debug('Values Match!')
-                                    setting.value = value
-                                    setting.save()
+                                # only proceed with update if masked value is not empty
+                                if value != '':
+                                    repValue = request.POST[param + '_2']
+                                    logger.debug('Checking if the values match!')
+                                    if repValue == value:
+                                       logger.debug('Values Match!')
+                                       setting.value = value
+                                       setting.save()
                             else:
                                 setting.value = value
                                 setting.save()
@@ -443,9 +445,19 @@ def stories(request):
     if len(sprint) > 0:
         stories = stories.filter(sprint=sprint)
     stories = stories.order_by('sprint', 'rally_id', 'name')
+    # remove stories in phases we don't want to see
+    stories = stories.exclude(phasename=u'Release Candidate / Production')
+    stories = stories.exclude(phasename=u'Archive')
+    # Need to cast the rally_id to prevent duplicate stories from coming over
+    # different SQL needed for mySQL and SQLite
+    ## MySQL compatible call
+    stories = stories.extra(select={'rally_id': 'CAST(rally_id AS SIGNED)'}).extra(order_by = ['rally_id'])
+    ## SQLite compatible call
+    # stories = stories.extra(select={'rally_id': 'CAST(rally_id AS INTEGER)'}).extra(order_by = ['rally_id'])
     stories.select_related()
     stories_refresh_enabled = (ConfigCache.get_config_value('rally.enabled') == '1') or (ConfigCache.get_config_value('agilezen.enabled') == '1')
     data = {'stories': stories, 'rally_refresh' : stories_refresh_enabled, 'releaseid': releaseid, 'in_release': in_release, 'sprintList': sprintList, 'sprint': sprint}
+
     return render_to_response('stories.html', data, context_instance=RequestContext(request))
 
 def instory(request, story_id):
