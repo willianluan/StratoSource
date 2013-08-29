@@ -445,9 +445,6 @@ def stories(request):
     if len(sprint) > 0:
         stories = stories.filter(sprint=sprint)
     stories = stories.order_by('sprint', 'rally_id', 'name')
-    # remove stories in phases we don't want to see
-    stories = stories.exclude(phasename=u'Release Candidate / Production')
-    stories = stories.exclude(phasename=u'Archive')
     # Need to cast the rally_id to prevent duplicate stories from coming over
     # different SQL needed for mySQL and SQLite
     ## MySQL compatible call
