@@ -143,6 +143,8 @@ function updateTaskType(release_id, id, type_id, branch_id){
         success: function(data){
             if (!data.success){
                 alert('ERROR: ' + data.error);
+            } else {
+                refreshTasks();
             }
         }
     });

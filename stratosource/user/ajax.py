@@ -343,7 +343,7 @@ def addtostory(request):
 def get_release_tasks(request, type, id):
     if type == 'r':
         release = Release.objects.get(id=id)
-        tasks = ReleaseTask.objects.filter(Q(release=release) | Q(story__in=release.stories.all())).order_by('order')
+        tasks = ReleaseTask.objects.filter(Q(release=release) | Q(story__in=release.stories.all())).order_by('task_type','order')
     else:
         story = Story.objects.get(id=id)
         tasks = ReleaseTask.objects.filter(story=story).order_by('task_type','order')

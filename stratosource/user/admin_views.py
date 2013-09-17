@@ -130,6 +130,7 @@ class BranchForm(forms.ModelForm):
         cron_type = cleaned_data.get('cron_type')
         cron_interval = int(cleaned_data.get('cron_interval'))
         cron_start = cleaned_data.get('cron_start')
+        order = cleaned_data.get('order')
         if cron_type == 'h':
             if cron_interval < 1 or cron_interval > 23:
                self._errors["cron_interval"] = self.error_class(['Interval must be between 1 and 23'])
@@ -190,6 +191,7 @@ def editbranch(request, branch_id):
             row.cron_type = cleaned_data.get('cron_type')
             row.cron_interval = cleaned_data.get('cron_interval')
             row.cron_start = cleaned_data.get('cron_start')
+            row.order = cleaned_data.get('order')
             row.save()
             updateCrontab(row)
             createCGitEntry(row)

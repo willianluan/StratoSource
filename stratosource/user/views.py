@@ -89,7 +89,7 @@ def configs(request):
     return render_to_response('configs.html', data, context_instance=RequestContext(request))
 
 def home(request):
-    data = {'branches': Branch.objects.filter(enabled__exact = True)}
+    data = {'branches': Branch.objects.filter(enabled__exact = True).order_by('order')}
 
     data['calendar_host'] = ConfigCache.get_config_value('calendar.host')
     if data['calendar_host'] == 'localhost':
@@ -250,7 +250,7 @@ def manifest(request, release_id):
 def releases(request):
     unreleased = Release.objects.filter(released__exact=False)
 
-    data = {'unreleased_list': unreleased, 'branches': Branch.objects.filter(enabled__exact = True)}
+    data = {'unreleased_list': unreleased, 'branches': Branch.objects.filter(enabled__exact = True).order_by('order')}
     return render_to_response('releases.html', data, context_instance=RequestContext(request))
 
 def release(request, release_id):
