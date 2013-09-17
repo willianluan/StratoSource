@@ -11,7 +11,7 @@
                                             <option value="80" {% if task.task_type == 80 %}selected{% endif %}>POST-RELEASE</option>
                                         </select>
                                         {% else %}
-                                            {{ task.task_type }}
+                                            {{ task.task_type_name }}
                                         {% endif %}
                                     </td>
                                     <td style="white-space:normal;" id="{{ task.id }}Name" {% if not readonly %}ondblclick="editTask('{{ task.id }}');{% endif %} return false;">{{ task.name }}</td>

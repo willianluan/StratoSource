@@ -354,6 +354,9 @@ def get_release_tasks(request, type, id):
     
     for task in tasks:
         task.done_in_branch_list = task.done_in_branch.split(',')
+        for ttype in task.TASK_TYPES:
+            if ttype[0] == task.task_type:
+                task.task_type_name = ttype[1]
         
     for branch in branches:
         branch.tid = str(branch.id)
