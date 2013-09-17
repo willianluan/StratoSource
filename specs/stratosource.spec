@@ -2,7 +2,7 @@
 
 Name:           stratosource
 Version: 2.11.0
-Release: 5
+Release: 6
 Summary:        Process git repo dumps of salesforce assets and provide web UI for the results
 
 Group:          Applications/Internet
@@ -34,6 +34,10 @@ Requires:       cgit >= 0.9
 #
 Requires:       php >= 5.3.3
 Requires:       php-mysql >= 5.3.3
+#
+# Support for MQ
+#
+Requires:       python-pika >= 0.9
 
 BuildArch:      noarch
 
