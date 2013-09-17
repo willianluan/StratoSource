@@ -64,6 +64,7 @@ class Branch(models.Model):
         ('u', 'Unknown'), ('r', 'Running'), ('d', 'Done'),  ('e', 'Error'),
     )
 
+    order = models.IntegerField(default=0)
     repo =  models.ForeignKey(Repo)
     name =  models.CharField(max_length=30)
     api_env =   models.CharField(max_length=10, default='test')     # "test" or "login"
@@ -177,6 +178,9 @@ class SalesforceUser(models.Model):
     email       = models.CharField(max_length=100, blank=False, null=False)
 
 class ReleaseTask(models.Model):
+    TASK_TYPES = ((100, 'UNSPECIFIED'),(0,'MANIFEST'),(20,'PRE-VALIDATION'),(40,'PRE-RELEASE'),(60,'RELEASE'),(80,'POST-RELEASE'))
+
+    task_type =      models.IntegerField(choices=TASK_TYPES, default=100)
     name =           models.CharField(max_length=1000)
     done_in_branch = models.CharField(max_length=100)
     order =          models.IntegerField(default=0)

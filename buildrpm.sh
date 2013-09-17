@@ -2,9 +2,9 @@
 # Update version numbers here only
 ##
 MAJOR=2
-MINOR=10
-PATCH=2
-REL=6
+MINOR=11
+PATCH=0
+REL=5
 VERSION=$MAJOR.$MINOR.$PATCH
 NAME=stratosource-$VERSION
 

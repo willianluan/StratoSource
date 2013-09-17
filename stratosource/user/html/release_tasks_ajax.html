@@ -1,5 +1,19 @@
                             {% for task in tasks %}
                                 <tr id="{{ task.id }}">
+                                    <td class="align_left">
+                                        {% if not readonly %}
+                                        <select name='cboType' onchange="updateTaskType('{{ release.id }}', '{{ task.id }}', this.options[this.selectedIndex].value, '{{ branch.id }}', '{{ task.id }}')">
+                                            <option value="100" {% if task.task_type == 100 %}selected{% endif %}>-- UNSPECIFIED --</option>
+                                            <option value="0" {% if task.task_type == 0 %}selected{% endif %}>MANIFEST</option>
+                                            <option value="20" {% if task.task_type == 20 %}selected{% endif %}>PRE-VALIDATION</option>
+                                            <option value="40" {% if task.task_type == 40 %}selected{% endif %}>PRE-RELEASE</option>
+                                            <option value="60" {% if task.task_type == 60 %}selected{% endif %}>RELEASE</option>
+                                            <option value="80" {% if task.task_type == 80 %}selected{% endif %}>POST-RELEASE</option>
+                                        </select>
+                                        {% else %}
+                                            {{ task.TASK_TYPES[task.task_type] }}
+                                        {% endif %}
+                                    </td>
                                     <td style="white-space:normal;" id="{{ task.id }}Name" {% if not readonly %}ondblclick="editTask('{{ task.id }}');{% endif %} return false;">{{ task.name }}</td>
                                     {% if type == 'r' %}
                                     <td class="align_center">

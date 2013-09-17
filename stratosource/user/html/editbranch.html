@@ -239,7 +239,18 @@
                             </td>
                         </tr>
 
-
+                        <tr>
+                            <td align="right">
+                                <label for="id_cron_start">UI Order:</label>
+                                {{ form.order.errors }}
+                            </td>
+                            <td>
+                                {{ form.order }}
+                            </td>
+                            <td>
+                                Ordering used when listing branches in the manifest
+                            </td>
+                        </tr>
                     </table>
 
                     <p>

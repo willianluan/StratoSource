@@ -346,9 +346,9 @@ def get_release_tasks(request, type, id):
         tasks = ReleaseTask.objects.filter(Q(release=release) | Q(story__in=release.stories.all())).order_by('order')
     else:
         story = Story.objects.get(id=id)
-        tasks = ReleaseTask.objects.filter(story=story).order_by('order')
+        tasks = ReleaseTask.objects.filter(story=story).order_by('task_type','order')
     
-    branches = Branch.objects.filter(enabled__exact = True)
+    branches = Branch.objects.filter(enabled__exact = True).order_by('order')
     users = SalesforceUser.objects.all().order_by('name')
 
     
@@ -399,6 +399,9 @@ def edit_release_task(request):
         user_id = request.GET['user_id']
         task.user = SalesforceUser.objects.get(id=user_id)
 
+    if request.GET.__contains__('type_id'):
+        task_type = request.GET['type_id']
+        task.task_type = task_type
         
     if request.GET.__contains__('done'):
         is_done = request.GET['done'] == 'true'

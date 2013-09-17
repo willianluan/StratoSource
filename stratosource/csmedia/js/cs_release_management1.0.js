@@ -137,6 +137,18 @@ function updateTaskUser(release_id, id, user_id, branch_id){
     
 }
 
+function updateTaskType(release_id, id, type_id, branch_id){
+    jQuery.ajax({
+        url: "/ajax/editreleasetask/?rel_id=" + release_id + "&task_id=" + id + '&branch_id=' + branch_id + '&type_id=' + type_id,
+        success: function(data){
+            if (!data.success){
+                alert('ERROR: ' + data.error);
+            }
+        }
+    });
+    
+}
+
 function enableSorting(){
     jQuery("#sortable tbody").sortable({
         helper: fixHelper,

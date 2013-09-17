@@ -99,7 +99,7 @@ def home(request):
 
 def create_release_package(request, release_id):
     release = Release.objects.get(id=release_id)
-    branches = Branch.objects.filter(enabled__exact = True)
+    branches = Branch.objects.filter(enabled__exact = True).order_by('order')
     data = {'release': release,  'branches': branches}
 
     if request.method == u'POST':
@@ -175,7 +175,7 @@ def push_release_package(request, release_package_id):
         
         return redirect('/release_push_status/' + str(push_package.id))
     
-    branches = Branch.objects.filter(enabled__exact = True)
+    branches = Branch.objects.filter(enabled__exact = True).order_by('order')
     data = {'release_package':release_package, 'branches':branches}
 
     return render_to_response('release_push_package.html', data, context_instance=RequestContext(request))
@@ -241,7 +241,7 @@ def manifest(request, release_id):
             manifest += list(dep_objects)
 
     manifest.sort(key=lambda object: object.type+object.filename)
-    branches = Branch.objects.filter(enabled__exact = True)
+    branches = Branch.objects.filter(enabled__exact = True).order_by('order')
     
     data = {'release': release, 'manifest': manifest, 'branches': branches, 'branch': branch}
     return render_to_response('release_manifest.html', data, context_instance=RequestContext(request))
@@ -255,7 +255,7 @@ def releases(request):
 
 def release(request, release_id):
     release = Release.objects.get(id=release_id)
-    branches = Branch.objects.filter(enabled__exact = True)
+    branches = Branch.objects.filter(enabled__exact = True).order_by('order')
     deployment_packages = DeploymentPackage.objects.filter(release=release)
     
     if request.method == u'GET' and request.GET.__contains__('remove_story_id'):
@@ -452,7 +452,7 @@ def instory(request, story_id):
     story = Story.objects.get(id=story_id)
     branches = []
     dep_branches = []
-    all_branches = Branch.objects.filter(enabled__exact = True)
+    all_branches = Branch.objects.filter(enabled__exact = True).order_by('order')
     
     if request.method == u'GET' and request.GET.__contains__('remove'):
         obj = DeployableObject.objects.get(id=request.GET['assoc'])
