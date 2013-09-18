@@ -53,6 +53,7 @@ mkdir -p %{buildroot}/usr/django
 cp -R stratosource %{buildroot}/usr/django/
 cp -R resources %{buildroot}/usr/django/
 cp *cronjob.sh %{buildroot}/usr/django/
+cp notify.py %{buildroot}/usr/django/
 cp runmanage.sh %{buildroot}/usr/django/
 
 %clean
