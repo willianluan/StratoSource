@@ -4,8 +4,7 @@
 MAJOR=2
 MINOR=11
 PATCH=0
-REL=8
->>>>>>> Rebuilt with rally error handling
+REL=9
 VERSION=$MAJOR.$MINOR.$PATCH
 NAME=stratosource-$VERSION
 

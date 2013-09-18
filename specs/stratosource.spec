@@ -2,7 +2,7 @@
 
 Name:           stratosource
 Version: 2.11.0
-Release: 8
+Release: 9
 Summary:        Process git repo dumps of salesforce assets and provide web UI for the results
 
 Group:          Applications/Internet
@@ -53,6 +53,7 @@ mkdir -p %{buildroot}/usr/django
 cp -R stratosource %{buildroot}/usr/django/
 cp -R resources %{buildroot}/usr/django/
 cp *cronjob.sh %{buildroot}/usr/django/
+cp notify.py %{buildroot}/usr/django/
 cp runmanage.sh %{buildroot}/usr/django/
 
 %clean
