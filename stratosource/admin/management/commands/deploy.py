@@ -61,12 +61,14 @@ class Command(BaseCommand):
         if len(args) < 6: raise CommandError('usage: deploy <source repo> <source branch> <dest repo> <dest branch> story <storyid>')
 
         if args[4] == 'story':
-            story = Story.objects.get(rally_id=args[5])
+            stories = [Story.objects.get(rally_id = storyid) for storyid in args[5:]]
+#            story = Story.objects.get(rally_id=args[5])
             if not story: raise CommandException("invalid story")
             from_branch = Branch.objects.get(repo__name__exact=args[0], name__exact=args[1])
             if not from_branch: raise CommandException("invalid source branch")
             to_branch = Branch.objects.get(repo__name__exact=args[2], name__exact=args[3])
             if not to_branch: raise CommandException("invalid destination branch")
-            self.deploy_stories([story], from_branch, to_branch)
+            #self.deploy_stories([story], from_branch, to_branch)
+            self.deploy_stories(stories, from_branch, to_branch)
 
 
