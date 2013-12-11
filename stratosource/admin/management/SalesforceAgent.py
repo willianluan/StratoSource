@@ -32,7 +32,7 @@ from mq import MQClient
 __author__="mark"
 __date__ ="$Aug 15, 2010 9:48:38 PM$"
 
-_API_VERSION = 23.0
+_API_VERSION = 29.0
 _DEFAULT_LOGNAME = '/tmp/agent.log'
 _METADATA_TIMEOUT=60 * 80
 _METADATA_POLL_SLEEP=10
@@ -126,11 +126,14 @@ class SalesforceAgent:
         query = self.meta.factory.create('ListMetadataQuery')
         query.type = 'EmailTemplate'
         emailpaths = []
+        print 'folders = %s' % (len(folders),)
         for folder in folders:
             query.folder = folder
             self.logger.debug('listing contents of email folder %s' % folder)
+            #print 'getting props'
             props = self.meta.service.listMetadata([query], _API_VERSION)
             for prop in props:
+                #print 'prop is ' + prop.fullName
                 emailpaths.append(prop.fullName)
         ptm = self.meta.factory.create('PackageTypeMembers')
         ptm.name = 'EmailTemplate'
@@ -155,7 +158,7 @@ class SalesforceAgent:
         return props
 
     def retrieve_changesaudit(self, types, pod):
-        supportedtypelist = ['ApexClass','ApexPage','ApexTrigger','CustomObject','Workflow']
+        supportedtypelist = ['ApexClass','ApexPage','ApexTrigger','CustomObject','Workflow','ApprovalProcess']
         self.logger.info('loading changes for %s' % ','.join(supportedtypelist))
 
         # get intersection of requested types and those we support

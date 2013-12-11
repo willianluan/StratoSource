@@ -90,6 +90,7 @@ class BranchForm(forms.ModelForm):
         ('Scontrol', 'S-Controls'),
         ('StaticResource', 'Static resources'),
         ('Workflow', 'Workflows'),
+        ('ApprovalProcess', 'Approval processes'),
         ('EntitlementTemplate', 'Entitlement templates'),
     )
 
@@ -227,7 +228,10 @@ def createCGitEntry(branch):
     f.close()
 
 def removeCGitEntry(branch):
-    f = open(os.path.join(settings.ROOT_PATH, 'cgitrepo'), 'r')
+    p = os.path.join(settings.ROOT_PATH, 'cgitrepo')
+    if not os.path.exists(p):
+        return
+    f = open(p, 'r')
     lines = f.readlines()
     f.close()
     linecount = 0

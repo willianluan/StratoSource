@@ -37,7 +37,7 @@ typeMap = {'fields': 'CustomField','validationRules': 'ValidationRule',
             'pages': 'ApexPage', 'weblinks': 'CustomPageWebLink',
             'components': 'ApexComponent'}
 SF_NAMESPACE='{http://soap.sforce.com/2006/04/metadata}'
-_API_VERSION = "23.0"
+_API_VERSION = "29.0"
 
 
 def createFileCache(map):

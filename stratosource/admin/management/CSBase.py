@@ -27,7 +27,7 @@ from stratosource import settings
 ##
 _CSHOME=settings.PROJECT_PATH
 CSCONF_DIR=os.path.join(_CSHOME, 'conf')
-CS_SF_API_VERSION = '23.0'
+CS_SF_API_VERSION = '29.0'
 
 
 
