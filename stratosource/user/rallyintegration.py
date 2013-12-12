@@ -110,8 +110,18 @@ def connect():
     else:
         proxydict = {}
 
-    session = requests.session(headers=RALLY_REST_HEADERS, auth=credentials,
-                                    timeout=45.0, proxies=proxydict, config={})    
+    #Deprecated usage of requests
+    #session = requests.session(headers=RALLY_REST_HEADERS, auth=credentials,
+    #                                timeout=45.0, proxies=proxydict, config={})
+
+    session = requests.Session()
+    
+    session.headers = RALLY_REST_HEADERS
+    session.auth = credentials
+    session.timeout = 45.0
+    session.proxies = proxydict
+    session.config = {}
+        
     
     logger.debug('Logging in with username ' + rally_user)
 
@@ -145,7 +155,7 @@ def get_projects(leaves):
     if leaves:
         return sorted(leaf_list(projects,[]), key=attrgetter('name'))
     
-    return projects
+    return projects  
 
 def get_stories(projectIds):
     session = connect()
@@ -191,7 +201,47 @@ def get_stories(projectIds):
             lastPage = True
 
         start += pagesize
-    
+
+    querystring = '('
+
+    for projId in projectIds:
+        if len(querystring) > 1:
+            querystring += ' or '
+        if len(projectIds) > 1:
+            querystring += '('
+        querystring += 'Project = ' + projId
+        if len(projectIds) > 1:
+            querystring += ')'
+    querystring += ')'
+
+    start = 1
+    pagesize = 200
+    lastPage = False
+    while not(lastPage):
+        url = 'https://' + settings.RALLY_SERVER + '/slm/webservice/' + settings.RALLY_REST_VERSION + '/Defect.js?query' + urllib.quote(querystring) + '&fetch=true&start=' + str(start) + '&pagesize=' + str(pagesize)
+        
+        print 'Fetching defect url ' + url
+        resp = session.get(url)
+        print 'Got defect response ' + str(resp.status_code)
+        if resp.status_code != 200:
+            raise Exception('Error returned from Rally: ' + resp.text)
+
+        queryresult = json.loads(resp.text)
+
+        for result in queryresult['QueryResult']['Results']:
+            story = Story()
+            story.rally_id = result['FormattedID']
+            story.name = result['Name']
+            if result['Iteration']:
+                story.sprint = result['Iteration']['_refObjectName']
+            stories[story.rally_id] = story
+
+        print 'results: ' + str(queryresult['QueryResult']['TotalResultCount']) + ' start ' + str(start) + ' for pagesize ' + str(pagesize)
+        if queryresult['QueryResult']['TotalResultCount'] <= start + pagesize:
+            lastPage = True
+
+        start += pagesize
+
     return stories
 
 @transaction.commit_on_success    
@@ -216,3 +266,4 @@ def refresh():
                     
                 dbstory.sprint = story.sprint
                 dbstory.save()
+
