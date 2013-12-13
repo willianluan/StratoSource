@@ -34,7 +34,12 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        if len(args) < 2: raise CommandError('usage: <repo name> <branch>')
+        if len(args) < 2: raise CommandError('usage: <repo name> <branch> code|config|template')
+
+        if len(args) == 2:
+            dltype = 'code'
+        else:
+            dltype = args[2]
 
         self.logger = logging.getLogger('download')
 
@@ -48,6 +53,15 @@ class Command(BaseCommand):
 
         path = br.api_store
         types = [aType.strip() for aType in br.api_assets.split(',')]
+        if dltype == 'code':
+            actual_types = set(types) & set(['ApexClass','ApexTrigger','ApexPage','ApexComponent'])
+            types = actual_types
+        elif dltype == 'template':
+            actual_type = set(types) & set(['EmailTemplate'])
+            types = actual_types
+        else:
+            actual_types = set(types) - set(['ApexClass','ApexTrigger','ApexPage','ApexComponent','EmailTemplate'])
+            types = actual_types
 
         stamp = str(int(time.time()))
         filename = os.path.join(path, 'retrieve_{0}.zip'.format(stamp))

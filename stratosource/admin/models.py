@@ -74,16 +74,28 @@ class Branch(models.Model):
     api_auth =  models.CharField(max_length=50, blank=True, null=True)
     api_store = models.CharField(max_length=100, default='/tmp')
     api_assets= models.CharField(max_length=500,
-        default='EntitlementTemplate,HomePageComponent,ArticleType,ApexPage,ApexClass,ApexTrigger,ApexComponent,'+
-                'CustomPageWebLink,CustomLabels,CustomApplication,CustomObject,CustomObjectTranslation,Translations,'+
-                'CustomSite,CustomTab,DataCategoryGroup,HomePageLayout,Layout,Portal,Profile,RecordType,'+
-                'RemoteSiteSetting,ReportType,Scontrol,StaticResource,Workflow')
+        default='ApexPage,ApexClass,ApexTrigger,ApexComponent,'+
+                'CustomLabels,CustomObject,CustomObjectTranslation,Translations,'+
+                'RemoteSiteSetting,Workflow,ApprovalProcess')
     enabled = models.BooleanField(default=True)
-    cron_enabled = models.BooleanField(default=True)
+    # code cron
+    cron_enabled = models.BooleanField(default=False)
     cron_type = models.CharField(max_length=1, choices=CRONFREQ,default='h')
     run_status = models.CharField(max_length=1, choices=RUNSTATUS,default='u', blank=True, null=True)
     cron_interval = models.IntegerField(default=1)
     cron_start = models.CharField(max_length=5, default='0')
+    # config cron
+    config_cron_enabled = models.BooleanField(default=False)
+    config_cron_type = models.CharField(max_length=1, choices=CRONFREQ,default='h')
+    config_run_status = models.CharField(max_length=1, choices=RUNSTATUS,default='u', blank=True, null=True)
+    config_cron_interval = models.IntegerField(default=12)
+    config_cron_start = models.CharField(max_length=5, default='15')
+    # template cron
+    templ_cron_enabled = models.BooleanField(default=False)
+    templ_cron_type = models.CharField(max_length=1, choices=CRONFREQ,default='h')
+    templ_run_status = models.CharField(max_length=1, choices=RUNSTATUS,default='u', blank=True, null=True)
+    templ_cron_interval = models.IntegerField(default=12)
+    templ_cron_start = models.CharField(max_length=5, default='45')
 
     def __unicode__(self):
         return self.repo.name + " - " + self.name    

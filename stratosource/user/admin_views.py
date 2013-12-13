@@ -131,13 +131,33 @@ class BranchForm(forms.ModelForm):
         cron_type = cleaned_data.get('cron_type')
         cron_interval = int(cleaned_data.get('cron_interval'))
         cron_start = cleaned_data.get('cron_start')
-        order = cleaned_data.get('order')
         if cron_type == 'h':
             if cron_interval < 1 or cron_interval > 23:
                self._errors["cron_interval"] = self.error_class(['Interval must be between 1 and 23'])
             offset = int(cron_start)
             if offset < 0 or offset > 59:
                 self._errors["cron_start"] = self.error_class(['Start must be between 0 and 59'])
+
+        config_cron_type = cleaned_data.get('config_cron_type')
+        config_cron_interval = int(cleaned_data.get('config_cron_interval'))
+        config_cron_start = cleaned_data.get('config_cron_start')
+        if config_cron_type == 'h':
+            if config_cron_interval < 1 or config_cron_interval > 23:
+               self._errors["config_cron_interval"] = self.error_class(['Interval must be between 1 and 23'])
+            offset = int(config_cron_start)
+            if offset < 0 or offset > 59:
+                self._errors["config_cron_start"] = self.error_class(['Start must be between 0 and 59'])
+
+        templ_cron_type = cleaned_data.get('templ_cron_type')
+        templ_cron_interval = int(cleaned_data.get('templ_cron_interval'))
+        templ_cron_start = cleaned_data.get('templ_cron_start')
+        if templ_cron_type == 'h':
+            if templ_cron_interval < 1 or templ_cron_interval > 23:
+               self._errors["templ_cron_interval"] = self.error_class(['Interval must be between 1 and 23'])
+            offset = int(templ_cron_start)
+            if offset < 0 or offset > 59:
+                self._errors["templ_cron_start"] = self.error_class(['Start must be between 0 and 59'])
+        order = cleaned_data.get('order')
 
         return cleaned_data
 
@@ -193,6 +213,14 @@ def editbranch(request, branch_id):
             row.cron_interval = cleaned_data.get('cron_interval')
             row.cron_start = cleaned_data.get('cron_start')
             row.order = cleaned_data.get('order')
+            row.config_cron_enabled = cleaned_data.get('config_cron_enabled')
+            row.config_cron_type = cleaned_data.get('config_cron_type')
+            row.config_cron_interval = cleaned_data.get('config_cron_interval')
+            row.config_cron_start = cleaned_data.get('config_cron_start')
+            row.templ_cron_enabled = cleaned_data.get('templ_cron_enabled')
+            row.templ_cron_type = cleaned_data.get('templ_cron_type')
+            row.templ_cron_interval = cleaned_data.get('templ_cron_interval')
+            row.templ_cron_start = cleaned_data.get('templ_cron_start')
             row.save()
             updateCrontab(row)
             createCGitEntry(row)
@@ -254,22 +282,33 @@ def removeCGitEntry(branch):
 
 def createCrontab(branch):
     ctab = CronTab()
-    if branch.cron_type == 'h':
+    if branch.cron_enabled and branch.cron_type == 'h':
         if branch.cron_interval > 1:
             interval_list = [str(x) for x in range(0, 23, branch.cron_interval)]
             interval_str = ','.join(interval_list)
         else:
             interval_str = '*'
-        cronline = "%s %s * * * %s %s %s >/tmp/cronjob.out 2>&1" % (branch.cron_start, interval_str, os.path.join(settings.ROOT_PATH, 'cronjob.sh'), branch.repo.name, branch.name)
+        cronline = "%s %s * * * %s %s %s %s >/tmp/cronjob.out 2>&1" % (branch.cron_start, interval_str, os.path.join(settings.ROOT_PATH, 'cronjob.sh'), branch.repo.name, branch.name, 'code')
         logger.debug('Creating cron tab with line ' + cronline)
         item = CronItem(line=cronline + ' #' + (CRON_COMMENT + ' %d' % branch.id))
         ctab.add(item)
-        ctab.write()
+    ctab = CronTab()
+    if branch.config_cron_enabled and branch.config_cron_type == 'h':
+        if branch.config_cron_interval > 1:
+            interval_list = [str(x) for x in range(0, 23, branch.config_cron_interval)]
+            interval_str = ','.join(interval_list)
+        else:
+            interval_str = '*'
+        cronline = "%s %s * * * %s %s %s %s >/tmp/cronjob.out 2>&1" % (branch.cron_start, interval_str, os.path.join(settings.ROOT_PATH, 'cronjob.sh'), branch.repo.name, branch.name, 'config')
+        logger.debug('Creating cron tab with line ' + cronline)
+        item = CronItem(line=cronline + ' #' + (CRON_COMMENT + ' %d' % branch.id))
+        ctab.add(item)
+
+    ctab.write()
 
 def updateCrontab(branch):
     removeCrontab(branch)
-    if branch.cron_enabled:
-        return createCrontab(branch)
+    return createCrontab(branch)
     
 def removeCrontab(branch):
     ctab = CronTab()
@@ -278,11 +317,9 @@ def removeCrontab(branch):
     for item in ctab:
         if item.raw_line.find(comment) > -1:
             theItem = item
-            break
+            ctab.remove(theItem)
 
-    if theItem:
-        ctab.remove(theItem)
-        ctab.write()
+    ctab.write()
 
 
 def adminMenu(request):

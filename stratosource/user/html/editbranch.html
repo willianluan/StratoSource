@@ -181,23 +181,24 @@
                                 Whether or not this branch is active.
                             </td>
                         </tr>
+                        <!-- ============= [ code cron ] =============== -->
 
                         <tr>
                             <td align="right">
-                                <label for="id_cron_type">cron Enabled:</label>
+                                <label for="id_cron_type">Code cron Enabled:</label>
                                 {{ form.cron_enabled.errors }}
                             </td>
                             <td>
                                 {{ form.cron_enabled }}
                             </td>
                             <td>
-                                Whether or not we should schedule snapshots of this environment.
+                                Whether or not we should schedule code snapshots of this environment.
                             </td>
                         </tr>
 
                         <tr>
                             <td align="right">
-                                <label for="id_cron_type">cron Type:</label>
+                                <label for="id_cron_type">Code cron Type:</label>
                                 {{ form.cron_type.errors }}
                             </td>
                             <td>
@@ -211,7 +212,7 @@
 
                         <tr>
                             <td align="right">
-                                <label for="id_cron_interval">cron Interval:</label>
+                                <label for="id_cron_interval">Code cron Interval:</label>
                                 {{ form.cron_interval.errors }}
                             </td>
                             <td>
@@ -226,11 +227,125 @@
 
                         <tr>
                             <td align="right">
-                                <label for="id_cron_start">cron Start:</label>
+                                <label for="id_cron_start">Code cron Start:</label>
                                 {{ form.cron_start.errors }}
                             </td>
                             <td>
                                 {{ form.cron_start }}
+                            </td>
+                            <td>
+                                When to start, relative to the type. If type is Hourly, Start is in minutes. If type is Daily, Start is an actual time value. <br />
+                                ex. if type=Hourly, Interval=1, Start=15, then run every hour at 15 past the hour<br />
+                                ex. if type=Hourly, Interval=2, Start=0, then run every 2 hours at the top of the hour<br />
+                            </td>
+                        </tr>
+                        <!-- ============= [ config cron ] =============== -->
+                        <tr>
+                            <td align="right">
+                                <label for="id_config_cron_type">Config cron Enabled:</label>
+                                {{ form.config_cron_enabled.errors }}
+                            </td>
+                            <td>
+                                {{ form.config_cron_enabled }}
+                            </td>
+                            <td>
+                                Whether or not we should schedule config snapshots of this environment.
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td align="right">
+                                <label for="id_config_cron_type">Config cron Type:</label>
+                                {{ form.config_cron_type.errors }}
+                            </td>
+                            <td>
+                                {{ form.config_cron_type }}
+                            </td>
+                            <td>
+                                Type of cron job (Hourly only supported at this time). You can manually change
+                                the cron job yourself for finer levels of control.
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td align="right">
+                                <label for="id_config_cron_interval">Config cron Interval:</label>
+                                {{ form.config_cron_interval.errors }}
+                            </td>
+                            <td>
+                                {{ form.config_cron_interval }}
+                            </td>
+                            <td>
+                                How often to run <br />
+                                ex. if type=Hourly, Interval=3, then run every 3 hours <br />
+                                ex. if type=Hourly, Interval=1 then run every hour<br />
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td align="right">
+                                <label for="id_config_cron_start">Config cron Start:</label>
+                                {{ form.config_cron_start.errors }}
+                            </td>
+                            <td>
+                                {{ form.config_cron_start }}
+                            </td>
+                            <td>
+                                When to start, relative to the type. If type is Hourly, Start is in minutes. If type is Daily, Start is an actual time value. <br />
+                                ex. if type=Hourly, Interval=1, Start=15, then run every hour at 15 past the hour<br />
+                                ex. if type=Hourly, Interval=2, Start=0, then run every 2 hours at the top of the hour<br />
+                            </td>
+                        </tr>
+                        <!-- ============= [ template cron ] =============== -->
+                        <tr>
+                            <td align="right">
+                                <label for="id_templ_cron_type">Template cron Enabled:</label>
+                                {{ form.templ_cron_enabled.errors }}
+                            </td>
+                            <td>
+                                {{ form.templ_cron_enabled }}
+                            </td>
+                            <td>
+                                Whether or not we should schedule template snapshots of this environment.
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td align="right">
+                                <label for="id_config_cron_type">Template cron Type:</label>
+                                {{ form.templ_cron_type.errors }}
+                            </td>
+                            <td>
+                                {{ form.templ_cron_type }}
+                            </td>
+                            <td>
+                                Type of cron job (Hourly only supported at this time). You can manually change
+                                the cron job yourself for finer levels of control.
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td align="right">
+                                <label for="id_config_cron_interval">Template cron Interval:</label>
+                                {{ form.templ_cron_interval.errors }}
+                            </td>
+                            <td>
+                                {{ form.templ_cron_interval }}
+                            </td>
+                            <td>
+                                How often to run <br />
+                                ex. if type=Hourly, Interval=3, then run every 3 hours <br />
+                                ex. if type=Hourly, Interval=1 then run every hour<br />
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td align="right">
+                                <label for="id_config_cron_start">Template cron Start:</label>
+                                {{ form.templ_cron_start.errors }}
+                            </td>
+                            <td>
+                                {{ form.templ_cron_start }}
                             </td>
                             <td>
                                 When to start, relative to the type. If type is Hourly, Start is in minutes. If type is Daily, Start is an actual time value. <br />
