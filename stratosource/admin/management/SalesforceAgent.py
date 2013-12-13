@@ -115,12 +115,12 @@ class SalesforceAgent:
 
     def _buildEmailTemplatesPackage(self, pod):
         rest_conn = self.setupForRest(pod)
-        params = urllib.urlencode({'q': "select Id, Name from Folder where Type = 'Email'"})
+        params = urllib.urlencode({'q': "select Id, Name, DeveloperName from Folder where Type = 'Email'"})
         data = self._invokeGetREST(rest_conn, "query/?%s" % params)
 
         if not data == None:
             records = data['records']
-            folders = [record['Name'] for record in records]
+            folders = [record['DeveloperName'] for record in records]
         else:
             folders = []
         query = self.meta.factory.create('ListMetadataQuery')
