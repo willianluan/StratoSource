@@ -224,7 +224,8 @@ def getAllFullNames(doc, elementName, tagname='fullName'):
 #        allnames = [node.find(fqfullname).text for node in nodes]
         return allnames
     else:
-        logger.debug('No nodes found for %s' % elementName)
+        #logger.debug('No nodes found for %s' % elementName)
+        pass
     return []
 
 
@@ -312,7 +313,7 @@ def getLastChange(objectName, el_type, el_name):
     lastchangelist = list(UserChange.objects.filter(branch=working_branch, apex_name=fullName).order_by('-last_update'))
     if len(lastchangelist) > 0:
         return lastchangelist[0]
-    logger.debug('** Audit record not found for %s' % fullName)
+    #logger.debug('** Audit record not found for %s' % fullName)
     return None
 
 def getDeployableTranslation(branch, label, locale):
