@@ -292,7 +292,6 @@ def createCrontab(branch):
         logger.debug('Creating cron tab with line ' + cronline)
         item = CronItem(line=cronline + ' #' + (CRON_COMMENT + ' %d' % branch.id))
         ctab.add(item)
-    ctab = CronTab()
     if branch.config_cron_enabled and branch.config_cron_type == 'h':
         if branch.config_cron_interval > 1:
             interval_list = [str(x) for x in range(0, 23, branch.config_cron_interval)]
