@@ -298,10 +298,21 @@ def createCrontab(branch):
             interval_str = ','.join(interval_list)
         else:
             interval_str = '*'
-        cronline = "%s %s * * * %s %s %s %s >/tmp/cronjob.out 2>&1" % (branch.cron_start, interval_str, os.path.join(settings.ROOT_PATH, 'cronjob.sh'), branch.repo.name, branch.name, 'config')
+        cronline = "%s %s * * * %s %s %s %s >/tmp/cronjob.out 2>&1" % (branch.config_cron_start, interval_str, os.path.join(settings.ROOT_PATH, 'cronjob.sh'), branch.repo.name, branch.name, 'config')
         logger.debug('Creating cron tab with line ' + cronline)
         item = CronItem(line=cronline + ' #' + (CRON_COMMENT + ' %d' % branch.id))
         ctab.add(item)
+    if branch.templ_cron_enabled and branch.templ_cron_type == 'h':
+        if branch.templ_cron_interval > 1:
+            interval_list = [str(x) for x in range(0, 23, branch.templ_cron_interval)]
+            interval_str = ','.join(interval_list)
+        else:
+            interval_str = '*'
+        cronline = "%s %s * * * %s %s %s %s >/tmp/cronjob.out 2>&1" % (branch.templ_cron_start, interval_str, os.path.join(settings.ROOT_PATH, 'cronjob.sh'), branch.repo.name, branch.name, 'template')
+        logger.debug('Creating cron tab with line ' + cronline)
+        item = CronItem(line=cronline + ' #' + (CRON_COMMENT + ' %d' % branch.id))
+        ctab.add(item)
+
 
     ctab.write()
 
@@ -312,12 +323,12 @@ def updateCrontab(branch):
 def removeCrontab(branch):
     ctab = CronTab()
     comment = CRON_COMMENT + ' %d' % branch.id
-    theItem = None
+    trash = []
     for item in ctab:
         if item.raw_line.find(comment) > -1:
-            theItem = item
-            ctab.remove(theItem)
+            trash.append(item)
 
+    for item in trash: ctab.remove(item)
     ctab.write()
 
 
