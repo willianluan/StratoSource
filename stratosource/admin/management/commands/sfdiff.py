@@ -24,6 +24,7 @@ import logging
 from datetime import datetime
 from django.db import transaction
 from lxml import etree
+from stratosource.admin.management.mq import MQClient
 from django.db.models import Max
 import stratosource.admin.management.CSBase # used to initialize logging
 from stratosource.admin.management.SalesforceAgent import SalesforceAgent
@@ -287,6 +288,8 @@ def getDeployable(branch, objectName, objectType, el_type, el_name, el_subtype =
 
 
 def insertDeltas(commit, objectName, type, items, delta_type, el_type, el_subtype = None):
+    global mqclient
+
     for item in items:
         deployable = getDeployable(commit.branch, objectName, type, el_type, item, el_subtype)
         delta = Delta()
@@ -295,6 +298,8 @@ def insertDeltas(commit, objectName, type, items, delta_type, el_type, el_subtyp
         delta.commit = commit
         delta.delta_type = delta_type
         delta.save()
+        if not delta.user_change is None:
+            mqclient.publish({ 'user':delta.user_change.sfuser.name.encode('ascii','ignore'), 'commit':commit.hash, 'dtype':delta_type, 'type':type, 'item':item, 'last_update':delta.user_change.last_update.isoformat() })
 
 def getLastChange(objectName, el_type, el_name):
     fullName = objectName
@@ -637,6 +642,14 @@ def analyzeCommit(branch, commit):
                     pass
                 delta.delta_type = delta_type
                 delta.save()
+                if not delta.user_change is None:
+                    print 'user %s' % (delta.user_change.sfuser.name,)
+                    print 'commit %s' % (commit,)
+                    print 'dtype %s' % (delta_type,)
+                    print 'otype %s' % (otype,)
+                    print 'item %s' % (listitem,)
+                    
+                    mqclient.publish({ 'user':delta.user_change.sfuser.name.encode('ascii','ignore'), 'commit':commit.hash, 'dtype':delta_type, 'type':otype, 'item':listitem, 'last_update':delta.user_change.last_update.isoformat() })
 
     commit.status = 'c'
     commit.save()
@@ -664,11 +677,13 @@ def generateAnalysis(branch, start_date):
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        global documentCache, logger
+        global documentCache, logger, mqclient
 
         if len(args) < 2: raise CommandError('usage: sfdiff <repo alias> <branch> {start date mm-dd-yyyy}')
         repo = Repo.objects.get(name__exact=args[0])
         branch = Branch.objects.get(repo=repo, name__exact=args[1])
+
+        mqclient = MQClient(exch='delta')
 
         logger = logging.getLogger('sfdiff')
 

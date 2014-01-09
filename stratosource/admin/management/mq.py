@@ -10,23 +10,29 @@ class MQClient:
     def __init__(self, exch = 'notices'):
         self.connection = None
         self.channel = None
+        self.exchange = exch
         try:
             self.connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
             self.channel = self.connection.channel()
             self.channel.exchange_declare(exchange=exch, type='fanout')
         except Exception as ex:
-            print 'MQ broker not found on localhost, disabling publishing'
-            print ex
+#            print 'MQ broker not found on localhost, disabling publishing'
+#            print ex
+            pass
 
     def publish(self, message, level = 'info'):
-        if not self.channel: return
-        payload = { 'publisher': 'stratosource', 'level': level, 'when': datetime.now().isoformat(), 'messagetype': 'json', 'message': message }
+        if not self.channel:
+            return
+        payload = { 'publisher': 'stratosource', 'level': level, 'when': datetime.now().isoformat() }
         if isinstance(message, str):
             payload['messagetype'] =  'string'
+            payload['message'] = message
         elif isinstance(message, dict):
             payload['messagetype'] =  'json'
-        payload['message'] = message
-        self.channel.basic_publish(exchange='notices', routing_key='', body=json.dumps(payload))
+            payload['payload'] = message
+        print '!!! PAYLOAD !!!!'
+        print payload
+        self.channel.basic_publish(exchange=self.exchange, routing_key='', body=json.dumps(payload))
         return self
 
     def close(self):
