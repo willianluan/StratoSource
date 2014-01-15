@@ -240,7 +240,6 @@ def getstories(request):
                 stories = Story.objects.filter(sprint=sprint).order_by('rally_id', 'name')
             else:
                 stories = Story.objects.all().order_by('rally_id', 'name')
-    
             for story in stories:
                 if len(story.rally_id) > 0:
                     name = story.rally_id + ': '

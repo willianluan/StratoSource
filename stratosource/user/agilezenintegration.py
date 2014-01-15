@@ -18,6 +18,7 @@
 #import json
 #import urllib
 import requests
+import re
 from stratosource.admin.management import ConfigCache
 from stratosource.admin.models import Story
 from stratosource import settings
@@ -78,20 +79,26 @@ def get_stories(projectIds):
             for result in story_list:
                 #print result
                 phase = result[u'phase']
-                ignorestates = [u'Backlog', u'Ready', u'Archive',  u'Release Candidate / Production']
+                ignorestates = [u'Backlog']
                 if not phase[u'name'] in ignorestates:
                     story = Story()
                     story.rally_id = result[u'id']
                     story.name = result[u'text'][0:100]
                     story.sprint = result[u'text'][0:3]
                     story.url = agileurl+'project/'+ projId +'/story/%d'%result[u'id']
+                    project = result[u'project']
+                    project_name = project[u'name']
+                    projshort_name = ''
                     try:
-                        story.sprint = '%s - %s' % (projId, result[u'deadline'])
-                        #story.release_date = result[u'deadline']
+                        projshort_name = (re.search( r'\(.*?\)', project_name)).group()
                     except:
-                        story.sprint = '%s'%projId
-                        logger.debug('no deadline for story %d'%story.rally_id)
-                    stories[story.rally_id] = story
+                        #expected the project name to have a short name in ()
+                        #this will cut the name down to 10 characters and append ERRNOPAREN
+                        projshort_name = '%s-%s' % (project_name[0:10],'(ERRNOPAREN)')
+                    story.sprint = '%s - %s' % (projId, projshort_name)
+                    storykey = '%s-%s' % (story.rally_id, story.sprint)
+                    #print 'generated key for stories list - %s' % storykey
+                    stories[storykey] = story
                     
             if count == 0:
                 lastPage = True
@@ -101,29 +108,34 @@ def get_stories(projectIds):
 
 @transaction.commit_on_success    
 def refresh():
-        projectList = ConfigCache.get_config_value('rally.pickedprojects')
-        #print 'project list: '+projectList
-        if len(projectList) > 0:
-            rallyStories = get_stories(projectList.split(';'))
-            dbstories = Story.objects.filter(rally_id__in=rallyStories.keys())
-            dbStoryMap = {}
-            for dbstory in dbstories:
-                #print 'storing story %d' % int(dbstory.rally_id)
-                dbStoryMap[int(dbstory.rally_id)] = dbstory
-
-            for story in rallyStories.values():
-                dbstory = story
-                if story.rally_id in dbStoryMap:
-                    #print 'match found %d' % story.rally_id
-                    logger.debug('Updating [%d]' % story.rally_id)
-                    # Override with database version if it exists
-                    dbstory = dbStoryMap[story.rally_id]
-                    dbstory.url = story.url
-                    dbstory.name = story.name
-                    dbstory.sprint = story.sprint
-                else:
-                    #print 'no match found %d' % story.rally_id
-                    logger.debug('Creating [%d]' % story.rally_id)
-                    dbstory.sprint = story.sprint
+    projectList = ConfigCache.get_config_value('rally.pickedprojects')
+    #print 'project list: '+projectList
+    if len(projectList) > 0:
+        rallyStories = get_stories(projectList.split(';'))
+        dbstories = Story.objects.all()
+        dbStoryMap = {}
+        for dbstory in dbstories:
+            # generage a key here based on the project id (rally_id) and (sprint)
+            # previously generating a key based only in rally_id lead to stories
+            # across projects getting confused (eg: proj1-story1 == proj2-story1)
+            # creating a more complex key resolves that logical error
+            key = '%s-%s' % (dbstory.rally_id, dbstory.sprint)
+            dbStoryMap[key] = dbstory
+        for story in rallyStories.values():
+            dbstory = story
+            storykey = '%s-%s' % (story.rally_id, story.sprint)
+            if (storykey in dbStoryMap):
+                # This logic is used to update a story when it already exists
+                # and has been downloaded again
+                logger.debug('Updating [%d]-sprint[%s]' % (story.rally_id, story.sprint))
+                # Override with database version if it exists
+                dbstory = dbStoryMap[storykey]
+                dbstory.url = story.url
+                dbstory.name = story.name
+                dbstory.sprint = story.sprint
+            else:
+                #print 'no match found %d' % story.rally_id
+                logger.debug('Creating [%d]' % story.rally_id)
+                dbstory.sprint = story.sprint
                 
-                dbstory.save()
+            dbstory.save()
