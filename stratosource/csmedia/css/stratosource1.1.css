@@ -237,6 +237,11 @@ input, textarea, select, .form-row p {
     color: #555555;
 }
 
+.line_item_p a.warning {
+  background-color: red;
+  color: white;
+}
+
 .line_item_c {
     font-weight: bold;
     padding: 3px;
@@ -259,3 +264,5 @@ input, textarea, select, .form-row p {
 #ui-datepicker-div {
     display:none;
 }
+
+

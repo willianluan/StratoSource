@@ -232,7 +232,7 @@ def manifest(request, release_id):
     branch = Branch()
     
     if request.GET.__contains__('branch'):
-        #release_story_id_list = Set([story.rally_id for story in release.stories.all])
+        release_story_id_list = set([story.rally_id for story in release.stories.all()])
         
         branch = Branch.objects.get(id=request.GET.get('branch'))
         for story in release.stories.all():
@@ -243,10 +243,18 @@ def manifest(request, release_id):
             manifest += list(deployables)
             manifest += list(dep_objects)
 
-    #for deployable in manifest:
-    #    for story in deployable.pending_stories.all():
-    #        if not story.rally_id in release_story_id_list:
-    #            story.__dict__['hasWarning'] = True
+    for deployable in manifest:
+        #
+        # it is necessary to copy pending_stories.all() to a non-django array to
+        # preserve custom data we are attaching to pass to the UI
+        #
+        deployable.stories = []
+        for story in deployable.pending_stories.all():
+            deployable.stories.append(story)
+            if not story.rally_id in release_story_id_list:
+                story.status = 'warning'
+            else:
+                story.status = 'confirmed'
 
     manifest.sort(key=lambda object: object.type+object.filename)
     branches = Branch.objects.filter(enabled__exact = True).order_by('order')

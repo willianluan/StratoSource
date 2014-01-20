@@ -6,6 +6,7 @@
 Manifest for "{{release.name|upper}}"
 {% endblock %}
 
+
 {% block jscript %}
     <script type="text/javascript">
         release_id = '{{ release.id }}';
@@ -144,8 +145,8 @@ Manifest for "{{release.name|upper}}"
                                 {% endif %}
                             </td>
                             <td>
-                                {% for story in object.pending_stories.all %}
-                                    <a href="/instory/{{story.id}}?branch_name={{branch_name}}" title="{{ story.name }}">{{ story.rally_id }}</a>
+                                {% for story in object.stories %}
+                                   <a class="{{story.status}}" href="/instory/{{story.id}}?branch_name={{branch_name}}" title="{{ story.name }}">{{ story.rally_id }}</a>
                                 {% empty %}
                                 {% endfor %}
                             </td>
