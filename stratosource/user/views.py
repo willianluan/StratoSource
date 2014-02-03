@@ -24,6 +24,7 @@ import re
 from django.template import RequestContext
 from django.shortcuts import render_to_response, redirect
 from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 from stratosource.admin.models import DeploymentPushStatus, DeploymentPackage, Story, Release, ReleaseTask, DeployableObject, DeployableTranslation, Delta, Branch, ConfigSetting, UserChange, SalesforceUser, Repo
 from stratosource.user import rallyintegration
 from stratosource.user import agilezenintegration
@@ -564,3 +565,36 @@ def rally_projects(request):
 
     data = {'projects': projects}
     return render_to_response('rally_projects.html', data, context_instance=RequestContext(request))
+
+@csrf_exempt
+def assign_to_story(request):
+    if request.method == u'POST':
+        response = HttpResponse()
+        file_name = request.POST.get('file_name')
+        story_name = request.POST.get('story_num')
+
+        response.write('Attempting to associate ' + file_name + ' to story ' + story_name)
+
+        try:
+            objects = DeployableObject.objects.get(filename=file_name)
+        except:
+            response.write('****[OPERATION FAILED]: File not found in StratoSource')
+            return response
+
+        try:
+            story = Story.objects.get(rally_id=story_name)
+        except:
+            response.write('****[OPERATION FAILED]: Story not found in StratoSource. Please ensure the following:')
+            response.write('****[OPERATION FAILED]: 1. The story you entered exists in StratoSource')
+            response.write('****[OPERATION FAILED]: 2. The story name is entered correctly (example: for Rally story US26984, anything other than exactly US26984 will return an error)')
+            return response
+
+        if (len(objects.pending_stories.all()) == 0):
+            response.write('****No conflict detected. Associating item with story...')
+            objects.pending_stories.add(story)
+            response.write('****Successfully assigned ' + objects.filename + ' to ' + story_name)
+        else:
+            response.write('****Conflict detected with the following stories...')
+            response.write('****' + str(objects.pending_stories.all()))
+
+        return response
