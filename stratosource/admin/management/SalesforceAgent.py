@@ -196,7 +196,9 @@ class SalesforceAgent:
         self.rest_headers = {"Authorization": "OAuth %s" % self.getSessionId(), "Content-Type": "application/json" }
         serverloc = pod + '.salesforce.com'
         self.logger.info('connecting to REST endpoint at %s' % serverloc)
-        return httplib.HTTPSConnection(serverloc)
+        httpcon = httplib.HTTPSConnection(serverloc)
+        if not self.proxy_host is None: httpcon.set_tunnel(self.proxy_host, self.proxy_port)
+        return httpcon
 
     #### DEFUNCT (I think) ####
     def retrieve_userchanges(self, pod):
