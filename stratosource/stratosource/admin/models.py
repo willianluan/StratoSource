@@ -30,6 +30,9 @@ class ConfigSetting(models.Model):
     type            = models.CharField(max_length=20, default='text')
     allow_delete    = models.BooleanField(default=True)
     masked          = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = u'admin_configsetting'
   
 #class UserDetails(models.Model):
 #    USER_TYPES = (('dev','Developer'),('bua','Business Analyst'),('evm','Environment Manager'),('unk','Unknown'))
