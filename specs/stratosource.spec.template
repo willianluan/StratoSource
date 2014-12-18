@@ -50,7 +50,13 @@ Process git repo dumps of salesforce assets and provide web UI for the results
 %setup -q
 
 %install
+# create home dir if not exists
 mkdir -p %{buildroot}/usr/django
+
+# remove all existing files first
+rm -rf %{buildroot}/usr/django/stratosource
+
+# copy in all the files
 cp -R stratosource %{buildroot}/usr/django/
 cp -R resources %{buildroot}/usr/django/
 cp *cronjob.sh %{buildroot}/usr/django/
@@ -88,11 +94,11 @@ mysql_install_db
 echo 'configuring cgit'
 eval grep django /etc/cgitrc
 if [ $? -eq 1 ]; then
-  echo "include=/usr/django/cgitrepo" >>/etc/cgitrc
+  echo "include=/usr/django/stratosource/cgitrepo" >>/etc/cgitrc
 fi
 if [ ! -f /usr/django/cgitrepo ]; then
-  cp /usr/django/resources/cgitrepo /usr/django
-  chmod 777 /usr/django/cgitrepo
+  cp /usr/django/resources/cgitrepo /usr/django/stratosource
+  chmod 777 /usr/django/stratosource/cgitrepo
 fi
 
 echo 'installing pyexcelerator'
@@ -105,7 +111,7 @@ sed -i "s|SELINUX=enforcing|SELINUX=disabled|" /etc/selinux/conf
 
 cp /usr/django/resources/my.cnf /etc
 cp /usr/django/resources/memcached /etc/sysconfig
-cp /usr/django/resources/django.wsgi /usr/django
+cp /usr/django/resources/django.wsgi /usr/django/stratosource
 mkdir /usr/django/logs
 chmod 777 /usr/django/logs
 mkdir /var/sfrepo
