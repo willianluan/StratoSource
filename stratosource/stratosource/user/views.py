@@ -263,6 +263,50 @@ def manifest(request, release_id):
     return render_to_response('release_manifest.html', data, context_instance=RequestContext(request))
 
 
+def search(request):
+    repos = Repo.objects.all()
+    searchText = ''
+    selectedRepo = ''
+    selectedBranch = ''
+    if request.GET.__contains__('searchText'): searchText = request.GET['searchText']
+    if request.GET.__contains__('selectedRepo'): selectedRepo = request.GET['selectedRepo']
+    if request.GET.__contains__('selectedBranch'): selectedBranch = request.GET['selectedBranch']
+
+    if request.GET.__contains__('selectedRepo'):
+        repo = Repo.objects.get(name__exact=selectedRepo)
+        branches = Branch.objects.filter(repo=repo, enabled__exact = True).order_by('order')
+    else:
+        branches = []
+    results = []
+    if request.GET.__contains__('go'):
+
+        repo = Repo.objects.get(name__exact=selectedRepo)
+        #branch = Branch.objects.get(repo=repo, name__exact=selectedBranch)
+        results = {}
+        results['classes'] = doGrep(repo.location + '/unpackaged/classes', 'cls', searchText)
+        results['triggers'] = doGrep(repo.location + '/unpackaged/triggers', 'trigger', searchText)
+        results['pages'] = doGrep(repo.location + '/unpackaged/pages', 'page', searchText)
+
+    data = {'results': results, 'repos': repos, 'branches': branches, 'searchText': searchText, 'selectedRepo': selectedRepo, 'selectedBranch': selectedBranch}
+    return render_to_response('search.html', data, context_instance=RequestContext(request))
+
+def doGrep(codedir, ext, text):
+    import os, subprocess
+    os.chdir(codedir)
+    cmd = "grep -i '{0}' *.{1}".format(text, ext)
+    print('STARTING ' + cmd)
+    ps = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
+    output = ps.communicate()[0]
+    lines = output.split('\n')
+    results = []
+    for line in lines:
+        i = line.find('\t')
+        if i != -1:
+            filename = line[0:i]
+            results.append({'filename': filename, 'match': line[i:].strip()})
+    return results
+
+
 def releases(request):
     unreleased = Release.objects.filter(released__exact=False)
 
