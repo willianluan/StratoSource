@@ -32,18 +32,18 @@ function refreshBranches() {
     <div id="content" class="colMS">
         <div id="content-main">
 
-			<select name="cboRepo" id="selectedRepo" onchange="refreshBranches();">
+			Repo: <select name="cboRepo" id="selectedRepo" onchange="refreshBranches();">
 				{% for repo in repos %}
 					<option value="{{ repo.name }}" {% if repo.name == selectedRepo %}selected{% endif %} >{{ repo.name }}</option>
 				{% endfor %}
-			</select>
-			<select name="cboBranch" id="selectedBranch">
+			</select> &nbsp;&nbsp;
+			Branch: <select name="cboBranch" id="selectedBranch">
 				{% for branch in branches %}
 					<option value="{{ branch.repo.name }}" {% if branch.name == selectedBranch %}selected{% endif %} >{{ branch.name }}</option>
 				{% endfor %}
-			</select>
+			</select>&nbsp;&nbsp;
 
-			Text: <input type="text" id="txtSearch" id="txtSearch" value="{{ searchText }}"/>
+			Text: <input type="text" id="txtSearch" id="txtSearch" size="50" value="{{ searchText }}"/>
 
 			<input type="button" onclick="submitSearch();" value="Search">
 			<hr />
