@@ -175,21 +175,23 @@ class SalesforceAgent:
         #
         # now do the types that diverge from the norm
         #
-        rest_conn = self.setupForRest(pod)
-        self.logger.info('loading changes for EmailTemplate')
-        tmpemails = self._getEmailChangesMap(rest_conn)
-        etemplates = []
-        for tmpemail in tmpemails:
-            template = Bag()
-            template.__dict__['fullName'] = tmpemail['DeveloperName'] + '.email'
-            template.__dict__['lastModifiedById'] = tmpemail['LastModifiedById']
-            template.__dict__['lastModifiedByName'] = tmpemail['LastModifiedBy']['Name']
-            template.__dict__['id'] = tmpemail['Id']
-            lmd = tmpemail['LastModifiedDate'][0:-9]
-            template.__dict__['lastModifiedDate'] = datetime.datetime.strptime(lmd, '%Y-%m-%dT%H:%M:%S')
-            etemplates.append(template)
-        results['EmailTemplate'] = etemplates
-        self.logger.debug('Loaded %d EmailTemplate records' % len(etemplates))
+        # NO LONGER DOING EMAIL TEMPLATES DUE TO THE CRAZY BULK OF THE DATA INVOLVED
+        #
+#        rest_conn = self.setupForRest(pod)
+#        self.logger.info('loading changes for EmailTemplate')
+#        tmpemails = self._getEmailChangesMap(rest_conn)
+#        etemplates = []
+#        for tmpemail in tmpemails:
+#            template = Bag()
+#            template.__dict__['fullName'] = tmpemail['DeveloperName'] + '.email'
+#            template.__dict__['lastModifiedById'] = tmpemail['LastModifiedById']
+#            template.__dict__['lastModifiedByName'] = tmpemail['LastModifiedBy']['Name']
+#            template.__dict__['id'] = tmpemail['Id']
+#            lmd = tmpemail['LastModifiedDate'][0:-9]
+#            template.__dict__['lastModifiedDate'] = datetime.datetime.strptime(lmd, '%Y-%m-%dT%H:%M:%S')
+#            etemplates.append(template)
+#        results['EmailTemplate'] = etemplates
+#        self.logger.debug('Loaded %d EmailTemplate records' % len(etemplates))
         return results
 
     def setupForRest(self, pod):
