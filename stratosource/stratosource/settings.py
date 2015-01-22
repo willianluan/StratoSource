@@ -30,6 +30,19 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
+EMAIL_PORT = 25
+#EMAIL_HOST = ''
+#EMAIL_HOST_USER = ''
+#EMAIL_HOST_PASSWORD = ''
+#EMAIL_USE_TLS = ''
+
+RALLY_REST_VERSION = '1.39'
+RALLY_SERVER = 'rally1.rallydev.com'
+# If you use community
+#RALLY_SERVER = 'community.rallydev.com'
+
+
+
 
 # Application definition
 
